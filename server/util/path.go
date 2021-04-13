@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// EnsureDirExists that there exists a directory for storing the given
+// EnsureDirExists makes sure that there exists a directory for storing the given
 // file in the local filesystem.
 func EnsureDirExists(path string) error {
 	st, err := os.Stat(path)
@@ -26,7 +26,7 @@ func EnsureDirExists(path string) error {
 }
 
 // ReplaceEnvs replaces some environment variable references with their contents.
-// Currently supported: $HOME
+// Currently supported: $HOME and $HOSTNAME.
 func ReplaceEnvs(s string) string {
 	homeDir := os.Getenv("HOME")
 	hostname := os.Getenv("HOSTNAME")

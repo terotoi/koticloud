@@ -21,7 +21,7 @@ This command builds two docker images: "koticloud" for the application and "koti
 
 > docker-compose up
 
-The server can then be reached using http://localhost:7080
+The server can then be reached using http://localhost:7070
 
 Use "admin" as username and password.
 
