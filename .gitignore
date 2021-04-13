@@ -1,0 +1,14 @@
+server/koticloud
+cli/koticli
+notes
+etc/settings
+matui/node_modules
+matui/static/main.*
+matui/static/fonts
+*~
+#*#
+.vscode
+*.gz
+*.tar
+docker-compose.yml
+etc/config_demo.json
