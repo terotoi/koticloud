@@ -13,18 +13,19 @@ import TableRow from '@material-ui/core/TableRow'
 
 const styles = makeStyles((theme) => ({
 	thumb: {
-		width: '40pt', // '70pt' for 16:9 thumbs
+		width: '70pt', 
 		height: '40pt',
 		objectFit: 'contain',
 		borderWidth: '2pt',
-		borderColor: theme.palette.primary.light,
+		borderColor: theme.palette.primary.main,
 		borderRadius: '5%'
 	},
 	customThumb: {
 		borderStyle: 'solid',
 	},
 	dirThumb: {
-		borderStyle: 'dashed'
+		borderStyle: 'dashed',
+		borderColor: theme.palette.primary.main
 	},
 	filename: {
 		marginLeft: theme.spacing(2),

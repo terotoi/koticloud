@@ -7,9 +7,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   viewBox="0 0 20 20"
+   viewBox="0 0 20 18"
    width="100"
-   height="100"
+   height="90"
    version="1.1"
    id="svg584"
    sodipodi:docname="audio-flac.svg"
@@ -42,7 +42,7 @@
      id="namedview586"
      showgrid="false"
      inkscape:zoom="3.8833333"
-     inkscape:cx="18.329599"
+     inkscape:cx="-38.451517"
      inkscape:cy="60.264868"
      inkscape:window-x="913"
      inkscape:window-y="235"
@@ -54,8 +54,8 @@
      d="M 0,0 H 24 V 24 H 0 Z"
      id="path580" />
   <path
-     d="M 14.444444,0 20,5 V 19.008 A 1.1033333,0.993 0 0 1 18.896667,20 H 1.1033333 A 1.1111111,1 0 0 1 0,19.008 V 0.992 C 0,0.444 0.49444444,0 1.1033333,0 Z M 8.8888889,10.05 A 2.7777778,2.5 0 1 0 11.111111,12.5 V 8 h 3.333333 V 6 H 8.8888889 Z"
+     d="M 14.444444,0 20,4.5 V 17.1072 A 1.1033333,0.8937 0 0 1 18.896667,18 H 1.1033333 A 1.1111111,0.9 0 0 1 0,17.1072 V 0.8928 C 0,0.3996 0.49444444,0 1.1033333,0 Z M 8.8888889,9.045 A 2.7777778,2.25 0 1 0 11.111111,11.25 V 7.2 h 3.333333 V 5.4 H 8.8888889 Z"
      fill="rgba(193,182,133,1)"
      id="path582"
-     style="stroke-width:1.05409" />
+     style="stroke-width:0.999995" />
 </svg>

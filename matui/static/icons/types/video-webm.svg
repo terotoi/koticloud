@@ -7,9 +7,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   viewBox="0 0 20 20"
+   viewBox="0 0 20 18"
    width="100"
-   height="100"
+   height="90"
    version="1.1"
    id="svg932"
    sodipodi:docname="video-webm.svg"
@@ -42,19 +42,20 @@
      id="namedview934"
      showgrid="false"
      inkscape:zoom="2.7459313"
-     inkscape:cx="20.375416"
+     inkscape:cx="-59.925209"
      inkscape:cy="65.082437"
-     inkscape:window-x="961"
-     inkscape:window-y="328"
+     inkscape:window-x="597"
+     inkscape:window-y="367"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg932" />
+     inkscape:current-layer="svg932"
+     inkscape:document-rotation="0" />
   <path
      fill="none"
      d="M 0,0 H 24 V 24 H 0 Z"
      id="path928" />
   <path
-     d="M 0,1.1033333 A 1,1.1111111 0 0 1 0.992,0 H 19.008 C 19.556,0 20,0.49444444 20,1.1033333 V 18.896667 A 1,1.1111111 0 0 1 19.008,20 H 0.992 A 0.993,1.1033333 0 0 1 0,18.896667 Z M 8.622,6.0166667 A 0.4,0.44444444 0 0 0 8,6.3855556 v 7.2288884 a 0.4,0.44444444 0 0 0 0.622,0.368889 L 13.501,10.37 a 0.4,0.44444444 0 0 0 0,-0.74 L 8.621,6.0166667 Z"
+     d="M 0,0.99299997 A 1,0.99999999 0 0 1 0.992,0 H 19.008 C 19.556,0 20,0.445 20,0.99299997 V 17.007 A 1,0.99999999 0 0 1 19.008,18 H 0.992 A 0.993,0.99299997 0 0 1 0,17.007 Z M 8.622,5.415 A 0.4,0.4 0 0 0 8,5.747 v 6.506 a 0.4,0.4 0 0 0 0.622,0.332 l 4.879,-3.252 a 0.4,0.4 0 0 0 0,-0.666 L 8.621,5.415 Z"
      fill="rgba(193,182,133,1)"
      id="path930"
-     style="stroke-width:1.05409" />
+     style="stroke-width:0.999998" />
 </svg>

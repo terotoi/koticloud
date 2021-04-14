@@ -15,14 +15,20 @@ const thumbWidth = 600
 func generateImageThumbnail(src, dst, method string) error {
 	var command string
 	switch method {
+	default:
+		fallthrough
 	case "scale_width":
 		command = fmt.Sprintf("convert \"%s\" -scale %dx \"%s\"", src, thumbWidth, dst)
 
-	default:
-		fallthrough
 	case "crop_11":
+		// NOTE: does not work well with posters, because the thumbs are also used for them.
 		command = fmt.Sprintf("convert \"%s\" -geometry %dx%d^ -gravity center -crop %dx%d+0+0 \"%s\"",
 			src, thumbWidth, thumbWidth, thumbWidth, thumbWidth, dst)
+
+	case "crop_43":
+		// NOTE: does not work well with posters, because the thumbs are also used for them.
+		command = fmt.Sprintf("convert \"%s\" -geometry %dx%d^ -gravity center -crop %dx%d+0+0 \"%s\"",
+			src, thumbWidth, thumbWidth, int(thumbWidth*(3.0/4.0)), thumbWidth, dst)
 	}
 	_, err := util.Exec(command)
 	return err

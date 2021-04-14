@@ -7,9 +7,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   viewBox="0 0 20 20"
+   viewBox="0 0 20 18"
    width="100"
-   height="100"
+   height="90"
    version="1.1"
    id="svg260"
    sodipodi:docname="application-octet_stream.svg"
@@ -42,10 +42,10 @@
      id="namedview262"
      showgrid="false"
      inkscape:zoom="3.8833333"
-     inkscape:cx="58.605559"
+     inkscape:cx="1.8244426"
      inkscape:cy="46.613279"
-     inkscape:window-x="836"
-     inkscape:window-y="311"
+     inkscape:window-x="449"
+     inkscape:window-y="199"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg260"
      inkscape:document-rotation="0" />
@@ -54,8 +54,8 @@
      d="M 0,0 H 24 V 24 H 0 Z"
      id="path256" />
   <path
-     d="M 14.444444,0 20,5 V 19.008 A 1.1033333,0.993 0 0 1 18.896667,20 H 1.1033333 A 1.1111111,1 0 0 1 0,19.008 V 0.992 C 0,0.444 0.49444444,0 1.1033333,0 Z M 8.8888889,13 v 2 H 11.111111 V 13 Z M 11.111111,11.355 A 3.8911111,3.502 0 0 0 10,4.5 3.89,3.501 0 0 0 6.1855556,7.313 l 2.18,0.393 A 1.6666667,1.5 0 1 1 10,9.5 1.1111111,1 0 0 0 8.8888889,10.5 V 12 h 2.2222221 z"
+     d="M 14.444444,0 20,4.5 V 17.1072 A 1.1033333,0.8937 0 0 1 18.896667,18 H 1.1033333 A 1.1111111,0.9 0 0 1 0,17.1072 V 0.8928 C 0,0.3996 0.49444444,0 1.1033333,0 Z M 8.8888889,11.7 v 1.8 H 11.111111 V 11.7 Z M 11.111111,10.2195 A 3.8911111,3.1518 0 0 0 10,4.05 3.89,3.1509 0 0 0 6.1855556,6.5817 l 2.18,0.3537 A 1.6666667,1.35 0 1 1 10,8.55 1.1111111,0.9 0 0 0 8.8888889,9.45 v 1.35 h 2.2222221 z"
      fill="rgba(193,182,133,1)"
      id="path258"
-     style="stroke-width:1.05409" />
+     style="stroke-width:0.999998" />
 </svg>

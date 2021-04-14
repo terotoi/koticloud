@@ -17,6 +17,7 @@ import VolumeMute from '@material-ui/icons/VolumeMute'
 import { formatDuration, isVideo, nodeURL, setMetaProgress } from '../util'
 import { openErrorDialog } from '../dialogs/error'
 import GlobalContext from '../context'
+import { nodeThumb } from '../thumbs'
 import api from '../api'
 
 const progressUpdateInterval = 20.0
@@ -239,7 +240,7 @@ export default function PlayableView(props) {
 					<video
 						className={classes.video}
 						ref={(r) => { player.current = r }}
-						src={"/node/get/" + props.node.id}
+						src={nodeThumb(props.node)}
 						poster={"/node/thumb/" + props.node.id}
 						preload="metadata"
 						autoPlay={playing}
