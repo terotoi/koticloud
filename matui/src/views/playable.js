@@ -240,8 +240,8 @@ export default function PlayableView(props) {
 					<video
 						className={classes.video}
 						ref={(r) => { player.current = r }}
-						src={nodeThumb(props.node)}
-						poster={"/node/thumb/" + props.node.id}
+						src={nodeURL(props.node)}
+						poster={nodeThumb(props.node, true)}
 						preload="metadata"
 						autoPlay={playing}
 						controls={fullscreen}
