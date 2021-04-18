@@ -27,20 +27,22 @@ const styles = makeStyles((theme) => ({
 		borderWidth: '2pt',
 		borderStyle: 'solid',
 		borderColor: theme.palette.primary.light,
-		borderRadius: '5%'
-	},
-	customThumb: {
-		borderWidth: '2pt',
-		borderStyle: 'solid',
-		borderColor: theme.palette.primary.light,
-		borderRadius: '5%'
+		borderRadius: '5%',
+		padding: '8%'
 	},
 	dirThumb: {
 		borderWidth: '2pt',
 		borderStyle: 'solid',
 		borderColor: theme.palette.primary.light,
 		borderRadius: '5%',
-		borderStyle: 'dashed'
+		borderStyle: 'dashed',
+		padding: '8%'
+	},
+	customThumb: {
+		borderWidth: '2pt',
+		borderStyle: 'solid',
+		borderColor: theme.palette.primary.light,
+		borderRadius: '5%'
 	},
 	action: {
 		display: 'flex',
