@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/terotoi/koticloud/server/fs"
-	"github.com/terotoi/koticloud/server/models"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
+	"github.com/terotoi/koticloud/server/fs"
+	"github.com/terotoi/koticloud/server/models"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -141,7 +141,7 @@ func NodeInfo(auth *jwtauth.JWTAuth, db *sql.DB) func(user *models.User, w http.
 		err = models.NewQuery(
 			qm.Select("nodes.*", "meta.type AS meta_type", "meta.data"),
 			qm.From("nodes"),
-			qm.FullOuterJoin("meta on nodes.id=meta.node_id and meta.user_id=?", user.ID),
+			qm.LeftOuterJoin("meta on nodes.id=meta.node_id and meta.user_id=?", user.ID),
 			qm.Where("nodes.id=?", id)).Bind(ctx, db, &nwm)
 
 		if !fs.AccessAllowed(user, &nwm.Node, false) {
