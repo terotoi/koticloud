@@ -8,7 +8,7 @@ import { openErrorDialog } from '../dialogs/error'
 import { openInputDialog } from '../dialogs/input'
 
 import { sortNodes } from './util'
-import { setMetaProgress } from '../util'
+import { setNodeMeta } from '../util'
 import GlobalContext from '../context'
 import api from '../api'
 
@@ -151,7 +151,7 @@ export default function FileManager(props) {
 	}
 
 	function nodeMarkViewed(node, progress) {
-		setMetaProgress(node, progress, (node.MetaType === 'progress' && node.MetaData.Volume !== undefined) ?
+		setNodeMeta(node, progress, (node.MetaType === 'progress' && node.MetaData.Volume !== undefined) ?
 			node.MetaData.Volume : 1.0)
 		api.updateMeta(node.id, node.MetaType, node.MetaData, props.authToken, () => {
 			setNodes([...nodes])

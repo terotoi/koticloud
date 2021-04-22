@@ -128,8 +128,8 @@ export function nodeURL(node) {
   return "/node/get/" + node.id
 }
 
-/** Set progress metadata on a node */
-export function setMetaProgress(node, progress, volume) {
+/** Set progress and volume metadata on a node */
+export function setNodeMeta(node, progress, volume) {
   node.MetaType = 'progress'
   node.MetaData = {
     Progress: progress,

@@ -14,7 +14,7 @@ import VolumeUp from '@material-ui/icons/VolumeUp'
 import VolumeOff from '@material-ui/icons/VolumeOff'
 import VolumeMute from '@material-ui/icons/VolumeMute'
 
-import { formatDuration, isVideo, nodeURL, setMetaProgress } from '../util'
+import { formatDuration, isVideo, nodeURL, setNodeMeta } from '../util'
 import { openErrorDialog } from '../dialogs/error'
 import GlobalContext from '../context'
 import { nodeThumb } from '../thumbs'
@@ -22,6 +22,7 @@ import api from '../api'
 
 const progressUpdateInterval = 20.0
 const skipDuration = 10.0
+const nextItemTimeout = 2000
 
 const styles = makeStyles((theme) => ({
 	videoRoot: {
@@ -78,7 +79,6 @@ export default function PlayableView(props) {
 	const classes = styles()
 
 	const player = React.useRef(null)
-	const [playing, setPlaying] = React.useState(true)
 	const [hover, setHover] = React.useState(true)
 	const [volume, setVolume] = React.useState(1.0)
 	const [muted, setMuted] = React.useState(false)
@@ -86,7 +86,9 @@ export default function PlayableView(props) {
 	const [prevUpdate, setPrevUpdate] = React.useState(-1)
 	const [playerSize, setPlayerSize] = React.useState([0, 0])
 	const [fullscreen, setFullScreen] = React.useState(false)
-	const [loaded, setLoaded] = React.useState(false)
+	const [playing, setPlaying] = React.useState(false) // Not paused
+	const [started, setStarted] = React.useState(false) // Started playing
+	const [endTimeout, setEndTimeout] = React.useState(null)
 	const context = React.useContext(GlobalContext)
 
 	React.useEffect(() => {
@@ -104,98 +106,131 @@ export default function PlayableView(props) {
 	}, [])
 
 	React.useEffect(() => {
-		setLoaded(false)
+		console.log("Node changed to:", JSON.stringify(props.node))
+
+		if (props.node.MetaType === "progress" && props.node.MetaData != null) {
+			const pr = props.node.MetaData.Progress
+			const v = props.node.MetaData.Volume
+
+			setProgress(pr)
+			setVolume(v)
+			player.current.currentTime = pr
+			player.current.volume = v
+		}
+		setPlaying(false)
+		setStarted(false)
 	}, [props.node])
 
-	function updateProgress() {
-		if (!loaded)
-			return
-		setMetaProgress(props.node, player.current.currentTime, player.current.volume)
-
+	function updateMeta(progress, volume) {
+		setNodeMeta(props.node, progress, volume)
 		api.updateMeta(props.node.id, props.node.MetaType, props.node.MetaData,
 			props.authToken,
 			() => {
-				console.log("updateProgress OK", player.current.currentTime, player.current.volume)
+				console.log("updateMeta:", progress, "/", props.node.length, volume)
 			},
 			(error) => { openErrorDialog(context, error) })
 	}
 
 	function onTimeUpdate() {
-		if (!loaded)
-			return
-		setProgress(player.current.currentTime)
+		if (player.current) {
+			const pr = player.current.currentTime
+			setProgress(pr)
 
-		if (Math.abs(player.current.currentTime - prevUpdate) > progressUpdateInterval) {
-			setPrevUpdate(player.current.currentTime)
-			updateProgress()
-		} else {
-			setMetaProgress(props.node, player.current.currentTime, player.current.volume)
+			//console.log("onTimeUpdate", pr, "/", props.node.length, pr * 100 / props.node.length, "started:", started)
+			if (started === false && (pr <= props.node.length * 0.99)) {
+				setStarted(true)
+			}
+
+			if (Math.abs(pr - prevUpdate) > progressUpdateInterval) {
+				setPrevUpdate(pr)
+				updateMeta(pr, volume)
+			} else {
+				setNodeMeta(props.node, pr, volume)
+			}
 		}
 	}
 
 	function onLoadedMetadata() {
-		if (props.node.MetaType === "progress" && props.node.MetaData != null) {
-			player.current.currentTime = props.node.MetaData.Progress
-			player.current.volume = props.node.MetaData.Volume
-		} else {
-			player.current.currentTime = 0
-			player.current.volume = 1.0
-		}
-
-		setProgress(player.current.currentTime)
-		setVolume(player.current.volume)
-		setLoaded(true)
+		//console.log("onLoadedMetaData")
 	}
 
 	function onProgressChanged(ev, value) {
-		if (player.current && loaded) {
-			const progress = value / 100.0 * player.current.duration
-			player.current.currentTime = progress
-			setProgress(progress)
-			updateProgress()
-		}
+		const d = player.current ? player.current.duration : props.node.length
+		const new_pr = value / 100.0 * d
+		setProgress(new_pr)
+		updateMeta(new_pr, volume)
+
+		if (player.current)
+			player.current.currentTime = new_pr
 	}
 
 	function onVolumeChanged(ev, value) {
 		const volume = value / 100.0
-		player.current.volume = volume
-		setVolume(volume)
-		updateProgress()
+		if (player.current) {
+			player.current.volume = volume
+			setVolume(volume)
+		}
+		updateMeta(progress, volume)
 	}
 
 	function onSeeked(ev) {
-		if (loaded) {
-			const t = player.current.currentTime
-			updateProgress()
+		if (player.current) {
+			const pr = player.current.currentTime
+			setProgress(pr)
+			updateMeta(pr, volume)
 		}
 	}
 
 	function onPlay() {
-		if (loaded)
+		if (player.current) {
+			player.current.currentTime = progress
+			player.current.volume = volume
 			setPlaying(true)
+		}
 	}
 
 	function onPause() {
 		setPlaying(false)
-		updateProgress()
+		const pr = player.current ? player.current.currentTime : progress
+		setProgress(pr)
+		updateMeta(pr, volume)
 	}
 
 	function onEnded(ev) {
-		if (loaded) {
-			console.log("onEnded")
-			setPlaying(false)
-			updateProgress()
+		if (player.current) {
+			const pr = player.current.currentTime
+			setProgress(pr)
+			updateMeta(pr, volume)
+
+
+			if (pr === player.current.duration && props.onEnded) {
+				if (endTimeout !== null)
+					cancelTimeout(endTimeout)
+
+				if (started) {
+					setStarted(false)
+
+					setEndTimeout(setTimeout(() => {
+						setEndTimeout(null)
+
+						console.log("Calling props.onEnded()")
+						props.onEnded()
+					}, nextItemTimeout))
+				}
+			}
 		}
 	}
 
 	function toggleFullscreen() {
-		const rf = player.current.webkitRequestFullScreen ||
-			player.current.requestsFullScreen ||
-			player.current.mozRequestFullScreen ||
-			player.current.mozRequestFullScreen
+		if (player.current) {
+			const rf = player.current.webkitRequestFullScreen ||
+				player.current.requestsFullScreen ||
+				player.current.mozRequestFullScreen ||
+				player.current.mozRequestFullScreen
 
-		rf.apply(player.current)
-		setFullScreen(!fullscreen)
+			rf.apply(player.current)
+			setFullScreen(!fullscreen)
+		}
 	}
 
 	function renderControls(vid) {
@@ -243,7 +278,7 @@ export default function PlayableView(props) {
 						src={nodeURL(props.node)}
 						poster={nodeThumb(props.node, true)}
 						preload="metadata"
-						autoPlay={playing}
+						autoPlay={true}
 						controls={fullscreen}
 						onMouseEnter={() => { setHover(true) }}
 						onMouseLeave={() => { setHover(false) }}
