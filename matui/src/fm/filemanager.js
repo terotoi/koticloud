@@ -87,7 +87,7 @@ export default function FileManager(props) {
 	 * @param {Node} node 
 	 */
 	function nodeOpen(node) {
-		console.log(node.mime_type)
+		console.log("Open:", node.mime_type)
 		if (node.mime_type == "inode/directory") {
 			loadDir(node.id)
 		} else {
@@ -195,6 +195,21 @@ export default function FileManager(props) {
 			setNodes((prev, props) => [...prev, n])
 	}
 
+	function onNodeSaved(n) {
+		if (n.parent_id == dir.id) {
+			console.log("Save:", n.id)
+
+			const i = nodes.findIndex((k) => k.id === n.id)
+			if (i !== -1) {
+				setNodes((prev) => {
+					const new_nodes = [...prev]
+					new_nodes[i] = n
+					return new_nodes
+				})
+			}
+		}
+	}
+
 	function nodeAction(action, n, ...args) {
 		switch (action) {
 			case 'cut':
@@ -237,6 +252,7 @@ export default function FileManager(props) {
 					initialNode={node}
 					nodes={nds}
 					authToken={props.authToken}
+					onNodeSaved={onNodeSaved}
 					onBack={() => { setNode(null) }} />
 			</div>)
 	} else {

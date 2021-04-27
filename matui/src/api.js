@@ -30,6 +30,8 @@ function fetchData(url, method, type, obj, authToken, success, error) {
   const opts = {
     method: method,
     headers: {
+      'Pragma': 'no-cache',
+      'Cache-Control': 'no-cache'
     }
   }
 

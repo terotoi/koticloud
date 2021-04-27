@@ -15,7 +15,7 @@ import PDFView from './pdf'
 import PlayableView from './playable'
 import TextEdit from './text'
 
-import { isPlayable, isImage, isDir, isVideo, nodeURL } from '../util'
+import { isPlayable, isImage, isDir, isVideo, isText, nodeURL } from '../util'
 import { nodeThumb } from '../thumbs'
 
 const styles = makeStyles((theme) => ({
@@ -160,7 +160,7 @@ export default function NodeView(props) {
 		hi = renderImage()
 	else if (node.mime_type === "application/pdf")
 		hi = renderPDF()
-	else if (node.mime_type === "text/plain")
+	else if (isText(node.mime_type))
 		hi = renderTextEdit()
 	else
 		hi = renderDownload()

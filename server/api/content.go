@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-chi/chi"
 	"github.com/terotoi/koticloud/server/fs"
 	"github.com/terotoi/koticloud/server/models"
-	"github.com/go-chi/chi"
 	"github.com/volatiletech/sqlboiler/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -63,6 +63,7 @@ func NodeGet(fileRoot string, mimeTypeFromDB bool, preCheck func(*models.Node) b
 				if mimeTypeFromDB {
 					w.Header().Add("Content-Type", node.MimeType)
 				}
+				//w.Header().Add("Cache-Control", "private, max-age=0, no-cache")
 				http.ServeContent(w, r, node.Name, node.ModifiedOn, fh)
 			}
 		}

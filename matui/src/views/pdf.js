@@ -64,7 +64,6 @@ export default function PDFView(props) {
 	function onLoaded({ numPages }) {
 		console.log("onLoaded", numPages)
 		setNumPages(numPages)
-		console.log(JSON.stringify(props.node))
 
 		if (props.node.MetaType === 'progress' && props.node.MetaData !== null &&
 			props.node.MetaData.Progress)
@@ -93,8 +92,6 @@ export default function PDFView(props) {
 				onLoadSuccess={onLoaded}>
 				<AutoSizer className={classes.doc}>
 					{({ height, width }) => {
-						//console.log("width:", width)
-						//console.log("height:", height)
 						return (
 							<Page className={classes.page} height={height} pageNumber={pageNum} />)
 					}}

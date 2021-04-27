@@ -35,6 +35,9 @@ func RequestURL(client *http.Client, url, contentType, authToken string, body []
 		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", authToken))
 	}
 
+	req.Header.Add("Pragma", "no-cache")
+	req.Header.Add("Cache-Control", "no-cache")
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err

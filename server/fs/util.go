@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/terotoi/koticloud/server/models"
 	"github.com/gabriel-vasile/mimetype"
+	"github.com/terotoi/koticloud/server/models"
 )
 
 const emptyFileType = "text/plain"
@@ -28,6 +28,8 @@ func IsValidName(filename string) bool {
 
 // CopyFile copies while from srcPath to dstPath.
 func CopyFile(srcPath, dstPath string) error {
+	log.Printf("Copying file %s to %s", srcPath, dstPath)
+
 	// Copy the file
 	sfh, err := os.Open(srcPath)
 	if err != nil {

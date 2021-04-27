@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	. "github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/models"
@@ -41,6 +42,7 @@ func NewFile(ctx context.Context, parent *models.Node, filename,
 	node.ParentID = null.Int{Int: parent.ID, Valid: true}
 	node.OwnerID = null.Int{Int: owner.ID, Valid: true}
 	node.HasCustomThumb = hasCustomThumb
+	node.ModifiedOn = time.Now()
 
 	if length != nil {
 		node.Length = null.Float64{Float64: *length, Valid: true}
@@ -62,6 +64,7 @@ func UpdateFile(ctx context.Context, node *models.Node,
 	node.Size = null.Int64{Int64: size, Valid: true}
 	node.OwnerID = null.Int{Int: owner.ID, Valid: true}
 	node.HasCustomThumb = hasCustomThumb
+	node.ModifiedOn = time.Now()
 	if length != nil {
 		node.Length = null.Float64{Float64: *length, Valid: true}
 	}

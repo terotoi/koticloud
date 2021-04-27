@@ -60,6 +60,15 @@ export function isDir(contentType) {
   return contentType == 'inode/directory'
 }
 
+/* Check if the given content type is text.
+ *
+ * @param {string} contentType - content type to check
+ * @returns true or false
+ */
+export function isText(contentType) {
+  return ['text/plain', 'application/json', 'application/x-ndjson'].indexOf(contentType) !== -1
+}
+
 /* Limit string to n number of characters. If the length of
  * the string exceeds this limit, the string is cut hard
  * on this limit and ... is appeneded.
