@@ -48,4 +48,3 @@ clean:
 		matui/static/main.js matui/static/main.worker.js \
 		matui/static/fonts/* matui/node_modules \
 		config_docker.json
-

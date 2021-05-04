@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { makeStyles } from '@material-ui/core/styles'
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack'
-import { nodeURL, setMetaProgress } from '../util'
+import { limitText, nodeURL, setNodeMeta } from '../util'
 import GlobalContext from '../context'
 import api from '../api'
 
@@ -20,16 +20,24 @@ const styles = makeStyles((theme) => ({
 		display: 'flex',
 		flexDirection: 'row',
 		justifyContent: 'center',
-		flexGrow: 1
+		flexGrow: 1,
+		overflowY: 'scroll',
+		overflowX: 'hidden'
+	},
+	sizer: {
+		display: 'flex',
+		flexDirection: 'row',
+		justifyContent: 'center',
 	},
 	page: {
 	},
 	controls: {
+		display: 'flex',
 		flexGrow: 0,
 		flexDirection: 'row',
-		justifyContent: 'center',
+		justifyContent: 'flex-start',
+		alignItems: 'center',
 		marginTop: theme.spacing(1),
-		marginLeft: theme.spacing(2),
 		marginBottom: theme.spacing(2)
 	},
 	controlItem: {
@@ -47,11 +55,12 @@ export default function PDFView(props) {
 	const [pageNum, setPageNum] = useState(1)
 	const [numPages, setNumPages] = useState(0)
 	const [jumpToVisible, setJumpToVisible] = useState(false)
+	const [fitHeight, setFitHeight] = useState(true)
 	const context = React.useContext(GlobalContext)
 	const classes = styles()
 
 	function updateProgress(page) {
-		setMetaProgress(props.node, page)
+		setNodeMeta(props.node, page)
 
 		api.updateMeta(props.node.id, props.node.MetaType, props.node.MetaData,
 			props.authToken,
@@ -90,15 +99,18 @@ export default function PDFView(props) {
 				className={classes.doc}
 				file={nodeURL(props.node)}
 				onLoadSuccess={onLoaded}>
-				<AutoSizer className={classes.doc}>
+				<AutoSizer className={classes.sizer}>
 					{({ height, width }) => {
 						return (
-							<Page className={classes.page} height={height} pageNumber={pageNum} />)
+							<Page className={classes.page}
+								width={fitHeight ? null : width}
+								height={fitHeight ? height : null}
+								pageNumber={pageNum} />)
 					}}
 				</AutoSizer>
 			</Document>
 
-			<Box display="flex" className={classes.controls} alignItems="center">
+			<Box className={classes.controls}>
 				<Button variant="contained"
 					color="secondary"
 					disabled={pageNum === 1}
@@ -120,7 +132,11 @@ export default function PDFView(props) {
 								}
 							}} />
 					</React.Fragment>}
-				<Typography>{props.node.name}</Typography>
+				<Button variant="contained"
+					color="secondary"
+					className={classes.controlItem}
+					onClick={() => { setFitHeight(!fitHeight) }}>{fitHeight ? "Fit to width" : "Fit to height"}</Button>
+				<Typography>{limitText(props.node.name, 80)}</Typography>
 			</Box>
 		</Box >)
 }

@@ -12,3 +12,4 @@ matui/static/fonts
 *.tar
 docker-compose.yml
 etc/config_demo.json
+config.json
