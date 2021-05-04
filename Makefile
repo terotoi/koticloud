@@ -1,5 +1,5 @@
 
-.PHONY: all clean serve watchdev dev
+.PHONY: all clean serve watchdev dev docker_demo docker_demo_db 
 
 all: matui/node_modules matui/static/main.js server/koticloud cli/koticli
 
@@ -30,21 +30,26 @@ jsdev:
 docker_demo: all
 	etc/create_config.sh
 	docker build \
-		--build-arg cfg_arg="./config_docker.json" \
+		--build-arg TZ=`cat /etc/timezone` \
+		--build-arg cfg="./etc/config_demo.json" \
 		-t koticloud .
+
+docker_demo_db: 
+	docker build -f etc/Dockerfile.db -t koticloud_db .
 
 demo: docker_demo docker_demo_db
 
-docker_demo_gz: docker
+demo_gz: demo
 	docker image save -o koticloud.tar koticloud
 	gzip koticloud.tar
-
-docker_demo_db:
-	docker build -f etc/Dockerfile.db -t koticloud_db .
-	rm -f etc/schema_docker.sql
+	docker image save -o koticloud_db.tar koticloud_db
+	gzip koticloud_db.tar
 
 clean:
 	rm -rf server/koticloud cli/koticli \
 		matui/static/main.js matui/static/main.worker.js \
 		matui/static/fonts/* matui/node_modules \
-		config_docker.json
+		config_docker.json etc/config_demo.json docker-compose.yml \
+		koticloud.tar koticloud_db.tar \
+		koticloud.tar.gz koticloud_db.tar.gz
+		

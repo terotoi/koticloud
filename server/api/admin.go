@@ -32,7 +32,7 @@ func ScanDeletedNodes(fileRoot, thumbRoot string, db *sql.DB) func(user *models.
 			if os.IsNotExist(err) {
 				log.Printf("Node %d does not exist in filesystem, deleting from database.", node.ID)
 
-				if _, err = fs.Delete(ctx, node, false, user, fileRoot, thumbRoot, db); err != nil {
+				if _, err = fs.Delete(ctx, node, false, false, user, fileRoot, thumbRoot, db); err != nil {
 					log.Println(err)
 				} else {
 					log.Printf("Deleted a file node: %d %s", node.ID, node.Name)
@@ -61,7 +61,7 @@ func ScanDeletedNodes(fileRoot, thumbRoot string, db *sql.DB) func(user *models.
 
 			// Delete resulting empty directories
 			for _, dir := range dirs {
-				_, err := fs.Delete(ctx, dir, false, user, fileRoot, thumbRoot, db)
+				_, err := fs.Delete(ctx, dir, false, false, user, fileRoot, thumbRoot, db)
 				if err != nil {
 					log.Println(err)
 				} else {

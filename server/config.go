@@ -24,8 +24,9 @@ type Config struct {
 	InitialUser string `json:"initial_user"`
 	InitialPW   string `json:"initial_password"`
 
-	ThumbMethod string `json:"thumb_method"`
-	DevMode     bool
+	ThumbMethod       string `json:"thumb_method"`
+	FollowDataSymlink bool   `json:"follow_data_symlink"` // If true, deletion will follow the first symlink
+	DevMode           bool
 }
 
 // loadConfig loads a config file from the given path.

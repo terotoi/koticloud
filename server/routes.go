@@ -5,11 +5,11 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-chi/chi"
+	"github.com/go-chi/jwtauth"
 	"github.com/terotoi/koticloud/server/api"
 	"github.com/terotoi/koticloud/server/models"
 	"github.com/terotoi/koticloud/server/proc"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/jwtauth"
 )
 
 func setupRoutes(r *chi.Mux, cfg *Config, np *proc.NodeProcessor, db *sql.DB) {
@@ -37,7 +37,7 @@ func setupRoutes(r *chi.Mux, cfg *Config, np *proc.NodeProcessor, db *sql.DB) {
 		r.Post("/node/copy", api.Authorized(api.NodeCopy(cfg.FileRoot, cfg.ThumbRoot, db), false, db))
 		r.Post("/node/move", api.Authorized(api.NodeMove(db), false, db))
 		r.Post("/node/rename", api.Authorized(api.NodeRename(cfg.FileRoot, cfg.ThumbRoot, db), false, db))
-		r.Post("/node/delete", api.Authorized(api.NodeDelete(cfg.FileRoot, cfg.ThumbRoot, db), false, db))
+		r.Post("/node/delete", api.Authorized(api.NodeDelete(cfg.FileRoot, cfg.ThumbRoot, cfg.FollowDataSymlink, db), false, db))
 		r.Post("/node/search", api.Authorized(api.NodeSearch(db), false, db))
 
 		r.Post("/user/create", api.Authorized(api.UserCreate(db), true, db))

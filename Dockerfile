@@ -1,8 +1,8 @@
 # Dockerfile
 FROM debian:stable
 
-#ENV TZ=Europe/Helsinki
 ARG TZ
+ARG cfg="./etc/config_demo.json"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
 	apt-get install -y locales locales-all ffmpeg imagemagick
@@ -18,7 +18,7 @@ COPY "server/koticloud" .
 COPY "cli/koticli" .
 COPY "matui/static" "./static"
 
-COPY "etc/config_demo.json" "./config.json"
+COPY "${cfg}" "./config.json"
 
 EXPOSE 7070
 

@@ -411,7 +411,7 @@ func NodeRename(fileRoot, thumbRoot string, db *sql.DB) func(user *models.User, 
 }
 
 // NodeDelete deletes a node.
-func NodeDelete(fileRoot, thumbRoot string, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
+func NodeDelete(fileRoot, thumbRoot string, followDataSymlink bool, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
 		dec := json.NewDecoder(r.Body)
 
@@ -434,8 +434,7 @@ func NodeDelete(fileRoot, thumbRoot string, db *sql.DB) func(user *models.User, 
 			return
 		}
 
-		deleted, err := fs.Delete(ctx, node, req.Recursive,
-			user, fileRoot, thumbRoot, tx)
+		deleted, err := fs.Delete(ctx, node, req.Recursive, followDataSymlink, user, fileRoot, thumbRoot, tx)
 		if err != nil {
 			reportSystemError(err, r, w)
 			return

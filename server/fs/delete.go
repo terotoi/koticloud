@@ -12,7 +12,7 @@ import (
 )
 
 // Delete a filesystem node.
-func Delete(ctx context.Context, node *models.Node, recursive bool,
+func Delete(ctx context.Context, node *models.Node, recursive, followDataSymLink bool,
 	user *models.User, fileRoot, thumbRoot string, tx boil.ContextExecutor) ([]*models.Node, error) {
 	if !AccessAllowed(user, node, true) {
 		return nil, NewSystemError(http.StatusUnauthorized, "", "not authorized")
@@ -28,7 +28,7 @@ func Delete(ctx context.Context, node *models.Node, recursive bool,
 	if children != nil {
 		if recursive {
 			for _, n := range children {
-				dels, err := Delete(ctx, n, true, user, fileRoot, thumbRoot, tx)
+				dels, err := Delete(ctx, n, true, followDataSymLink, user, fileRoot, thumbRoot, tx)
 				if err != nil {
 					return nil, err
 				}
@@ -44,6 +44,15 @@ func Delete(ctx context.Context, node *models.Node, recursive bool,
 
 	if node.Type == "file" {
 		path := NodeLocalPath(fileRoot, node.ID, true)
+
+		if followDataSymLink {
+			if target, err := os.Readlink(path); err == nil {
+				if err := os.Remove(target); err != nil {
+					log.Println(err)
+				}
+			}
+		}
+
 		if err := os.Remove(path); err != nil {
 			log.Println(err)
 		}
