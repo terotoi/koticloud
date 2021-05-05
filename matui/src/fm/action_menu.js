@@ -1,14 +1,17 @@
 import React from 'react'
 import IconButton from '@material-ui/core/IconButton'
+import Link from '@material-ui/core/Link'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
+import { nodeURL } from '../util'
 
 /**
  * ActionMenu shows the list of actions for a file system node.
  * 
  * @param {Node} props.node - the node to display the dialog on
  * @param {string} props.authToken - JWT authentication token
+ * @param {function} props.onOpen - called when an node should be opened
  * @param {function} props.onAction - callled with (action, node, ...args) for an action on the node
  */
 export default function ActionMenu(props) {
@@ -44,6 +47,15 @@ export default function ActionMenu(props) {
 							width: '20ch'
 						}
 					}}>
+
+					<MenuItem
+						key="Open"
+						onClick={() => {
+							close()
+							props.onOpen(props.node)
+						}}>
+						Open
+					</MenuItem>
 
 					<MenuItem
 						key="Cut"
@@ -93,6 +105,17 @@ export default function ActionMenu(props) {
 							}}>
 							Mark not viewed
 					</MenuItem> : null}
+
+					{(props.node.type !== 'directory') ?
+						<MenuItem
+							key="Download"
+							onClick={() => {
+								close()
+								//props.onAction('delete', props.node)
+							}}>
+							<Link href={nodeURL(props.node)} color="inherit"
+								download={props.node.name}>Download</Link>
+						</MenuItem> : null}
 
 					<MenuItem
 						key="Delete"

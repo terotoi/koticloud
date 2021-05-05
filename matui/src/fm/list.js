@@ -106,6 +106,7 @@ export default function NodeList(props) {
 								<ActionMenu
 									node={node}
 									authToken={props.authToken}
+									onOpen={props.onNodeOpen}
 									onAction={props.onNodeAction} />
 							</TableCell>
 						</TableRow>)

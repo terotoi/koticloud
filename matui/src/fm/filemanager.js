@@ -232,9 +232,10 @@ export default function FileManager(props) {
 			case 'delete':
 				nodeDelete(n)
 				break
-
 			case 'makedir':
 				nodeMakedirDone(n)
+				break
+			default:
 				break
 		}
 	}

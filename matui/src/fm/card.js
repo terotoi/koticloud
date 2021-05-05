@@ -108,6 +108,7 @@ export default function NodeCard(props) {
 					<ActionMenu
 						node={props.node}
 						authToken={props.authToken}
+						onOpen={props.onOpen}
 						onAction={props.onAction} />
 				</div>
 			</div>
