@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
@@ -19,10 +19,6 @@ import { openErrorDialog } from '../dialogs/error'
 import GlobalContext from '../context'
 import { nodeThumb } from '../thumbs'
 import api from '../api'
-
-const progressUpdateInterval = 20.0
-const skipDuration = 10.0
-const nextItemTimeout = 2000
 
 const styles = makeStyles((theme) => ({
 	videoRoot: {
@@ -67,6 +63,19 @@ const styles = makeStyles((theme) => ({
 	}
 }))
 
+// Send progress updates only this often in seconds.
+const progressUpdateInterval = 20.0
+
+// Jump to next item after this amount of time, in ms.
+const nextItemTimeout = 3000
+
+// Send progress update messages only this often, in ms. Should be smaller
+// than proressUpdateInterval and nextItemItemout.
+const updateInterval = 2000
+
+// Number of seconds to skip when pressing the skip button.
+const skipDuration = 10.0
+
 
 /**
  * PlayableView renders a video or audio and its controls.
@@ -79,16 +88,17 @@ export default function PlayableView(props) {
 	const classes = styles()
 
 	const player = React.useRef(null)
-	const [hover, setHover] = React.useState(true)
-	const [volume, setVolume] = React.useState(1.0)
-	const [muted, setMuted] = React.useState(false)
-	const [progress, setProgress] = React.useState(0)
-	const [prevUpdate, setPrevUpdate] = React.useState(-1)
-	const [playerSize, setPlayerSize] = React.useState([0, 0])
-	const [fullscreen, setFullScreen] = React.useState(false)
-	const [playing, setPlaying] = React.useState(false) // Not paused
-	const [started, setStarted] = React.useState(false) // Started playing
-	const [endTimeout, setEndTimeout] = React.useState(null)
+	const [hover, setHover] = useState(true)
+	const [volume, setVolume] = useState(1.0)
+	const [muted, setMuted] = useState(false)
+	const [progress, setProgress] = useState(0)
+	const [prevUpdate, setPrevUpdate] = useState(-1)
+	const [playerSize, setPlayerSize] = useState([0, 0])
+	const [fullscreen, setFullScreen] = useState(false)
+	const [playing, setPlaying] = useState(false) // Not paused
+	const [started, setStarted] = useState(false) // Started playing
+	const [updateTimeout, setUpdateTimeout] = useState(null)
+	const [endTimeout, setEndTimeout] = useState(null)
 	const context = React.useContext(GlobalContext)
 
 	React.useEffect(() => {
@@ -123,12 +133,18 @@ export default function PlayableView(props) {
 
 	function updateMeta(progress, volume) {
 		setNodeMeta(props.node, progress, volume)
-		api.updateMeta(props.node.id, props.node.MetaType, props.node.MetaData,
-			props.authToken,
-			() => {
-				console.log("updateMeta:", progress, "/", props.node.length, volume)
-			},
-			(error) => { openErrorDialog(context, error) })
+
+		if (updateTimeout !== null)
+			clearTimeout(updateTimeout)
+
+		setUpdateTimeout(setTimeout(() => {
+			api.updateMeta(props.node.id, props.node.MetaType, props.node.MetaData,
+				props.authToken,
+				() => {
+					console.log("updateMeta:", progress, "/", props.node.length, volume)
+				},
+				(error) => { openErrorDialog(context, error) })
+		}, updateInterval))
 	}
 
 	function onTimeUpdate() {
@@ -202,10 +218,9 @@ export default function PlayableView(props) {
 			setProgress(pr)
 			updateMeta(pr, volume)
 
-
 			if (pr === player.current.duration && props.onEnded) {
 				if (endTimeout !== null)
-					cancelTimeout(endTimeout)
+					clearTimeout(endTimeout)
 
 				if (started) {
 					setStarted(false)

@@ -3,7 +3,6 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/terotoi/koticloud/server/fs"
@@ -74,8 +73,6 @@ func MetaUpdate(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *ht
 				return
 			}
 		} else {
-			log.Printf("No meta found")
-
 			m := models.Metum{UserID: user.ID, NodeID: node.ID, Type: req.Type}
 			err := m.Data.Marshal(req.Data)
 			if reportInt(err, r, w) != nil {
