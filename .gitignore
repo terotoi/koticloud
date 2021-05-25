@@ -5,6 +5,8 @@ etc/settings
 matui/node_modules
 matui/static/main.*
 matui/static/fonts
+matui/static/*.js
+matui/static/*.js.*txt
 *~
 #*#
 .vscode

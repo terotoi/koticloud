@@ -1,10 +1,12 @@
+const path = require('path')
 
 module.exports = {
-	output: {
-		path: __dirname + '/static',
-		filename: 'main.js'
-	},
 	entry: './src/init',
+	output: {
+    path: path.resolve(__dirname, 'static'),
+		//path: __dirname + '/static',
+		filename: '[name].js',
+	},
 	performance: {
 		hints: false
 	},

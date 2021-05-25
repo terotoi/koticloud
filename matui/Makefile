@@ -1,25 +1,23 @@
 
-.PHONY: all dev clean
+.PHONY: all dev clean prod
 
 all: node_modules static/main.js
 
 node_modules: package.json
 	yarn install
 
-static/main.js: ${SOURCES}
+static/main.js: ${SRC}
 	INLINE_RUNTIME_CHUNK=false npx webpack --mode=production
-
-prod: node_modules
-	INLINE_RUNTIME_CHUNK=false npx webpack --mode=production
+	npx webpack --mode=production
 
 dev:
 	rm -f static/ui/main.js
 	npx webpack --mode=development -w
 
 clean:
-	rm -rf static/ui/* static/fonts/* node_modules
+	rm -rf static/ui/* static/fonts/* node_modules static/*.js static/*js.*txt
 
-SOURCES=\
+SRC=\
 	src/api.js            src/dialogs/error.js     src/fm/filemanager.js  src/init.js         src/views/node.js \
 	src/appbar.js         src/dialogs/input.js     src/fm/grid.js         src/login.js        src/views/pdf.js \
 	src/app.js            src/dialogs/password.js  src/fm/list.js         src/theme.js        src/views/playable.js \

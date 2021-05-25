@@ -13,12 +13,13 @@ import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import VolumeUp from '@material-ui/icons/VolumeUp'
 import VolumeOff from '@material-ui/icons/VolumeOff'
 import VolumeMute from '@material-ui/icons/VolumeMute'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 import { formatDuration, isVideo, nodeURL, setNodeMeta } from '../util'
 import { openErrorDialog } from '../dialogs/error'
-import GlobalContext from '../context'
 import { nodeThumb } from '../thumbs'
 import api from '../api'
+import GlobalContext from '../context'
 
 const styles = makeStyles((theme) => ({
 	videoRoot: {
@@ -127,6 +128,7 @@ export default function PlayableView(props) {
 			player.current.currentTime = pr
 			player.current.volume = v
 		}
+		
 		setPlaying(false)
 		setStarted(false)
 	}, [props.node])
@@ -151,8 +153,6 @@ export default function PlayableView(props) {
 		if (player.current) {
 			const pr = player.current.currentTime
 			setProgress(pr)
-
-			//console.log("onTimeUpdate", pr, "/", props.node.length, pr * 100 / props.node.length, "started:", started)
 			if (started === false && (pr <= props.node.length * 0.99)) {
 				setStarted(true)
 			}
@@ -198,18 +198,22 @@ export default function PlayableView(props) {
 	}
 
 	function onPlay() {
+		setPlaying(true)
+
 		if (player.current) {
 			player.current.currentTime = progress
 			player.current.volume = volume
-			setPlaying(true)
 		}
 	}
 
 	function onPause() {
 		setPlaying(false)
-		const pr = player.current ? player.current.currentTime : progress
-		setProgress(pr)
-		updateMeta(pr, volume)
+
+		if (player.current) {
+			const pr = player.current ? player.current.currentTime : progress
+			setProgress(pr)
+			updateMeta(pr, volume)
+		}
 	}
 
 	function onEnded(ev) {
@@ -228,7 +232,6 @@ export default function PlayableView(props) {
 					setEndTimeout(setTimeout(() => {
 						setEndTimeout(null)
 
-						console.log("Calling props.onEnded()")
 						props.onEnded()
 					}, nextItemTimeout))
 				}
@@ -248,6 +251,19 @@ export default function PlayableView(props) {
 		}
 	}
 
+	function togglePause() {
+		setPlaying(prevPlaying => {
+			if (prevPlaying)
+				player.current.pause()
+			else
+				player.current.play()
+			return !prevPlaying
+		})
+	}
+
+
+	useHotkeys('space', togglePause)
+
 	function renderControls(vid) {
 		return (
 			<div className={vid ? classes.videoControls : classes.audioControls} style={vid ? { width: playerSize[0] } : {}}>
@@ -257,7 +273,7 @@ export default function PlayableView(props) {
 					alignItems="center"
 					onMouseEnter={() => { setHover(true) }}>
 					<Box display="flex" flexDirection="row" alignItems="center" flexGrow={5}>
-						<Button onClick={() => { if (playing) player.current.pause(); else player.current.play() }}>
+						<Button onClick={togglePause}>
 							{playing ? <PauseIcon /> : <PlayArrowIcon />}</Button>
 						<Button onClick={() => { player.current.currentTime -= skipDuration }}><Replay10Icon /></Button>
 						<Button onClick={() => { player.current.currentTime += skipDuration }}><Forward10Icon /></Button>
@@ -297,7 +313,7 @@ export default function PlayableView(props) {
 						controls={fullscreen}
 						onMouseEnter={() => { setHover(true) }}
 						onMouseLeave={() => { setHover(false) }}
-						onClick={() => { if (playing) player.current.pause(); else player.current.play() }}
+						onClick={togglePause}
 						onContextMenu={(ev) => { ev.preventDefault(); return false }}
 						onLoadedMetadata={onLoadedMetadata}
 						onTimeUpdate={onTimeUpdate}

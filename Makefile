@@ -46,9 +46,8 @@ demo_gz: demo
 	gzip koticloud_db.tar
 
 clean:
+	cd matui && make clean
 	rm -rf server/koticloud cli/koticli \
-		matui/static/main.js matui/static/main.worker.js \
-		matui/static/fonts/* matui/node_modules \
 		config_docker.json etc/config_demo.json docker-compose.yml \
 		koticloud.tar koticloud_db.tar \
 		koticloud.tar.gz koticloud_db.tar.gz
