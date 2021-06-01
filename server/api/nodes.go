@@ -175,6 +175,7 @@ func NodeList(auth *jwtauth.JWTAuth, db *sql.DB) func(user *models.User, w http.
 		defer tx.Rollback()
 
 		if !user.RootID.Valid {
+			log.Printf("User %s (%d) has no valid home directory.", user.Name, user.ID)
 			respJSON(nil, r, w)
 		} else {
 			node, err := models.FindNode(ctx, tx, id)
@@ -204,8 +205,7 @@ func NodeList(auth *jwtauth.JWTAuth, db *sql.DB) func(user *models.User, w http.
 				return
 			}
 
-			err = tx.Commit()
-			if reportInt(err, r, w) != nil {
+			if reportInt(tx.Commit(), r, w) != nil {
 				return
 			}
 

@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/go-chi/jwtauth"
 	"github.com/terotoi/koticloud/server/models"
 	"github.com/terotoi/koticloud/server/mx"
-	"github.com/go-chi/jwtauth"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -54,32 +55,62 @@ func UserLogin(auth *jwtauth.JWTAuth, db *sql.DB) func(w http.ResponseWriter, r 
 			return
 		}
 
-		user, err := models.Users(qm.Where("name=?", req.Username)).One(r.Context(), db)
-		if reportIf(err, http.StatusUnauthorized, "user or passsword mismatch", r, w) != nil {
+		ctx := r.Context()
+		tx, err := db.BeginTx(ctx, nil)
+		if reportInt(err, r, w) != nil {
+			return
+		}
+		defer tx.Rollback()
+
+		user, err := models.Users(qm.Where("name=?", req.Username)).One(ctx, tx)
+		if reportIf(err, http.StatusUnauthorized, "username or passsword mismatch", r, w) != nil {
 			return
 		}
 
 		pwValid := user.Password.Valid &&
 			bcrypt.CompareHashAndPassword([]byte(user.Password.String), []byte(req.Password)) == nil
 
-		if pwValid && user.RootID.Valid {
-			token := map[string]interface{}{"user_id": user.ID}
-			_, t, _ := auth.Encode(token)
-
-			log.Printf("User %s logged in [%s]", user.Name, r.Host)
-
-			resp := LoginResponse{
-				Username:      user.Name,
-				AuthToken:     t,
-				Admin:         user.Admin,
-				InitialNodeID: user.RootID.Int,
-			}
-
-			respJSON(resp, r, w)
-		} else {
-			log.Printf("Login failed for user %s [%s]", user.Name, r.Host)
-			respJSON(nil, r, w)
+		if !pwValid {
+			report("username or passsword mismatch", http.StatusUnauthorized, r, w)
+			return
 		}
+
+		var homeID int
+		if user.RootID.Valid {
+			homeID = user.RootID.Int
+		} else {
+			log.Printf("User %s (%d) has no home directory, creating one.", user.Name, user.ID)
+			home, err := mx.UserEnsureRootNode(ctx, user, tx)
+			if reportIf(err, http.StatusInternalServerError, "failed to create a home directory", r, w); err != nil {
+				return
+			}
+			homeID = home.ID
+		}
+
+		if err := reportInt(tx.Commit(), r, w); err != nil {
+			return
+		}
+
+		// Create a JWT token
+		token := map[string]interface{}{"user_id": user.ID, "updated": time.Now()}
+		_, t, err := auth.Encode(token)
+		if reportInt(err, r, w); err != nil {
+			return
+		}
+
+		addr := r.Header.Get("X-Forwarded-For")
+		if addr == "" {
+			addr = r.RemoteAddr
+		}
+		log.Printf("User %s (%d) logged in from %s", user.Name, user.ID, addr)
+		resp := LoginResponse{
+			Username:      user.Name,
+			AuthToken:     t,
+			Admin:         user.Admin,
+			InitialNodeID: homeID,
+		}
+
+		respJSON(resp, r, w)
 	}
 }
 

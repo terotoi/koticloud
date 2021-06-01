@@ -1,5 +1,5 @@
 
-.PHONY: all dev clean prod
+.PHONY: all dev clean prod 
 
 all: node_modules static/main.js
 
@@ -11,8 +11,12 @@ static/main.js: ${SRC}
 	npx webpack --mode=production
 
 dev:
-	rm -f static/ui/main.js
+	rm -f static/main.js
 	npx webpack --mode=development -w
+
+prod:
+	rm -f static/main.js
+	npx webpack --mode=production
 
 clean:
 	rm -rf static/ui/* static/fonts/* node_modules static/*.js static/*js.*txt

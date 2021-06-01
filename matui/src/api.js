@@ -89,26 +89,23 @@ function login(username, password, success, error) {
 
 /**
  * List nodes in a directory.
- * @param {string} path_id - path or ID of the directory to list
+ * @param {string} id - ID of the directory to list
  * @param {string} authToken - JWT authentication token
  * @param {function} success - function(api.ListDirReponse) called on success
  * @param {function} error - function(message) called on error
  */
-function listDir(path_id, authToken, success, error) {
-  const doList = (id) => {
-    fetchData('/node/ls', 'post', 'json', id,
-      authToken,
-      (r) => {
+function listDir(id, authToken, success, error) {
+  fetchData('/node/ls', 'post', 'json', id,
+    authToken,
+    (r) => {
+      if (r === null)
+        error("Failed to fetch directory listing")
+      else {
         if (r.Children === null)
           r.Children = []
         success(r)
-      }, error)
-  }
-
-  if (typeof path_id === 'string')
-    nodeIDForPath(path_id, authToken, doList, error)
-  else
-    doList(path_id)
+      }
+    }, error)
 }
 
 
@@ -269,7 +266,7 @@ class Uploader {
     let fd = new FormData()
     fd.append("file", file)
 
-    if(this.props.parentID !== null)
+    if (this.props.parentID !== null)
       fd.append("parentID", this.props.parentID)
 
     if (filename !== undefined)

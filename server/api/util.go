@@ -8,9 +8,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-chi/jwtauth"
 	"github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/models"
-	"github.com/go-chi/jwtauth"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -81,7 +81,6 @@ func userFromToken(ctx context.Context, db boil.ContextExecutor) (*models.User, 
 	}
 
 	userID := int(token["user_id"].(float64))
-
 	user, err := models.Users(qm.Where("id=?", userID)).One(ctx, db)
 	if err != nil {
 		return nil, err
@@ -94,19 +93,21 @@ func Authorized(f func(user *models.User, w http.ResponseWriter, r *http.Request
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, err := userFromToken(r.Context(), db)
 		if reportIf(err, http.StatusUnauthorized, "not authorized", r, w) != nil {
+			log.Printf("Authorized: Illegal JWT for user.")
 			return
 		}
 
 		if user == nil {
 			reportInt(fmt.Errorf("user is nil"), r, w)
+			log.Printf("Authorized: no user object found.")
 			return
 		}
 
 		if requireAdmin && !user.Admin {
-			report("admin status required", http.StatusUnauthorized, r, w)
+			report(fmt.Sprintf("Authorized: non-admin user %s tried to access admin procedure", user.Name),
+				http.StatusUnauthorized, r, w)
 			return
 		}
-
 		f(user, w, r)
 	}
 }
