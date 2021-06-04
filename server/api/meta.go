@@ -43,7 +43,7 @@ func MetaUpdate(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *ht
 
 		ctx := r.Context()
 
-		node, err := models.FindNode(ctx, tx, req.NodeID)
+		node, err := fs.NodeByID(ctx, req.NodeID, tx)
 		if reportInt(err, r, w) != nil {
 			return
 		}

@@ -9,7 +9,6 @@ import { openInputDialog } from '../dialogs/input'
 
 import { sortNodes } from './util'
 import { setNodeMeta } from '../util'
-import GlobalContext from '../context'
 import api from '../api'
 
 const styles = makeStyles((theme) => ({
@@ -26,6 +25,7 @@ const styles = makeStyles((theme) => ({
  * @param {[Node...]} props.nodes - optional override for nodes to list
  * @param {string} props.initialNodeID - ID of the node to open
  * @param {string} props.authToken - JWT authentication token
+ * @param {Context} props.context
  */
 export default function FileManager(props) {
 	const [dir, setDir] = React.useState(null)
@@ -36,8 +36,8 @@ export default function FileManager(props) {
 
 	const [title, setTitle] = React.useState('')
 	const [clipboard, setClipboard] = React.useState(null)
-	const ctx = React.useContext(GlobalContext)
 	const classes = styles()
+	const ctx = props.context
 
 	// Load information about a directory node and its children.
 	// Can be called with id === undefinde, in that case reload the current directory.
@@ -254,7 +254,8 @@ export default function FileManager(props) {
 					nodes={nds}
 					authToken={props.authToken}
 					onNodeSaved={onNodeSaved}
-					onBack={() => { setNode(null) }} />
+					onBack={() => { setNode(null) }}
+					context={ctx} />
 			</div>)
 	} else {
 		return (
@@ -269,7 +270,8 @@ export default function FileManager(props) {
 					onNodeOpen={nodeOpen}
 					onNodeAction={nodeAction}
 					onNodeAdded={onNodeAdded}
-					authToken={props.authToken} />
+					authToken={props.authToken}
+					context={ctx} />
 			</div>)
 	}
 }

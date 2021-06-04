@@ -16,7 +16,6 @@ import ZoomOutIcon from '@material-ui/icons/ZoomOut'
 import { openInputDialog } from '../dialogs/input'
 import NodeList from './list'
 import UploadWindow from './upload'
-import GlobalContext from '../context'
 import { zooms, NodeGrid } from './grid'
 import { openWindow } from '../window'
 import { openNewFileDialog } from './dialogs/new_file'
@@ -58,6 +57,7 @@ const styles = makeStyles((theme) => ({
  * @param {string} props.authToken - JWT authentication token
  * @param {function} props.onNodeAdded - called when a node has been uploaded
  * @param {Object} props.clipboard - contents of the clipboard
+ * @param {Context} props.context
  */
 export default function DirView(props) {
 	const settingPreviews = localStorage.getItem("previews") === "true"
@@ -67,7 +67,7 @@ export default function DirView(props) {
 	const classes = styles()
 	const [previews, setPreviews] = React.useState(settingPreviews)
 	const [zoom, setZoom] = React.useState(settingZoom)
-	const ctx = React.useContext(GlobalContext)
+	const ctx = props.context
 
 	function newFile() {
 		const createFile = (name, type) => {

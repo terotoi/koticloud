@@ -1,18 +1,15 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { makeStyles, MuiThemeProvider } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Container from '@material-ui/core/Container'
-
 import LoginView from './login'
 import MyAppBar from './appbar'
 import FileManager from './fm/filemanager'
-import GlobalContext from './context'
 import { openErrorDialog } from './dialogs/error'
-import theme from './theme'
-import api from './api'
-
 import { WindowManager } from './window'
 import { setCookie } from './util'
+import theme from './theme'
+import api from './api'
 
 const styles = makeStyles((theme) => ({
 	root: {
@@ -28,6 +25,7 @@ const styles = makeStyles((theme) => ({
 
 /**
  * App is the root component of the application.
+ * @param {Context} context 
  */
 export default function App(props) {
 	const [username, setUsername] = React.useState('')
@@ -36,7 +34,7 @@ export default function App(props) {
 	const [initialNodeID, setInitialNodeID] = React.useState(null)
 	const [searchResults, setSearchResults] = React.useState(null)
 
-	const ctx = React.useContext(GlobalContext)
+	const ctx = props.context // React.useContext(GlobalContext)
 	const classes = styles()
 
 	/**
@@ -127,14 +125,15 @@ export default function App(props) {
 							isAdmin={isAdmin}
 							authToken={authToken}
 							onLogout={logout}
+							onSearchResults={(r) => { setSearchResults(r) }}
+							context={ctx} />
 
-							onSearchResults={(r) => { setSearchResults(r) }} />
-						
 						<FileManager
 							className={classes.fm}
 							nodes={searchResults}
 							initialNodeID={initialNodeID}
-							authToken={authToken} />
+							authToken={authToken}
+							context={ctx} />
 					</Container>}
 			</WindowManager>
 		</MuiThemeProvider>

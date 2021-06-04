@@ -13,10 +13,9 @@ require (
 	github.com/lestrrat-go/backoff/v2 v2.0.8 // indirect
 	github.com/lestrrat-go/jwx v1.1.5 // indirect
 	github.com/lib/pq v1.10.0
-	github.com/volatiletech/null v8.0.0+incompatible // indirect
-	github.com/volatiletech/null/v8 v8.1.2
-	github.com/volatiletech/sqlboiler v3.7.1+incompatible
-	github.com/volatiletech/sqlboiler/v4 v4.5.0
-	github.com/volatiletech/strmangle v0.0.1
+	github.com/volatiletech/null/v8 v8.1.2 // indirect
+	github.com/volatiletech/sqlboiler v3.7.1+incompatible // indirect
+	github.com/volatiletech/sqlboiler/v4 v4.5.0 // indirect
+	github.com/volatiletech/strmangle v0.0.1 // indirect
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 )

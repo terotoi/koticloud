@@ -12,24 +12,15 @@ import (
 	"github.com/go-chi/jwtauth"
 	"github.com/terotoi/koticloud/server/fs"
 	"github.com/terotoi/koticloud/server/models"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
-
-// NodeWithMeta contains Node data and associated metadata.
-// Only one metum per returned node is supported.
-type NodeWithMeta struct {
-	models.Node `boil:",bind"`
-	MetaType    null.String `boil:"meta_type"`
-	MetaData    null.JSON   `boil:"meta.data"`
-}
 
 // ListDirResponse is contains the directory node
 // and its children.
 type ListDirResponse struct {
 	Dir      models.Node
 	DirPath  string // Full path of the directory
-	Children []*NodeWithMeta
+	Children []*fs.NodeWithMeta
 }
 
 // CopyRequest requests copying of a node to a directory.
@@ -133,16 +124,13 @@ func NodeInfo(auth *jwtauth.JWTAuth, db *sql.DB) func(user *models.User, w http.
 		id, err := strconv.Atoi(chi.URLParam(r, "nodeID"))
 		if reportIf(err, http.StatusBadRequest, "", r, w) != nil {
 			return
+
 		}
 
-		// NOTE: Current system supports only one metum per user-node.
-		// This means that metadata on multiple users cannot be returned.
-		var nwm NodeWithMeta
-		err = models.NewQuery(
-			qm.Select("nodes.*", "meta.type AS meta_type", "meta.data"),
-			qm.From("nodes"),
-			qm.LeftOuterJoin("meta on nodes.id=meta.node_id and meta.user_id=?", user.ID),
-			qm.Where("nodes.id=?", id)).Bind(ctx, db, &nwm)
+		nwm, err := fs.NodeWithMetaByID(ctx, id, user.ID, db)
+		if reportInt(err, r, w) != nil {
+			return
+		}
 
 		if !fs.AccessAllowed(user, &nwm.Node, false) {
 			reportUnauthorized("no access", r, w)
@@ -193,14 +181,7 @@ func NodeList(auth *jwtauth.JWTAuth, db *sql.DB) func(user *models.User, w http.
 				return
 			}
 
-			// NOTE: Current system supports only one metum per user-node.
-			// This means that metadata on multiple users cannot be returned.
-			var nwm []*NodeWithMeta
-			err = models.NewQuery(
-				qm.Select("nodes.*", "meta.type AS meta_type", "meta.data"),
-				qm.From("nodes"),
-				qm.FullOuterJoin("meta on nodes.id=meta.node_id and meta.user_id=?", user.ID),
-				qm.Where("parent_id=?", node.ID)).Bind(ctx, db, &nwm)
+			nwm, err := fs.NodesWithMetaByParentID(ctx, node.ID, user.ID, db)
 			if reportInt(err, r, w) != nil {
 				return
 			}
@@ -350,7 +331,7 @@ func NodeMove(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http
 		}
 		defer tx.Rollback()
 
-		node, err := models.FindNode(ctx, tx, req.SourceID)
+		node, err := fs.NodeWithMetaByID(ctx, req.SourceID, user.ID, tx)
 		if reportIf(err, http.StatusNotFound, fmt.Sprintf("node not found: %d", req.SourceID), r, w) != nil {
 			return
 		}
@@ -360,7 +341,7 @@ func NodeMove(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http
 			return
 		}
 
-		if err = fs.Move(ctx, node, dest, user, tx); err != nil {
+		if err = fs.Move(ctx, &node.Node, dest, user, tx); err != nil {
 			reportSystemError(err, r, w)
 			return
 		}
@@ -369,7 +350,7 @@ func NodeMove(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http
 			return
 		}
 
-		respJSON([]*models.Node{node}, r, w)
+		respJSON([]*fs.NodeWithMeta{node}, r, w)
 	}
 }
 
@@ -392,12 +373,12 @@ func NodeRename(fileRoot, thumbRoot string, db *sql.DB) func(user *models.User, 
 		}
 		defer tx.Rollback()
 
-		node, err := models.FindNode(ctx, tx, req.ID)
+		node, err := fs.NodeWithMetaByID(ctx, req.ID, user.ID, tx)
 		if reportIf(err, http.StatusNotFound, fmt.Sprintf("node not found: %d", req.ID), r, w) != nil {
 			return
 		}
 
-		if err = fs.Rename(ctx, node, req.NewName, user, tx); err != nil {
+		if err = fs.Rename(ctx, &node.Node, req.NewName, user, tx); err != nil {
 			reportSystemError(err, r, w)
 			return
 		}
@@ -406,7 +387,7 @@ func NodeRename(fileRoot, thumbRoot string, db *sql.DB) func(user *models.User, 
 			return
 		}
 
-		respJSON([]*models.Node{node}, r, w)
+		respJSON([]*fs.NodeWithMeta{node}, r, w)
 	}
 }
 

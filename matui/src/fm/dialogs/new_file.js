@@ -70,7 +70,7 @@ export default function NewFileDialog(props) {
  * Creates an NewFileDialog and adds it to the context using context.addWindow(dialog)
  * On close, context.removeDialog(dialog) will be called.
  * 
- * @param {GlobalContext} context - the context to add the dialog in
+ * @param {Context} context - the context to add the dialog in
  * @param {function} props.onConfirm - called on dialog confirmation
  */
 export function openNewFileDialog(context, props) {

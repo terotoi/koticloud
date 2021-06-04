@@ -7,7 +7,6 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { makeStyles } from '@material-ui/core/styles'
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack'
 import { nodeURL, setNodeMeta } from '../util'
-import GlobalContext from '../context'
 import api from '../api'
 
 const styles = makeStyles((theme) => ({
@@ -51,6 +50,7 @@ const updateInterval = 2000
  * 
  * @param {Node} props.node - the node to view
  * @param {string} props.authToken - JWT authentication token
+ * @param {Context} props.context
  */
 export default function PDFView(props) {
 	const [pageNum, setPageNum] = useState(1)
@@ -59,8 +59,8 @@ export default function PDFView(props) {
 	const [fitMode, setFitMode] = useState(0) // 0 = fit to height, 1 = fit to width, 2 = fit to 75% * width, 3 = fit to 50% * width
 	const [justify, setJustify] = useState("center")
 	const [updateTimeout, setUpdateTimeout] = useState(null)
-	const context = React.useContext(GlobalContext)
 	const classes = styles()
+	const ctx = props.context
 
 	function updateProgress(page) {
 		setNodeMeta(props.node, page)
@@ -74,7 +74,7 @@ export default function PDFView(props) {
 				() => {
 					console.log("updateProgress OK", JSON.stringify(props.node.MetaData))
 				},
-				(error) => { openErrorDialog(context, error) })
+				(error) => { openErrorDialog(ctx, error) })
 		}, updateInterval))
 	}
 

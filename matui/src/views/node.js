@@ -57,11 +57,13 @@ const styles = makeStyles((theme) => ({
  * @param {Node} props.onNodeSaved - called when a node has been saved either to a new file or existing
  * @param {string} props.authToken - JWT authentication token
  * @param {function} props.onBack - called when user goes back the path view
+ * @param {Context} props.context
  */
 export default function NodeView(props) {
 	const [node, setNode] = React.useState(props.initialNode)
 	const [hover, setHover] = React.useState(true)
 	const classes = styles()
+	const ctx = props.context
 
 	function onNextNode() {
 		for (let i = 0; i < props.nodes.length - 1; i++) {
@@ -102,7 +104,8 @@ export default function NodeView(props) {
 		return <PlayableView
 			node={node}
 			authToken={props.authToken}
-			onEnded={onNextNode} />
+			onEnded={onNextNode}
+			context={ctx} />
 	}
 
 	function renderImage() {
@@ -113,14 +116,15 @@ export default function NodeView(props) {
 		return <PDFView
 			node={node}
 			authToken={props.authToken}
-		/>
+			context={ctx} />
 	}
 
 	function renderTextEdit() {
 		return <TextEdit
 			node={node}
 			onSave={props.onNodeSaved}
-			authToken={props.authToken} />
+			authToken={props.authToken}
+			context={ctx} />
 	}
 
 	function renderDownload() {
@@ -129,7 +133,7 @@ export default function NodeView(props) {
 				<Box display="flex">
 					<img
 						src={nodeThumb(node, props.previews)} />
-					</Box>
+				</Box>
 				<Typography>Type: {node.mime_type}</Typography>
 				<Button variant="contained" color="secondary" href={nodeURL(node)} download={node.name}>{node.name}</Button>
 				<Typography>Size: {node.size}</Typography>

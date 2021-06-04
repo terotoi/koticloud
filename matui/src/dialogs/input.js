@@ -65,7 +65,7 @@ export default function InputDialog(props) {
  * Creates an InputDialog and adds it to the context using context.addWindow(dialog)
  * On close, context.removeDialog(dialog) will be called.
  * 
- * @param {GlobalContext} context - the context to add the dialog in
+ * @param {Context} context - the context to add the dialog in
  * @param {string} props.text - main text of the dialog
  * @param {label} props.label - label of the input field
  * @param {string} props.confirmText - text of the confirm dialog

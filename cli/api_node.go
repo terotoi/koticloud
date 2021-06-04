@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/terotoi/koticloud/server/api"
+	"github.com/terotoi/koticloud/server/fs"
 	"github.com/terotoi/koticloud/server/models"
 )
 
@@ -30,7 +31,7 @@ func apiNodeIDForPath(path, authToken, baseURL string) (int, error) {
 }
 
 // apiInfo requests information about one node from the server.
-func apiInfo(id int, authToken, baseURL string) (*api.NodeWithMeta, error) {
+func apiInfo(id int, authToken, baseURL string) (*fs.NodeWithMeta, error) {
 	client := http.Client{}
 
 	body, err := RequestURL(&client, fmt.Sprintf("%s/node/info/%d", baseURL, id),
@@ -39,7 +40,7 @@ func apiInfo(id int, authToken, baseURL string) (*api.NodeWithMeta, error) {
 		return nil, err
 	}
 
-	var rs api.NodeWithMeta
+	var rs fs.NodeWithMeta
 	if err := json.Unmarshal(body, &rs); err != nil {
 		return nil, err
 	}
@@ -47,7 +48,7 @@ func apiInfo(id int, authToken, baseURL string) (*api.NodeWithMeta, error) {
 }
 
 // apiList requests a directory listing.
-func apiList(path, authToken, baseURL string) (*models.Node, []*api.NodeWithMeta, error) {
+func apiList(path, authToken, baseURL string) (*models.Node, []*fs.NodeWithMeta, error) {
 	id, err := apiNodeIDForPath(path, authToken, baseURL)
 	if err != nil {
 		return nil, nil, err

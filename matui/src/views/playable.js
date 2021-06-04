@@ -19,7 +19,6 @@ import { formatDuration, isVideo, nodeURL, setNodeMeta } from '../util'
 import { openErrorDialog } from '../dialogs/error'
 import { nodeThumb } from '../thumbs'
 import api from '../api'
-import GlobalContext from '../context'
 
 const styles = makeStyles((theme) => ({
 	videoRoot: {
@@ -84,10 +83,9 @@ const skipDuration = 10.0
  * @param {Node} props.node - the node to render
  * @param {string} props.authToken - JWT authentication token
  * @param {function} props.onEnded - called when the media has finished
+ * @param {Context} props.context
  */
 export default function PlayableView(props) {
-	const classes = styles()
-
 	const player = React.useRef(null)
 	const [hover, setHover] = useState(true)
 	const [volume, setVolume] = useState(1.0)
@@ -100,7 +98,8 @@ export default function PlayableView(props) {
 	const [started, setStarted] = useState(false) // Started playing
 	const [updateTimeout, setUpdateTimeout] = useState(null)
 	const [endTimeout, setEndTimeout] = useState(null)
-	const context = React.useContext(GlobalContext)
+	const classes = styles()
+	const ctx = props.context
 
 	React.useEffect(() => {
 		const [w, h] = [player.current.offsetWidth, player.current.offsetHeight]
@@ -145,7 +144,7 @@ export default function PlayableView(props) {
 				() => {
 					console.log("updateMeta:", progress, "/", props.node.length, volume)
 				},
-				(error) => { openErrorDialog(context, error) })
+				(error) => { openErrorDialog(ctx, error) })
 		}, updateInterval))
 	}
 

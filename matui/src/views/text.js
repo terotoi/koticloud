@@ -1,7 +1,6 @@
 import React from 'react'
 import { nodeURL } from '../util'
 import { openErrorDialog } from '../dialogs/error'
-import GlobalContext from '../context'
 import api from '../api'
 
 import MUIRichTextEditor from 'mui-rte'
@@ -14,12 +13,12 @@ import { ContentState, convertFromHTML, convertToRaw } from 'draft-js'
  * @param {function(Node)} props.onSave - called when the text has been saved to a
  * 			file node, either a new one or existing
  * @param {string} props.authToken - JWT authentication token
+ * @param {Context} props.context
  */
 export default function TextEdit(props) {
 	const [initial, setInitial] = React.useState(null)
 	const [editorState, setEditorState] = React.useState(null)
-	const context = React.useContext(GlobalContext)
-	const ctx = React.useContext(GlobalContext)
+	const ctx = props.context
 
 	function save(d) {
 
@@ -58,7 +57,7 @@ export default function TextEdit(props) {
 					const content = JSON.stringify(convertToRaw(state))
 					setInitial(content)
 				},
-				(error) => { openErrorDialog(context, error) })
+				(error) => { openErrorDialog(ctx, error) })
 	}, [props.node])
 
 	function onKeyDown(ev) {

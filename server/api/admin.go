@@ -9,7 +9,6 @@ import (
 	"github.com/terotoi/koticloud/server/fs"
 	"github.com/terotoi/koticloud/server/models"
 	"github.com/terotoi/koticloud/server/proc"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // ScanDeletedNodes scans for deleted files or dangling links in the file store.
@@ -19,7 +18,7 @@ func ScanDeletedNodes(fileRoot, thumbRoot string, db *sql.DB) func(user *models.
 
 		log.Printf("Scanning for physically deleted nodes issued by %s.", user.Name)
 
-		nodes, err := models.Nodes(qm.Where("type != 'directory'")).All(ctx, db)
+		nodes, err := fs.NodesAll(ctx, db)
 		if reportInt(err, r, w) != nil {
 			return
 		}
@@ -28,6 +27,10 @@ func ScanDeletedNodes(fileRoot, thumbRoot string, db *sql.DB) func(user *models.
 		var dirs []*models.Node
 
 		for _, node := range nodes {
+			if fs.IsDir(node) {
+				continue
+			}
+
 			_, err := os.Stat(fs.NodeLocalPath(fileRoot, node.ID, true))
 			if os.IsNotExist(err) {
 				log.Printf("Node %d does not exist in filesystem, deleting from database.", node.ID)
@@ -48,7 +51,7 @@ func ScanDeletedNodes(fileRoot, thumbRoot string, db *sql.DB) func(user *models.
 						}
 
 						if !found {
-							dir, err := models.FindNode(ctx, db, node.ParentID.Int)
+							dir, err := fs.NodeByID(ctx, node.ParentID.Int, db)
 							if err != nil {
 								log.Println(err)
 							} else if dir != nil {

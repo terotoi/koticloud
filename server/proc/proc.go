@@ -113,7 +113,7 @@ func (np *NodeProcessor) processRequest(req *models.NodeProcessReq, tx boil.Cont
 		}()
 	}
 
-	node, err := models.FindNode(np.ctx, tx, req.NodeID)
+	node, err := fs.NodeByID(np.ctx, req.NodeID, tx)
 	if err != nil {
 		return err
 	}

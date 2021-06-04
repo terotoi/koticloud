@@ -13,7 +13,6 @@ import MenuIcon from '@material-ui/icons/Menu'
 import SearchIcon from '@material-ui/icons/Search'
 
 import AboutDialog from './dialogs/about'
-import GlobalContext from './context'
 import api from './api'
 import { openAlertDialog } from './dialogs/alert'
 import { openErrorDialog } from './dialogs/error'
@@ -90,6 +89,7 @@ const useStyles = makeStyles((theme) => ({
  *    and the results are in
  * @param {string} props.authToken - JWT authentication token
  * @param {string} props.className
+ * @param {Context} props.context
 */
 export default function MyAppBar(props) {
 	const classes = useStyles()
@@ -97,7 +97,7 @@ export default function MyAppBar(props) {
 	const [accountMenuAnchor, setAccountMenuAnchor] = React.useState(null)
 	const [aboutOpen, setAboutOpen] = React.useState(false)
 	const [searchCall, setSearchCall] = React.useState(null)
-	const ctx = React.useContext(GlobalContext)
+	const ctx = props.context
 
 	function onSearchChanged(ev) {
 		const txt = ev.target.value
@@ -139,7 +139,6 @@ export default function MyAppBar(props) {
 		<div className={classes.root}>
 			<AppBar position="static">
 				<Toolbar variant="dense">
-
 					<IconButton
 						edge="start"
 						className={classes.menuButton}

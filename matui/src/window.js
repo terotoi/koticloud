@@ -1,6 +1,5 @@
 import React, { useRef } from 'react'
 import { makeStyles } from '@material-ui/core'
-import GlobalContext from './context'
 
 const styles = makeStyles((theme) => ({
 	wm: {
@@ -25,7 +24,7 @@ const styles = makeStyles((theme) => ({
  * Creates an ErrorDialog and adds it the context using context.addWindow(dialog)
  * On close, context.removeDialog(dialog) will be called.
  * 
- * @param {GlobalContext} context - the context to add the dialog in
+ * @param {Context} context - the context to add the dialog in
  * @param {string} error - the error text
  */
 export function openWindow(context, content) {

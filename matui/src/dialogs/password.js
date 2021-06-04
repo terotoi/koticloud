@@ -80,7 +80,7 @@ export default function PasswordDialog(props) {
  * Creates a PasswordDialog and adds it to the context using context.addWindow(dialog)
  * On close, context.removeDialog(dialog) will be called.
  * 
- * @param {GlobalContext} context - the context to add the dialog in
+ * @param {Context} context - the context to add the dialog in
  * @param {string} props.text - main text of the dialog
  * @param {function(oldPasswd, newPasswd)} props.onConfirm - function called
  *  when the dialog is confirmed

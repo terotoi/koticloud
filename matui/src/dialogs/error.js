@@ -39,7 +39,7 @@ export default function ErrorDialog(props) {
  * Creates an ErrorDialog and adds it to the context using context.addWindow(dialog)
  * On close, context.removeDialog(dialog) will be called.
  * 
- * @param {GlobalContext} context - the context to add the dialog in
+ * @param {Context} context - the context to add the dialog in
  * @param {string} error - the error text
  */
 export function openErrorDialog(context, error) {

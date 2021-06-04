@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/terotoi/koticloud/server/api"
+	"github.com/terotoi/koticloud/server/fs"
 	"github.com/terotoi/koticloud/server/models"
 )
 
@@ -30,7 +30,7 @@ func printNode(node *models.Node) {
 		node.ModifiedOn.Format(time.UnixDate))
 }
 
-func printNodeWithMeta(node *api.NodeWithMeta) {
+func printNodeWithMeta(node *fs.NodeWithMeta) {
 	fmt.Printf("%-4d %-40s %-10s %-16s %12d  %s\n",
 		node.ID, node.Name, node.Type, node.MimeType, node.Size.Int64,
 		node.ModifiedOn.Format(time.UnixDate))

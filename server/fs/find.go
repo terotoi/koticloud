@@ -13,6 +13,11 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+// Returns all nodes.
+func NodesAll(ctx context.Context, db boil.ContextExecutor) ([]*models.Node, error) {
+	return models.Nodes().All(ctx, db)
+}
+
 // NodeByID returns a node by ID.
 func NodeByID(ctx context.Context, id int, db boil.ContextExecutor) (*models.Node, error) {
 	//node, err := models.Nodes(qm.Where("id=?", id)).One(ctx, db)
@@ -21,6 +26,39 @@ func NodeByID(ctx context.Context, id int, db boil.ContextExecutor) (*models.Nod
 		return nil, core.NewSystemError(http.StatusNotFound, err.Error(), fmt.Sprintf("node %d not found", id))
 	}
 	return node, err
+}
+
+// NodeWithMetaByID returns a node by ID.
+func NodeWithMetaByID(ctx context.Context, nodeID, userID int, db boil.ContextExecutor) (*NodeWithMeta, error) {
+	// NOTE: Current system supports only one metum per user-node.
+	// This means that metadata on multiple users cannot be returned.
+	var nwm NodeWithMeta
+	err := models.NewQuery(
+		qm.Select("nodes.*", "meta.type AS meta_type", "meta.data"),
+		qm.From("nodes"),
+		qm.LeftOuterJoin("meta on nodes.id=meta.node_id and meta.user_id=?", userID),
+		qm.Where("nodes.id=?", nodeID)).Bind(ctx, db, &nwm)
+	return &nwm, err
+}
+
+// NodesByParentID returns nodes with the given parent ID.
+func NodesByParentID(ctx context.Context, parentID int, db boil.ContextExecutor) ([]*models.Node, error) {
+	n, err := models.Nodes(qm.Where("parent_id=?", parentID)).All(ctx, db)
+	return n, err
+}
+
+// NodesWithMetaByParentID returns nodes with the given parent ID.
+// Associated metadata for the node and user is returned also.
+func NodesWithMetaByParentID(ctx context.Context, parentID, userID int, db boil.ContextExecutor) ([]*NodeWithMeta, error) {
+	// NOTE: Current system supports only one metum per user-node.
+	// This means that metadata on multiple users cannot be returned.
+	var nwm []*NodeWithMeta
+	err := models.NewQuery(
+		qm.Select("nodes.*", "meta.type AS meta_type", "meta.data"),
+		qm.From("nodes"),
+		qm.FullOuterJoin("meta on nodes.id=meta.node_id and meta.user_id=?", userID),
+		qm.Where("parent_id=?", parentID)).Bind(ctx, db, &nwm)
+	return nwm, err
 }
 
 // NodeLocalPath returns the path to the file containing file node's content.
@@ -87,10 +125,4 @@ func NodeChildByName(ctx context.Context, name string, parentID int, tx *sql.Tx)
 		return n[0], nil
 	}
 	return nil, nil
-}
-
-// NodesByParentID returns nodes with the given parent ID.
-func NodesByParentID(ctx context.Context, parentID int, db boil.ContextExecutor) ([]*models.Node, error) {
-	n, err := models.Nodes(qm.Where("parent_id=?", parentID)).All(ctx, db)
-	return n, err
 }

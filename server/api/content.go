@@ -12,7 +12,6 @@ import (
 	"github.com/terotoi/koticloud/server/fs"
 	"github.com/terotoi/koticloud/server/models"
 	"github.com/volatiletech/sqlboiler/queries"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // FileNotFoundHandler is called by NodeGet if a file for the
@@ -39,7 +38,7 @@ func NodeGet(fileRoot string, mimeTypeFromDB bool, preCheck func(*models.Node) b
 			return
 		}
 
-		node, err := models.Nodes(qm.Where("id=?", id)).One(r.Context(), db)
+		node, err := fs.NodeByID(r.Context(), id, db)
 		if reportIf(err, http.StatusNotFound, "", r, w) != nil {
 			return
 		}
