@@ -33,6 +33,7 @@ export default function App(props) {
 	const [authToken, setAuthToken] = React.useState(null)
 	const [initialNodeID, setInitialNodeID] = React.useState(null)
 	const [searchResults, setSearchResults] = React.useState(null)
+	const [settings, setSettings] = React.useState(null)
 
 	const ctx = props.context // React.useContext(GlobalContext)
 	const classes = styles()
@@ -68,6 +69,8 @@ export default function App(props) {
 				localStorage.setItem('username', resp.Username)
 				localStorage.setItem('admin', resp.Admin)
 				localStorage.setItem('initialNodeID', "" + resp.InitialNodeID)
+
+				loadSettings(resp.AuthTOken)
 			}
 		}
 
@@ -90,6 +93,15 @@ export default function App(props) {
 		setCookie('jwt', "")
 	}
 
+	/** Load settings from the server. */
+	function loadSettings(token) {
+		api.querySettings(token, (settings) => {
+			setSettings(settings)
+		}, (error) => {
+			openErrorDialog(ctx, error)
+		})
+	}
+
 	// Load current authentication from local storage.
 	React.useEffect(() => {
 		if (authToken === null) {
@@ -104,6 +116,7 @@ export default function App(props) {
 				setAdmin(admin)
 				setInitialNodeID(parseInt(initialNodeID))
 				setCookie("jwt", authToken, 31)
+				loadSettings(authToken)
 			}
 		}
 	}, [authToken])
@@ -133,6 +146,7 @@ export default function App(props) {
 							nodes={searchResults}
 							initialNodeID={initialNodeID}
 							authToken={authToken}
+							settings={settings}
 							context={ctx} />
 					</Container>}
 			</WindowManager>

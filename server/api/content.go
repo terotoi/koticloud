@@ -31,8 +31,8 @@ type FileNotFoundHandler func(w http.ResponseWriter, r *http.Request, node *mode
 // function is called.
 //
 func NodeGet(fileRoot string, mimeTypeFromDB bool, preCheck func(*models.Node) bool,
-	fileNotFound FileNotFoundHandler, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
-	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
+	fileNotFound FileNotFoundHandler, db *sql.DB) func(user *models.User, tokenNode *models.Node, w http.ResponseWriter, r *http.Request) {
+	return func(user *models.User, tokenNode *models.Node, w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.Atoi(chi.URLParam(r, "nodeID"))
 		if reportIf(err, http.StatusBadRequest, "", r, w) != nil {
 			return
@@ -40,6 +40,12 @@ func NodeGet(fileRoot string, mimeTypeFromDB bool, preCheck func(*models.Node) b
 
 		node, err := fs.NodeByID(r.Context(), id, db)
 		if reportIf(err, http.StatusNotFound, "", r, w) != nil {
+			return
+		}
+
+		// Node-specific tokens are only allowed to access that node.
+		if tokenNode != nil && tokenNode.ID != node.ID {
+			reportUnauthorized("no access", r, w)
 			return
 		}
 

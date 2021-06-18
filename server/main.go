@@ -7,9 +7,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/terotoi/koticloud/server/proc"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/terotoi/koticloud/server/core"
+	"github.com/terotoi/koticloud/server/proc"
 
 	_ "github.com/lib/pq" // For PostgreSQL driver
 )
@@ -44,7 +45,7 @@ func connectDB(config string) (*sql.DB, error) {
 }
 
 func main() {
-	cfg, err := parseArgs()
+	cfg, err := core.ParseArgs()
 	if err != nil {
 		log.Println(err)
 		return
@@ -78,7 +79,7 @@ func main() {
 
 		setupRoutes(r, cfg, np, db)
 
-		addr := ":7070"
+		addr := cfg.ListenAddress
 		log.Printf("Listening on %s\n", addr)
 		if err := http.ListenAndServe(addr, r); err != nil {
 			log.Println(err)

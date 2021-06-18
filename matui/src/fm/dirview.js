@@ -57,6 +57,7 @@ const styles = makeStyles((theme) => ({
  * @param {string} props.authToken - JWT authentication token
  * @param {function} props.onNodeAdded - called when a node has been uploaded
  * @param {Object} props.clipboard - contents of the clipboard
+ * @param {Object} props.settings - user's settings
  * @param {Context} props.context
  */
 export default function DirView(props) {
@@ -145,14 +146,18 @@ export default function DirView(props) {
 			previews={previews}
 			onNodeOpen={props.onNodeOpen}
 			onNodeAction={props.onNodeAction}
-			authToken={props.authToken} />
+			authToken={props.authToken}
+			settings={props.settings}
+			context={ctx} />
 	} else {
 		rs = <NodeList
 			nodes={props.nodes}
 			previews={previews}
 			onNodeOpen={props.onNodeOpen}
 			onNodeAction={props.onNodeAction}
-			authToken={props.authToken} />
+			authToken={props.authToken}
+			settings={props.settings}
+			context={ctx} />
 	}
 
 	return (

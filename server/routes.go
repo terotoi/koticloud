@@ -8,11 +8,12 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
 	"github.com/terotoi/koticloud/server/api"
+	"github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/models"
 	"github.com/terotoi/koticloud/server/proc"
 )
 
-func setupRoutes(r *chi.Mux, cfg *Config, np *proc.NodeProcessor, db *sql.DB) {
+func setupRoutes(r *chi.Mux, cfg *core.Config, np *proc.NodeProcessor, db *sql.DB) {
 	auth := jwtauth.New("HS256", []byte(cfg.JWTSecret), nil)
 
 	// Get JWT from 'jwt' query param, authentication header or cookie 'jwt'
@@ -40,6 +41,7 @@ func setupRoutes(r *chi.Mux, cfg *Config, np *proc.NodeProcessor, db *sql.DB) {
 		r.Post("/node/delete", api.Authorized(api.NodeDelete(cfg.FileRoot, cfg.ThumbRoot, cfg.FollowDataSymlink, db), false, db))
 		r.Post("/node/search", api.Authorized(api.NodeSearch(db), false, db))
 
+		r.Post("/user/settings", api.Authorized(api.QuerySettings(cfg, db), true, db))
 		r.Post("/user/create", api.Authorized(api.UserCreate(db), true, db))
 		r.Post("/user/setpassword", api.Authorized(api.SetPassword(db), false, db))
 		r.Post("/admin/scan_deleted",
@@ -48,16 +50,18 @@ func setupRoutes(r *chi.Mux, cfg *Config, np *proc.NodeProcessor, db *sql.DB) {
 			api.Authorized(api.GenerateAllThumbnails(np, cfg.FileRoot, db), true, db))
 
 		r.Get("/node/get/{nodeID:[0-9]+}",
-			api.Authorized(api.NodeGet(cfg.FileRoot, true, nil, nil, db), false, db))
+			api.AuthorizedNode(api.NodeGet(cfg.FileRoot, true, nil, nil, db), false, db))
 
 		// Thumbnails are only served, if the respective node has "has_custom_thumb" true
-		r.Get("/node/thumb/{nodeID:[0-9]+}", api.Authorized(api.NodeGet(cfg.ThumbRoot, false,
+		r.Get("/node/thumb/{nodeID:[0-9]+}", api.AuthorizedNode(api.NodeGet(cfg.ThumbRoot, false,
 			func(node *models.Node) bool {
 				return node.HasCustomThumb
 			},
 			api.ContentServeThumbFallback(cfg.ThumbRoot, cfg.StaticRoot), db), false, db))
 
 		r.Post("/meta/update", api.Authorized(api.MetaUpdate(db), false, db))
+
+		r.Post("/cmd/run", api.Authorized(api.RunCommand(auth, cfg, db), false, db))
 	})
 
 	// Methods not requiring JWT authentication.

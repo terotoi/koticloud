@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/go-chi/jwtauth"
+	"github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/models"
 	"github.com/terotoi/koticloud/server/mx"
 	"github.com/volatiletech/null/v8"
@@ -42,6 +42,15 @@ type SetPasswordRequest struct {
 	Username    string
 	OldPassword string
 	NewPassword string
+}
+
+// SettingsResponse is returned by QuerySettings().
+type SettingsResponse struct {
+	NamedCommands []struct {
+		ID           string   // ID of the command
+		Entry        string   // Name of the entry in the action menu
+		ContentTypes []string // List of applicable content types
+	}
 }
 
 // UserLogin logins in as an existing user.
@@ -92,8 +101,7 @@ func UserLogin(auth *jwtauth.JWTAuth, db *sql.DB) func(w http.ResponseWriter, r 
 		}
 
 		// Create a JWT token
-		token := map[string]interface{}{"user_id": user.ID, "updated": time.Now()}
-		_, t, err := auth.Encode(token)
+		token, err := createToken(auth, user, nil)
 		if reportInt(err, r, w); err != nil {
 			return
 		}
@@ -105,7 +113,7 @@ func UserLogin(auth *jwtauth.JWTAuth, db *sql.DB) func(w http.ResponseWriter, r 
 		log.Printf("User %s (%d) logged in from %s", user.Name, user.ID, addr)
 		resp := LoginResponse{
 			Username:      user.Name,
-			AuthToken:     t,
+			AuthToken:     token,
 			Admin:         user.Admin,
 			InitialNodeID: homeID,
 		}
@@ -197,5 +205,27 @@ func SetPassword(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *h
 
 		log.Printf("Password changed for %s by %s [%s]", username, user.Name, r.Host)
 		respJSON(true, r, w)
+	}
+}
+
+// QuerySettings returns settings pertinent for the user.
+func QuerySettings(cfg *core.Config, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
+	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
+		var resp SettingsResponse
+
+		for _, cmd := range cfg.ExtCommands {
+			if user.Admin || !cmd.Admin {
+				resp.NamedCommands = append(resp.NamedCommands, struct {
+					ID           string
+					Entry        string
+					ContentTypes []string
+				}{ID: cmd.ID,
+					Entry:        cmd.Entry,
+					ContentTypes: cmd.ContentTypes,
+				})
+			}
+		}
+
+		respJSON(resp, r, w)
 	}
 }

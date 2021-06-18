@@ -55,6 +55,10 @@ function fetchData(url, method, type, obj, authToken, success, error) {
         if (msg === "")
           msg = rs.statusText
         error(msg, rs.statusText)
+      }).catch(function (err) {
+        console.log("Error: ", err)
+        if (error)
+          error(err)
       })
     } else {
       rs[type]().then(function (data) {
@@ -244,7 +248,33 @@ function setPassword(username, oldPassword, newPassword, authToken, success, err
   }, authToken, success, error)
 }
 
+/**
+ * Queries all settings pertinent to the currect user.
+ * 
+ * @param {string} authToken - JWT authentication token
+ * @param {function} success - function(settings : Object) to call on success
+ * @param {function} error - function(message) called on error
+ */
+function querySettings(authToken, success, error) {
+  fetchData('/user/settings', 'post', 'json', null, authToken, success, error)
+}
 
+/**
+ * runNamedCommand a named command on the server.
+ * 
+ * @param {Command} command - the command to execute
+ * @param {Node} node - the target node
+ * @param {string} authToken - JWT authentication token
+ * @param {function} success - function()) to call on success
+ * @param {function} error - function(message) called on error
+ */
+function runNamedCommand(command, node, authToken, success, error) {
+  console.log("command:", command.ID, "node:", node.id)
+  fetchData('/cmd/run', 'post', 'json', {
+    CommandID: command.ID,
+    NodeID: node.id
+  }, authToken, success, error)
+}
 
 /**
  * Uploader for files. Uses axios for now.
@@ -297,11 +327,13 @@ class Uploader {
 const api = {
   copyNode: copyNode,
   deleteNode: deleteNode,
+  runNamedCommand: runNamedCommand,
   fetchData: fetchData,
   listDir: listDir,
   login: login,
   makeDir: makeDir,
   moveNode: moveNode,
+  querySettings: querySettings,
   renameNode: renameNode,
   searchNodes: searchNodes,
   setPassword: setPassword,

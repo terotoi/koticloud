@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"encoding/json"
@@ -11,15 +11,26 @@ import (
 	"github.com/terotoi/koticloud/server/util"
 )
 
+// ExtCommand specifies an external command to execute on a node.
+type ExtCommand struct {
+	ID           string   // ID of the command, used by client to execute the command
+	Entry        string   // Name of the entry in the action menu
+	ContentTypes []string `json:"content_types"` // List of applicable content types
+	Command      string   // Command to execute on the server. %u is replaced by the content URL of the file
+	SuccessText  string   `json:"success_text"`
+	Admin        bool     // Admin access is required
+}
+
 // Config contains the application base configuration
 type Config struct {
-	Database   string
-	DataRoot   string `json:"data_root"`
-	FileRoot   string `json:"file_root"`
-	ThumbRoot  string `json:"thumb_root"`
-	UploadDir  string `json:"upload_dir"`
-	StaticRoot string `json:"static_Root"`
-	JWTSecret  string `json:"jwt_secret"`
+	ListenAddress string `json:"listen_address"` // In format [host]:port
+	Database      string
+	DataRoot      string `json:"data_root"`
+	FileRoot      string `json:"file_root"`
+	ThumbRoot     string `json:"thumb_root"`
+	UploadDir     string `json:"upload_dir"`
+	StaticRoot    string `json:"static_Root"`
+	JWTSecret     string `json:"jwt_secret"`
 
 	InitialUser string `json:"initial_user"`
 	InitialPW   string `json:"initial_password"`
@@ -27,6 +38,8 @@ type Config struct {
 	ThumbMethod       string `json:"thumb_method"`
 	FollowDataSymlink bool   `json:"follow_data_symlink"` // If true, deletion will follow the first symlink
 	DevMode           bool
+
+	ExtCommands []ExtCommand `json:"ext_commands"`
 }
 
 // loadConfig loads a config file from the given path.
@@ -58,11 +71,16 @@ func saveConfig(cfg *Config, path string) error {
 	return nil
 }
 
-func parseArgs() (*Config, error) {
-	var configFile, dbString, DataRoot, fileRoot, thumbRoot, uploadDir, StaticRoot string
+// ParseArgs parses command line arguments and loads the configuration file.
+func ParseArgs() (*Config, error) {
+	const defaultListenAddress = ":7070"
+
+	var configFile, address, dbString, DataRoot, fileRoot, thumbRoot, uploadDir, StaticRoot string
 	var save, devMode bool
+
 	flag.StringVar(&configFile, "c", "$HOME/opt/koticloud/config_$HOSTNAME.json", "config file location")
 	flag.BoolVar(&save, "save-config", false, "save configuraton file after argument parsing")
+	flag.StringVar(&address, "address", "", "the address to listen on, in format [host]:port")
 	flag.StringVar(&dbString, "db", "", "database config")
 	flag.StringVar(&DataRoot, "data", "", "data directory")
 	flag.StringVar(&fileRoot, "files", "", "root of the files directory")
@@ -96,6 +114,14 @@ func parseArgs() (*Config, error) {
 		if err := saveConfig(cfg, configFile); err != nil {
 			log.Printf("Failed to save config: %s", err.Error())
 		}
+	}
+
+	if address != "" {
+		cfg.ListenAddress = address
+	}
+
+	if cfg.ListenAddress == "" {
+		cfg.ListenAddress = defaultListenAddress
 	}
 
 	cfg.DevMode = devMode

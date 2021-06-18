@@ -25,6 +25,8 @@ const styles = makeStyles((theme) => ({
  * @param {function} props.onNodeOpen - called when an node should be opened
  * @param {function} props.onNodeAction - callled with (action, node, ...args) for an action on the node
  * @param {string} props.authToken - JWT authentication token
+ * @param {Object} props.settings - user's settings
+ * @param {Object} props.context
  */
 export function NodeGrid(props) {
 	const classes = styles()
@@ -46,7 +48,9 @@ export function NodeGrid(props) {
 					onOpen={props.onNodeOpen}
 					onAction={props.onNodeAction}
 					authToken={props.authToken}
-					zoom={props.zoom} />
+					zoom={props.zoom}
+					settings={props.settings}
+					context={props.context} />
 			</Grid>)
 	}
 

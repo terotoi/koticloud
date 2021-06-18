@@ -13,7 +13,7 @@ import TableRow from '@material-ui/core/TableRow'
 
 const styles = makeStyles((theme) => ({
 	thumb: {
-		width: '70pt', 
+		width: '70pt',
 		height: '40pt',
 		objectFit: 'contain',
 		borderWidth: '2pt',
@@ -61,6 +61,8 @@ const styles = makeStyles((theme) => ({
  * @param {function} props.onNodeOpen - called when an node should be opened
  * @param {function} props.onNodeAction - callled with (action, node, ...args) for an action on the node
  * @param {string} props.authToken - JWT authentication token
+ * @param {Object} props.settings - user's settings
+ * @param {Object} props.context
  */
 export default function NodeList(props) {
 	const classes = styles()
@@ -107,7 +109,9 @@ export default function NodeList(props) {
 									node={node}
 									authToken={props.authToken}
 									onOpen={props.onNodeOpen}
-									onAction={props.onNodeAction} />
+									onAction={props.onNodeAction}
+									commands={(props.settings && props.settings.NamedCommands) ? props.settings.NamedCommands : []}
+									context={props.context} />
 							</TableCell>
 						</TableRow>)
 				})}

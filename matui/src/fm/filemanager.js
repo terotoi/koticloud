@@ -25,6 +25,7 @@ const styles = makeStyles((theme) => ({
  * @param {[Node...]} props.nodes - optional override for nodes to list
  * @param {string} props.initialNodeID - ID of the node to open
  * @param {string} props.authToken - JWT authentication token
+ * @param {Object} props.settings - user's settings
  * @param {Context} props.context
  */
 export default function FileManager(props) {
@@ -271,6 +272,7 @@ export default function FileManager(props) {
 					onNodeAction={nodeAction}
 					onNodeAdded={onNodeAdded}
 					authToken={props.authToken}
+					settings={props.settings}
 					context={ctx} />
 			</div>)
 	}
