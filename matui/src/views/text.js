@@ -1,10 +1,23 @@
 import React from 'react'
+import { makeStyles } from '@material-ui/core/styles'
 import { nodeURL } from '../util'
 import { openErrorDialog } from '../dialogs/error'
 import api from '../api'
 
 import MUIRichTextEditor from 'mui-rte'
 import { ContentState, convertFromHTML, convertToRaw } from 'draft-js'
+
+
+const styles = makeStyles((theme) => ({
+	root: {
+		flexGrow: 1,
+		display: 'flex',
+		flexDirection: 'column',
+		height: '100%'
+	},
+	editor: {
+	}
+}))
 
 /**
  * TextEdit shows a text editor for nodes with textual content.
@@ -18,7 +31,7 @@ import { ContentState, convertFromHTML, convertToRaw } from 'draft-js'
 export default function TextEdit(props) {
 	const [initial, setInitial] = React.useState(null)
 	const [editorState, setEditorState] = React.useState(null)
-	const ctx = props.context
+	const classes = styles()
 
 	function save(d) {
 
@@ -32,7 +45,7 @@ export default function TextEdit(props) {
 			},
 			error: (err) => {
 				console.log(err)
-				openErrorDialog(ctx, "Error saving file " + props.node.name)
+				openErrorDialog(props.context, "Error saving file " + props.node.name)
 			}
 		})
 
@@ -57,7 +70,7 @@ export default function TextEdit(props) {
 					const content = JSON.stringify(convertToRaw(state))
 					setInitial(content)
 				},
-				(error) => { openErrorDialog(ctx, error) })
+				(error) => { openErrorDialog(props.context, error) })
 	}, [props.node])
 
 	function onKeyDown(ev) {
@@ -67,7 +80,7 @@ export default function TextEdit(props) {
 
 	return (
 		(initial === null) ? null :
-			<div onKeyDown={onKeyDown}>
+			<div onKeyDown={onKeyDown} className={classes.root}>
 				<MUIRichTextEditor
 					label="Type here..."
 					defaultValue={initial}

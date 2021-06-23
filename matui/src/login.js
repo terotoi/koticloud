@@ -58,7 +58,7 @@ export default function LoginView(props) {
 						fullWidth
 						id="username"
 						label="Username"
-						name="username"
+						name="koticloud_username"
 						autoFocus
 						onChange={(ev) => setUsername(ev.target.value)} />
 					<TextField
@@ -66,7 +66,7 @@ export default function LoginView(props) {
 						margin="normal"
 						required
 						fullWidth
-						name="password"
+						name="koticloud_password"
 						label="Password"
 						type="password"
 						id="password"

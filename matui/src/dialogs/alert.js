@@ -45,7 +45,7 @@ export default function AlertDialog(props) {
 }
 
 /**
- * Creates an AlertDialog and adds it to the context using context.addWindow(dialog)
+ * Creates an AlertDialog and adds it to the context using context.addDialog(dialog)
  * On close, context.removeDialog(dialog) will be called.
  * 
  * @param {Context} context - the context to add the dialog in
@@ -61,6 +61,6 @@ export function openAlertDialog(context, props) {
             confirmText={props.confirmText}
             cancelText={props.cancelText}
             onConfirm={props.onConfirm}
-            onClose={() => { context.removeWindow(dialog) }} />
-    context.addWindow(dialog)
+            onClose={() => { context.removeDialog(dialog) }} />
+    context.addDialog(dialog)
 }

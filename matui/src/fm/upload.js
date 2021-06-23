@@ -38,7 +38,7 @@ const styles = makeStyles((theme) => ({
  * @param {Node} parent - the target directory
  * @param {string} authToken - JWT authentication token
  * @param {function(Node)} onDone - called when one or more files have been uploaded
- * @param {function} onClose - called when the window must be closed
+ * @param {Object} context - context object
  */
 export default function UploadWindow(props) {
 	const [files, setFiles] = React.useState([])
@@ -66,13 +66,11 @@ export default function UploadWindow(props) {
 				if (i < files.length) {
 					setCurrent(files[i])
 					uploader.upload(files[i], { filename: files[i].name })
-				} else {
-					props.onClose()
 				}
 			},
 			error: (err) => {
-				console.log(err)
-				openErrorDialog(props.ctx, "Error uploading the file: " + file.name)
+				console.log("Upload Error:", err)
+				openErrorDialog(props.context, "Error uploading the file: " + err)
 			}
 		})
 
@@ -118,10 +116,7 @@ export default function UploadWindow(props) {
 				<LinearProgress variant="determinate" value={progress} />
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={() => { props.onClose() }}>
-					Cancel
-				</Button>
-				<Button onClick={beginUpload}>Upload</Button>
+				<Button onClick={beginUpload} disabled={current !== null}>Upload</Button>
 			</DialogActions>
 		</div>)
 }

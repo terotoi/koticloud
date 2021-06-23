@@ -5,11 +5,14 @@ import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import Slider from '@material-ui/core/Slider'
 
+import GetAppIcon from '@material-ui/icons/GetApp'
 import Forward10Icon from '@material-ui/icons/Forward10'
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import PauseIcon from '@material-ui/icons/Pause'
 import Replay10Icon from '@material-ui/icons/Replay10'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
+import SkipPreviousIcon from '@material-ui/icons/SkipPrevious'
+import SkipNextIcon from '@material-ui/icons/SkipNext'
 import VolumeUp from '@material-ui/icons/VolumeUp'
 import VolumeOff from '@material-ui/icons/VolumeOff'
 import VolumeMute from '@material-ui/icons/VolumeMute'
@@ -22,7 +25,7 @@ import api from '../api'
 
 const styles = makeStyles((theme) => ({
 	videoRoot: {
-		position: 'fixed',
+		position: 'static',
 		left: 0,
 		top: 0,
 		height: '100%',
@@ -42,13 +45,13 @@ const styles = makeStyles((theme) => ({
 		margin: 0,
 
 		// For left-aligning content
-		objectPosition: '0% 50%',
+		objectPosition: '0% 0%',
 		maxWidth: '100%',
 		height: '100%',
 	},
 	videoControls: {
-		position: 'fixed',
-		zIndex: 10,
+		position: 'absolute',
+		zIndex: 5,
 		backgroundColor: theme.palette.background.default,
 	},
 	audioCont: {
@@ -83,6 +86,8 @@ const skipDuration = 10.0
  * @param {Node} props.node - the node to render
  * @param {string} props.authToken - JWT authentication token
  * @param {function} props.onEnded - called when the media has finished
+ * @param {function} props.onNextNode - called when the user skipped to the next node
+ * @param {function} props.onPrevNode - called when the user skipped to the previous node
  * @param {Context} props.context
  */
 export default function PlayableView(props) {
@@ -92,7 +97,8 @@ export default function PlayableView(props) {
 	const [muted, setMuted] = useState(false)
 	const [progress, setProgress] = useState(0)
 	const [prevUpdate, setPrevUpdate] = useState(-1)
-	const [playerSize, setPlayerSize] = useState([0, 0])
+	const [windowSize, setWindowSize] = useState([0, 0])
+	const [controlSize, setControlSize] = useState([0, 0])
 	const [fullscreen, setFullScreen] = useState(false)
 	const [playing, setPlaying] = useState(false) // Not paused
 	const [started, setStarted] = useState(false) // Started playing
@@ -102,9 +108,11 @@ export default function PlayableView(props) {
 	const ctx = props.context
 
 	React.useEffect(() => {
-		const [w, h] = [player.current.offsetWidth, player.current.offsetHeight]
-		if (w != playerSize[0] || h != playerSize[1]) {
-			setPlayerSize([player.current.offsetWidth, player.current.offsetHeight])
+		const size = [player.current.scrollWidth, player.current.scrollHeight]
+		if (size[0] != windowSize[0] || size[1] != windowSize[1]) {
+			console.log("setting player size")
+			setWindowSize(size)
+			setControlSize([player.current.offsetWidth, player.current.offsetHeight])
 		}
 	})
 
@@ -116,7 +124,7 @@ export default function PlayableView(props) {
 	}, [])
 
 	React.useEffect(() => {
-		console.log("Node changed to:", JSON.stringify(props.node))
+		console.log("Node changed to:", props.node.id)
 
 		if (props.node.MetaType === "progress" && props.node.MetaData != null) {
 			const pr = props.node.MetaData.Progress
@@ -127,7 +135,7 @@ export default function PlayableView(props) {
 			player.current.currentTime = pr
 			player.current.volume = v
 		}
-		
+
 		setPlaying(false)
 		setStarted(false)
 	}, [props.node])
@@ -260,22 +268,25 @@ export default function PlayableView(props) {
 		})
 	}
 
-
 	useHotkeys('space', togglePause)
 
 	function renderControls(vid) {
 		return (
-			<div className={vid ? classes.videoControls : classes.audioControls} style={vid ? { width: playerSize[0] } : {}}>
+			<div className={vid ? classes.videoControls : classes.audioControls} style={vid ? { width: controlSize[0] } : {}}>
 				<Box
 					display={hover ? "flex" : "none"}
 					flexDirection="row"
 					alignItems="center"
 					onMouseEnter={() => { setHover(true) }}>
 					<Box display="flex" flexDirection="row" alignItems="center" flexGrow={5}>
+						<IconButton onClick={props.onPrevNode}><SkipPreviousIcon /></IconButton>
+						<IconButton onClick={props.onNextNode}><SkipNextIcon /></IconButton>
 						<Button onClick={togglePause}>
 							{playing ? <PauseIcon /> : <PlayArrowIcon />}</Button>
 						<Button onClick={() => { player.current.currentTime -= skipDuration }}><Replay10Icon /></Button>
 						<Button onClick={() => { player.current.currentTime += skipDuration }}><Forward10Icon /></Button>
+						<IconButton href={nodeURL(props.node)} download={props.node.name}><GetAppIcon /></IconButton>
+
 						<span className={classes.duration}>{player.current ? formatDuration(player.current.currentTime) : null}</span>
 						<Slider
 							value={progress * 100.0 / player.current.duration}
@@ -312,7 +323,7 @@ export default function PlayableView(props) {
 						controls={fullscreen}
 						onMouseEnter={() => { setHover(true) }}
 						onMouseLeave={() => { setHover(false) }}
-						onClick={togglePause}
+						onDoubleClick={togglePause}
 						onContextMenu={(ev) => { ev.preventDefault(); return false }}
 						onLoadedMetadata={onLoadedMetadata}
 						onTimeUpdate={onTimeUpdate}

@@ -97,6 +97,7 @@ export default function NodeCard(props) {
 			<img
 				className={thumb_classes}
 				src={nodeThumb(props.node, props.preview)}
+				onDragStart={(ev) => { ev.preventDefault() }}
 				onClick={() => { props.onOpen(props.node) }} />
 
 			<div className={classes.action}>

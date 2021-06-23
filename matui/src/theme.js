@@ -30,13 +30,15 @@ const theme = createMuiTheme({
 		MUIRichTextEditor: {
 			root: {
 				marginTop: '1em',
+				flexGrow: 1,
 				border: '1px solid #525252'
 			},
 			editor: {
 				fontFamily: 'monospace',
 				fontSize: '12pt',
 				margin: '1em',
-				minHeight: '10em'
+				minHeight: '16em',
+				height: 'auto'
 			}
 		}
 	}

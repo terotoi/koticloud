@@ -6,9 +6,8 @@ import NodeView from '../views/node'
 import { openAlertDialog } from '../dialogs/alert'
 import { openErrorDialog } from '../dialogs/error'
 import { openInputDialog } from '../dialogs/input'
-
 import { sortNodes } from './util'
-import { setNodeMeta } from '../util'
+import { isVideo, setNodeMeta } from '../util'
 import api from '../api'
 
 const styles = makeStyles((theme) => ({
@@ -33,8 +32,6 @@ export default function FileManager(props) {
 	const [dirPath, setDirPath] = React.useState('')
 
 	const [nodes, setNodes] = React.useState([])
-	const [node, setNode] = React.useState(null) // Currently selected node
-
 	const [title, setTitle] = React.useState('')
 	const [clipboard, setClipboard] = React.useState(null)
 	const classes = styles()
@@ -75,9 +72,7 @@ export default function FileManager(props) {
 	}, [props.nodes])
 
 	function onBack() {
-		if (node !== null)
-			setNode(null)
-		else if (dir !== null && dir.parent_id !== null) {
+		if (dir !== null && dir.parent_id !== null) {
 			setTitle(null)
 			loadDir(dir.parent_id)
 		}
@@ -92,7 +87,15 @@ export default function FileManager(props) {
 		if (node.mime_type == "inode/directory") {
 			loadDir(node.id)
 		} else {
-			setNode(node)
+			const maximize = isVideo(node.mime_type) ||
+				node.mime_type === "application/pdf"
+
+			ctx.openWindow(node.name, <NodeView
+				initialNode={node}
+				nodes={nds}
+				authToken={props.authToken}
+				onNodeSaved={onNodeSaved}
+				context={ctx} />, maximize)
 		}
 	}
 
@@ -247,33 +250,20 @@ export default function FileManager(props) {
 		nds = nds.filter((n) => n !== clipboard.node)
 	nds = sortNodes(nds)
 
-	if (node) {
-		return (
-			<div className={classes.root}>
-				<NodeView
-					initialNode={node}
-					nodes={nds}
-					authToken={props.authToken}
-					onNodeSaved={onNodeSaved}
-					onBack={() => { setNode(null) }}
-					context={ctx} />
-			</div>)
-	} else {
-		return (
-			<div className={classes.root}>
-				<DirView
-					dir={dir}
-					path={dirPath}
-					title={title}
-					nodes={nds}
-					clipboard={clipboard}
-					onBack={onBack}
-					onNodeOpen={nodeOpen}
-					onNodeAction={nodeAction}
-					onNodeAdded={onNodeAdded}
-					authToken={props.authToken}
-					settings={props.settings}
-					context={ctx} />
-			</div>)
-	}
+	return (
+		<div className={classes.root}>
+			<DirView
+				dir={dir}
+				path={dirPath}
+				title={title}
+				nodes={nds}
+				clipboard={clipboard}
+				onBack={onBack}
+				onNodeOpen={nodeOpen}
+				onNodeAction={nodeAction}
+				onNodeAdded={onNodeAdded}
+				authToken={props.authToken}
+				settings={props.settings}
+				context={ctx} />
+		</div>)
 }

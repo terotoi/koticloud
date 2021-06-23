@@ -1,10 +1,11 @@
 "use strict"
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Context from './context'
+import WindowManager from './windows/wm'
+import 'typeface-roboto'
 
 (function () {
 	const ui = document.getElementById("ui")
-	ReactDOM.render(<Context />, ui)
+	ReactDOM.render(<WindowManager />, ui)
 })()
 

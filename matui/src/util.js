@@ -39,7 +39,6 @@ export function isImage(contentType) {
   return ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].indexOf(contentType) !== -1
 }
 
-
 /* Check if the given content type is a media type.
  * Media content types are video, audio and images.
  * Image types are: image/jpeg and image/png
@@ -144,4 +143,9 @@ export function setNodeMeta(node, progress, volume) {
     Progress: progress,
     Volume: volume
   }
+}
+
+// Returns the size of 1rem in pixels.
+export function remSize() {    
+  return parseFloat(getComputedStyle(document.documentElement).fontSize);
 }

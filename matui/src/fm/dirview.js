@@ -17,7 +17,6 @@ import { openInputDialog } from '../dialogs/input'
 import NodeList from './list'
 import UploadWindow from './upload'
 import { zooms, NodeGrid } from './grid'
-import { openWindow } from '../window'
 import { openNewFileDialog } from './dialogs/new_file'
 import { openErrorDialog } from '../dialogs/error'
 import api from '../api'
@@ -114,11 +113,12 @@ export default function DirView(props) {
 	}
 
 	function openUpload() {
-		openWindow(ctx, <UploadWindow
-			parent={props.dir}
-			ctx={ctx}
-			authToken={props.authToken}
-			onDone={props.onNodeAdded} />)
+		ctx.openWindow('Upload files',
+			<UploadWindow
+				parent={props.dir}
+				context={ctx}
+				authToken={props.authToken}
+				onDone={props.onNodeAdded} />)
 	}
 
 	function togglePreviews() {

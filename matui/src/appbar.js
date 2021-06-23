@@ -7,11 +7,11 @@ import Toolbar from '@material-ui/core/Toolbar'
 import IconButton from '@material-ui/core/IconButton'
 import Typography from '@material-ui/core/Typography'
 import InputBase from '@material-ui/core/InputBase'
+import Link from '@material-ui/core/Link'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import MenuIcon from '@material-ui/icons/Menu'
 import SearchIcon from '@material-ui/icons/Search'
-
 import AboutDialog from './dialogs/about'
 import api from './api'
 import { openAlertDialog } from './dialogs/alert'
@@ -31,11 +31,7 @@ const useStyles = makeStyles((theme) => ({
 		marginRight: theme.spacing(2),
 	},
 	title: {
-		flexGrow: 1,
-		display: 'none',
-		[theme.breakpoints.up('sm')]: {
-			display: 'block',
-		},
+		flexGrow: 4
 	},
 	search: {
 		position: 'relative',
@@ -45,11 +41,8 @@ const useStyles = makeStyles((theme) => ({
 			backgroundColor: fade(theme.palette.common.white, 0.25),
 		},
 		marginLeft: 0,
-		width: '100%',
-		[theme.breakpoints.up('sm')]: {
-			marginLeft: theme.spacing(1),
-			width: 'auto',
-		},
+		flexGrow: 1,
+		marginLeft: theme.spacing(1)
 	},
 	searchIcon: {
 		padding: theme.spacing(0, 2),
@@ -147,11 +140,7 @@ export default function MyAppBar(props) {
 						onClick={(ev) => { setMainMenuAnchor(ev.currentTarget) }}>
 						<MenuIcon />
 					</IconButton>
-					<Typography
-						className={classes.title} variant="h4" noWrap
-						onClick={props.onTitleClicked}>
-						KotiCloud
-          </Typography>
+					<Link color="inherit" className={classes.title} variant="h4" href="#" target="_blank">KotiCloud</Link>
 
 					<div className={classes.search}>
 						<div className={classes.searchIcon}>

@@ -119,6 +119,7 @@ export default function ActionMenu(props) {
 				</MenuItem>)
 		}
 
+		// Build named commands
 		let cmds = props.commands.map((cmd) =>
 			(cmd.ContentTypes.indexOf(props.node.mime_type) !== -1) ?
 				<MenuItem key={cmd.ID}

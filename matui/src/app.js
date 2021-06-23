@@ -1,21 +1,18 @@
 import React from 'react'
-import { makeStyles, MuiThemeProvider } from '@material-ui/core/styles'
-import CssBaseline from '@material-ui/core/CssBaseline'
+import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
 import LoginView from './login'
 import MyAppBar from './appbar'
 import FileManager from './fm/filemanager'
 import { openErrorDialog } from './dialogs/error'
-import { WindowManager } from './window'
 import { setCookie } from './util'
-import theme from './theme'
 import api from './api'
 
 const styles = makeStyles((theme) => ({
 	root: {
 		display: 'flex',
 		flexFlow: 'column',
-		minHeight: '100vh'
+		overflow: 'hidden'
 	},
 	fm: {
 		border: '8px solid green',
@@ -25,7 +22,7 @@ const styles = makeStyles((theme) => ({
 
 /**
  * App is the root component of the application.
- * @param {Context} context 
+ * @param {WindowManager) wm - the window manager
  */
 export default function App(props) {
 	const [username, setUsername] = React.useState('')
@@ -34,7 +31,6 @@ export default function App(props) {
 	const [initialNodeID, setInitialNodeID] = React.useState(null)
 	const [searchResults, setSearchResults] = React.useState(null)
 	const [settings, setSettings] = React.useState(null)
-
 	const ctx = props.context // React.useContext(GlobalContext)
 	const classes = styles()
 
@@ -122,34 +118,28 @@ export default function App(props) {
 	}, [authToken])
 
 	return (
-		<MuiThemeProvider theme={theme}>
-			<CssBaseline />
-			<WindowManager windows={ctx.windows}>
-				{(authToken == null) ?
-					<Container>
-						<LoginView
-							onSubmit={login} />
-					</Container>
-					:
-					<Container maxWidth={false} display="flex" className={classes.root}>
-						<MyAppBar
-							className={classes.appBar}
-							username={username}
-							isAdmin={isAdmin}
-							authToken={authToken}
-							onLogout={logout}
-							onSearchResults={(r) => { setSearchResults(r) }}
-							context={ctx} />
+		(authToken == null) ?
+			<Container>
+				<LoginView
+					onSubmit={login} />
+			</Container>
+			:
+			<Container maxWidth={false} display="flex" className={classes.root}>
+				<MyAppBar
+					className={classes.appBar}
+					username={username}
+					isAdmin={isAdmin}
+					authToken={authToken}
+					onLogout={logout}
+					onSearchResults={(r) => { setSearchResults(r) }}
+					context={props.wm} />
 
-						<FileManager
-							className={classes.fm}
-							nodes={searchResults}
-							initialNodeID={initialNodeID}
-							authToken={authToken}
-							settings={settings}
-							context={ctx} />
-					</Container>}
-			</WindowManager>
-		</MuiThemeProvider>
-	)
+				<FileManager
+					className={classes.fm}
+					nodes={searchResults}
+					initialNodeID={initialNodeID}
+					authToken={authToken}
+					settings={settings}
+					context={props.wm} />
+			</Container>)
 }
