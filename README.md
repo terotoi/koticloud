@@ -1,9 +1,11 @@
 
-![Login page](docs/images/login.png)
+# KotiCloud - file and multimedia server #
+
+![Main view](docs/images/main.png)
 
 ## Introduction ##
 
-KotiCloud is a file / cloud storage server, currently heavily work-in-progress.
+KotiCloud is a file and multimedia server. Is is currently heavily work-in-progress.
 
 At this time it might be usable as a personal file server in a safe environment. It can be used through a web interface or a command line client. You can upload, download, copy, move, rename and delete files, edit text files, read PDFs, watch videos, listen to audio files and look at images.
 
