@@ -88,6 +88,7 @@ const skipDuration = 10.0
  * @param {function} props.onEnded - called when the media has finished
  * @param {function} props.onNextNode - called when the user skipped to the next node
  * @param {function} props.onPrevNode - called when the user skipped to the previous node
+ * @param {Window} wnd - window object containing the view
  * @param {Context} props.context
  */
 export default function PlayableView(props) {
@@ -116,15 +117,15 @@ export default function PlayableView(props) {
 		}
 	})
 
-	// Unmount
 	React.useEffect(() => {
-		return () => {
-			player.current = null
-		}
+		// This is used to prevent the browser from hanging on to the video and its connection.
+		props.context.addCloseHook(props.wnd, (plr) => {
+			plr.src = ""
+		}, player.current)
 	}, [])
 
 	React.useEffect(() => {
-		console.log("Node changed to:", props.node.id)
+		console.log("Node changed to:", props.node.id, "was:", props.node.id)
 
 		if (props.node.MetaType === "progress" && props.node.MetaData != null) {
 			const pr = props.node.MetaData.Progress
@@ -138,6 +139,7 @@ export default function PlayableView(props) {
 
 		setPlaying(false)
 		setStarted(false)
+		props.context.temp = player.current
 	}, [props.node])
 
 	function updateMeta(progress, volume) {
@@ -174,7 +176,7 @@ export default function PlayableView(props) {
 	}
 
 	function onLoadedMetadata() {
-		//console.log("onLoadedMetaData")
+		console.log("onLoadedMetaData")
 	}
 
 	function onProgressChanged(ev, value) {
@@ -330,7 +332,8 @@ export default function PlayableView(props) {
 						onSeeked={onSeeked}
 						onPlay={onPlay}
 						onPause={onPause}
-						onEnded={onEnded} />
+						onEnded={onEnded}
+						onPlaying={() => { console.log("onPlaying") }} />
 					{(player.current === null) ? null : renderControls(true)}
 				</div>
 			</div>

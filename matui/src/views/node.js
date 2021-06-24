@@ -77,6 +77,7 @@ export default function NodeView(props) {
 			onEnded={onNextNode}
 			onNextNode={onNextNode}
 			onPrevNode={onPrevNode}
+			wnd={props.wnd}
 			context={ctx} />
 	}
 

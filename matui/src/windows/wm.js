@@ -18,7 +18,10 @@ export default class WindowManager extends React.Component {
 			// pos: [number, number], size: [number, number]} objects }
 			windows: [],
 			dialogs: [],
+			closeHooks: [],
+
 			openWindow: this.openWindow.bind(this),
+			addCloseHook: this.addCloseHook.bind(this),
 			closeWindow: this.closeWindow.bind(this),
 			raiseWindow: this.raiseWindow.bind(this),
 			resizeWindow: this.resizeWindow.bind(this),
@@ -68,12 +71,33 @@ export default class WindowManager extends React.Component {
 		return window
 	}
 
+	/**
+	* Adds a hook that is called before the window is closed.
+	* 
+	* @param {Window} wnd - the affected window
+	* @param {function} hook - the function to call before closing the window
+	* @param {Object} arg - optional argument for the close hook
+	*/
+	addCloseHook(wnd, hook, arg) {
+		this.state.closeHooks.push({ id: wnd.id, hook: hook, arg: arg })
+		this.setState({ closeHooks: this.state.closeHooks })
+	}
+
 	/** 
 	 * Remove a window from the list of windows.
 	 * @param {Window} window - the window to remove
 	 */
 	closeWindow(window) {
-		this.setState({ windows: this.state.windows.filter((x) => x.id !== window.id) })
+		// Call pre-close hooks
+		const h = this.state.closeHooks.find((x) => x.id === window.id)
+		if (h !== undefined) {
+			h.hook(h.arg)
+		}
+
+		this.setState({
+			hooks: this.state.closeHooks.filter((x) => x.id !== window.id),
+			windows: this.state.windows.filter((x) => x.id !== window.id)
+		})
 	}
 
 	/** Raise a window to the top. */
