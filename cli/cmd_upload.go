@@ -13,7 +13,7 @@ import (
 func (app *App) uploadFile(path, targetPath string, local bool) error {
 	st, err := os.Stat(path)
 	if err != nil {
-		fmt.Printf("cannot stat %s: %s", path, err)
+		fmt.Fprintf(os.Stderr, "cannot stat %s: %s\n", path, err)
 		return nil
 	}
 

@@ -82,7 +82,12 @@ export default function NodeView(props) {
 	}
 
 	function renderImage() {
-		return <ImageView node={node} wnd={props.wnd} context={ctx} />
+		return <ImageView
+			node={node}
+			onNextNode={onNextNode}
+			onPrevNode={onPrevNode}
+			wnd={props.wnd}
+			context={ctx} />
 	}
 
 	function renderPDF() {

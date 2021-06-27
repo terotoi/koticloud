@@ -169,8 +169,6 @@ export default function FileManager(props) {
 
 	// Cut or copy a node to the clipboard
 	function nodeCutCopy(action, n) {
-		if (action === 'cut' && n === node)
-			setNode(null)
 		setClipboard({ action: action, node: n })
 	}
 

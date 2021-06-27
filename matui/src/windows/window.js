@@ -87,7 +87,8 @@ export default function Window(props) {
 
 	function onMouseDown(ev, action) {
 		ev.stopPropagation()
-		if (ev.type !== 'touchstart')
+
+		if (action !== null && ev.type !== 'touchstart')
 			ev.preventDefault()
 		props.onMouseDown(ev, props.wnd, action)
 	}
@@ -138,7 +139,10 @@ export default function Window(props) {
 				height: props.wnd.size[1] + "px"
 			}}
 			datawindowid={props.wnd.id}
-			onMouseDown={(ev) => { if (ev.shiftKey) onMouseDown(ev, 'move') }}>
+			onMouseDown={(ev) => {
+				onMouseDown(ev, ev.shiftKey ? 'move' : null)
+			}}>
+
 			{renderTitleBar()}
 
 			<div className={classes.content}>

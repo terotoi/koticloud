@@ -21,6 +21,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { formatDuration, isVideo, nodeURL, setNodeMeta } from '../util'
 import { openErrorDialog } from '../dialogs/error'
 import { nodeThumb } from '../thumbs'
+import { blankVideo, blankAudio } from './blank'
 import api from '../api'
 
 const styles = makeStyles((theme) => ({
@@ -121,6 +122,8 @@ export default function PlayableView(props) {
 		// This is used to prevent the browser from hanging on to the video and its connection.
 		props.context.addCloseHook(props.wnd, (plr) => {
 			plr.src = ""
+			plr.src = isVideo(props.node.mime_type) ? blankVideo : blankAudio
+			plr.load()
 		}, player.current)
 	}, [])
 

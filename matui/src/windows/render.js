@@ -35,32 +35,33 @@ export default function WindowRenderer(props) {
 	const classes = styles()
 
 	function onMouseDown(ev, wnd, action) {
-		console.log("onMouseDown", action)
 		setWindow(wnd)
 		props.wm.raiseWindow(wnd.id)
 
-		const isResize = (action === 'resize')
-		setResizeActive(isResize)
+		if (action === 'resize' || action === 'move') {
+			const isResize = (action === 'resize')
+			setResizeActive(isResize)
 
-		/*const rect = wnd.getBoundingClientRect()
-		const [x, y] = [rect.left + doc.scrollLeft, rect.top + doc.scrollTop]
-		const [x2, y2] = [rect.right + doc.scrollLeft, rect.bottom + doc.scrollTop]*/
+			/*const rect = wnd.getBoundingClientRect()
+			const [x, y] = [rect.left + doc.scrollLeft, rect.top + doc.scrollTop]
+			const [x2, y2] = [rect.right + doc.scrollLeft, rect.bottom + doc.scrollTop]*/
 
-		const [mx, my] = getEventPos(ev)
-		const [x, y] = wnd.pos
-		const [x2, y2] = [x + wnd.size[0], y + wnd.size[1]]
+			const [mx, my] = getEventPos(ev)
+			const [x, y] = wnd.pos
+			const [x2, y2] = [x + wnd.size[0], y + wnd.size[1]]
 
-		let xoff, yoff
-		if (isResize) {
-			xoff = mx - x2
-			yoff = my - y2
-		} else {
-			xoff = mx - x
-			yoff = my - y
+			let xoff, yoff
+			if (isResize) {
+				xoff = mx - x2
+				yoff = my - y2
+			} else {
+				xoff = mx - x
+				yoff = my - y
+			}
+
+			setDragActive(true)
+			setOffset([xoff, yoff])
 		}
-
-		setDragActive(true)
-		setOffset([xoff, yoff])
 	}
 
 	function onMouseUp(ev) {
@@ -97,9 +98,10 @@ export default function WindowRenderer(props) {
 
 	function onMaximize(ev, wnd) {
 		console.log("onMaximize")
-		wnd.pos = [0, 0]
-		wnd.size = [document.documentElement.clientWidth,
-		document.documentElement.clientHeight]
+
+		const doc = document.documentElement
+		wnd.pos = [doc.scrollLeft, doc.scrollTop]
+		wnd.size = [doc.clientWidth, doc.clientHeight]
 		setUpdated(!updated) // Force refresh
 	}
 
