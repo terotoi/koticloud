@@ -33,12 +33,12 @@ const styles = makeStyles((theme) => ({
  * @param {[...Node]} props.nodes - list of nodes which can be used to move forward / backward
  * @param {Node} props.onNodeSaved - called when a node has been saved either to a new file or existing
  * @param {string} props.authToken - JWT authentication token
- * @param {Context} props.context
+ * @param {WindowManager} props.wm - the window manager
  */
 export default function NodeView(props) {
 	const [node, setNode] = React.useState(props.initialNode)
 	const classes = styles()
-	const ctx = props.context
+	const wm = props.wm
 
 	function onNextNode() {
 		for (let i = 0; i < props.nodes.length - 1; i++) {
@@ -78,7 +78,7 @@ export default function NodeView(props) {
 			onNextNode={onNextNode}
 			onPrevNode={onPrevNode}
 			wnd={props.wnd}
-			context={ctx} />
+			wm={wm} />
 	}
 
 	function renderImage() {
@@ -87,14 +87,14 @@ export default function NodeView(props) {
 			onNextNode={onNextNode}
 			onPrevNode={onPrevNode}
 			wnd={props.wnd}
-			context={ctx} />
+			wm={wm} />
 	}
 
 	function renderPDF() {
 		return <PDFView
 			node={node}
 			authToken={props.authToken}
-			context={ctx} />
+			wm={wm} />
 	}
 
 	function renderTextEdit() {
@@ -102,7 +102,7 @@ export default function NodeView(props) {
 			node={node}
 			onSave={props.onNodeSaved}
 			authToken={props.authToken}
-			context={ctx} />
+			wm={wm} />
 	}
 
 	function renderDownload() {

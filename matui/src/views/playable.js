@@ -90,7 +90,7 @@ const skipDuration = 10.0
  * @param {function} props.onNextNode - called when the user skipped to the next node
  * @param {function} props.onPrevNode - called when the user skipped to the previous node
  * @param {Window} wnd - window object containing the view
- * @param {Context} props.context
+ * @param {WindowManager} props.wm - the window manager
  */
 export default function PlayableView(props) {
 	const player = React.useRef(null)
@@ -107,7 +107,6 @@ export default function PlayableView(props) {
 	const [updateTimeout, setUpdateTimeout] = useState(null)
 	const [endTimeout, setEndTimeout] = useState(null)
 	const classes = styles()
-	const ctx = props.context
 
 	React.useEffect(() => {
 		const size = [player.current.scrollWidth, player.current.scrollHeight]
@@ -120,7 +119,7 @@ export default function PlayableView(props) {
 
 	React.useEffect(() => {
 		// This is used to prevent the browser from hanging on to the video and its connection.
-		props.context.addCloseHook(props.wnd, (plr) => {
+		props.wm.addCloseHook(props.wnd, (plr) => {
 			plr.src = ""
 			plr.src = isVideo(props.node.mime_type) ? blankVideo : blankAudio
 			plr.load()
@@ -142,7 +141,6 @@ export default function PlayableView(props) {
 
 		setPlaying(false)
 		setStarted(false)
-		props.context.temp = player.current
 	}, [props.node])
 
 	function updateMeta(progress, volume) {
@@ -157,7 +155,7 @@ export default function PlayableView(props) {
 				() => {
 					console.log("updateMeta:", progress, "/", props.node.length, volume)
 				},
-				(error) => { openErrorDialog(ctx, error) })
+				(error) => { openErrorDialog(props.wm, error) })
 		}, updateInterval))
 	}
 

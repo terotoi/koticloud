@@ -5,7 +5,6 @@ import AppBar from '@material-ui/core/AppBar'
 import AccountCircle from '@material-ui/icons/AccountCircle'
 import Toolbar from '@material-ui/core/Toolbar'
 import IconButton from '@material-ui/core/IconButton'
-import Typography from '@material-ui/core/Typography'
 import InputBase from '@material-ui/core/InputBase'
 import Link from '@material-ui/core/Link'
 import Menu from '@material-ui/core/Menu'
@@ -13,10 +12,11 @@ import MenuItem from '@material-ui/core/MenuItem'
 import MenuIcon from '@material-ui/icons/Menu'
 import SearchIcon from '@material-ui/icons/Search'
 import AboutDialog from './dialogs/about'
-import api from './api'
 import { openAlertDialog } from './dialogs/alert'
 import { openErrorDialog } from './dialogs/error'
 import { openPasswordDialog } from './dialogs/password'
+import FileManager from './fm/filemanager'
+import api from './api'
 
 // Minimum number of characters
 const minSearchLength = 3
@@ -80,9 +80,10 @@ const useStyles = makeStyles((theme) => ({
  * @param {function} props.onLogout - called when the user logs out
  * @param {[Node...]} props.onSearchResults - called when user typed in a search
  *    and the results are in
+ * @param {string} props.initialNodeID - ID of the node to open initially
  * @param {string} props.authToken - JWT authentication token
- * @param {string} props.className
- * @param {Context} props.context
+ * @param {Object} props.settings - user's settings
+ * @param {WindowManager} props.wm
 */
 export default function MyAppBar(props) {
 	const classes = useStyles()
@@ -90,7 +91,6 @@ export default function MyAppBar(props) {
 	const [accountMenuAnchor, setAccountMenuAnchor] = React.useState(null)
 	const [aboutOpen, setAboutOpen] = React.useState(false)
 	const [searchCall, setSearchCall] = React.useState(null)
-	const ctx = props.context
 
 	function onSearchChanged(ev) {
 		const txt = ev.target.value
@@ -106,7 +106,7 @@ export default function MyAppBar(props) {
 				api.searchNodes(txt, props.authToken, (r) => {
 					props.onSearchResults(r)
 				},
-					(error) => { openErrorDialog(ctx, error) })
+					(error) => { openErrorDialog(props.wm, error) })
 			}, searchInterval))
 		}
 	}
@@ -115,14 +115,14 @@ export default function MyAppBar(props) {
 		function onPasswordConfirm(oldPasswd, newPasswd) {
 			api.setPassword("", oldPasswd, newPasswd, props.authToken,
 				() => {
-					openAlertDialog(ctx, {
+					openAlertDialog(props.wm, {
 						text: "Password changed."
 					})
 				},
-				(error) => { openErrorDialog(ctx, error) })
+				(error) => { openErrorDialog(props.wm, error) })
 		}
 
-		openPasswordDialog(ctx, {
+		openPasswordDialog(props.wm, {
 			text: 'Change your password.',
 			onConfirm: onPasswordConfirm
 		})
@@ -168,10 +168,26 @@ export default function MyAppBar(props) {
 							anchorEl={mainMenuAnchor} open={true}
 							onClose={() => setMainMenuAnchor(null)}>
 
-							<MenuItem onClick={() => {
-								setAboutOpen(true)
-								setMainMenuAnchor(null)
-							}}>About</MenuItem>
+							<MenuItem
+								onClick={() => {
+									setAboutOpen(true)
+									setMainMenuAnchor(null)
+								}}>About
+							</MenuItem>
+							<MenuItem
+								onClick={() => {
+									setMainMenuAnchor(null)
+
+									/*
+									props.wm.openWindow("File manager",
+										<FileManager
+											initialNodeID={props.initialNodeID}
+											authToken={props.authToken}
+											settings={props.settings}
+											wm={props.wm} />, false)
+									*/
+								}}>New file manager
+							</MenuItem>
 						</Menu>}
 
 					{/** Account menu **/}

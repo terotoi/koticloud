@@ -50,7 +50,7 @@ const updateInterval = 2000
  * 
  * @param {Node} props.node - the node to view
  * @param {string} props.authToken - JWT authentication token
- * @param {Context} props.context
+ * @param {WindowManager} props.wm - the window manager
  */
 export default function PDFView(props) {
 	const [pageNum, setPageNum] = useState(1)
@@ -60,7 +60,6 @@ export default function PDFView(props) {
 	const [justify, setJustify] = useState("center")
 	const [updateTimeout, setUpdateTimeout] = useState(null)
 	const classes = styles()
-	const ctx = props.context
 
 	function updateProgress(page) {
 		setNodeMeta(props.node, page)
@@ -74,7 +73,7 @@ export default function PDFView(props) {
 				() => {
 					console.log("updateProgress OK", JSON.stringify(props.node.MetaData))
 				},
-				(error) => { openErrorDialog(ctx, error) })
+				(error) => { openErrorDialog(props.wm, error) })
 		}, updateInterval))
 	}
 

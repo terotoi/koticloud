@@ -18,7 +18,7 @@ import api from '../api'
  * @param {function} props.onOpen - called when an node should be opened
  * @param {function} props.onAction - callled with (action, node, ...args) for an action on the node
  * @param {[]Object} props.commands - list of external commands
- * @param {Context} props.context
+ * @param {WindowManager} props.wm - the window manager
  */
 export default function ActionMenu(props) {
 	const [anchor, setAnchor] = React.useState(null)
@@ -127,12 +127,12 @@ export default function ActionMenu(props) {
 						close()
 						api.runNamedCommand(cmd, props.node, props.authToken,
 							(msg) => {
-								openAlertDialog(props.context, {
+								openAlertDialog(props.wm, {
 									text: msg || "Command executed successfully.",
 									configText: "Okay"
 								})
 							},
-							(error) => openErrorDialog(props.context, "Failed to execute the command"))
+							(error) => openErrorDialog(props.wm, "Failed to execute the command"))
 					}}>
 					{cmd.Entry}
 				</MenuItem> : null)

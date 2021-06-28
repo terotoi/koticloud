@@ -57,7 +57,7 @@ const styles = makeStyles((theme) => ({
  * @param {function} props.onNodeAdded - called when a node has been uploaded
  * @param {Object} props.clipboard - contents of the clipboard
  * @param {Object} props.settings - user's settings
- * @param {Context} props.context
+ * @param {WindowManager} props.wm - the window manager
  */
 export default function DirView(props) {
 	const settingPreviews = localStorage.getItem("previews") === "true"
@@ -67,7 +67,7 @@ export default function DirView(props) {
 	const classes = styles()
 	const [previews, setPreviews] = React.useState(settingPreviews)
 	const [zoom, setZoom] = React.useState(settingZoom)
-	const ctx = props.context
+	const wm = props.wm
 
 	function newFile() {
 		const createFile = (name, type) => {
@@ -81,7 +81,7 @@ export default function DirView(props) {
 				},
 				error: (err) => {
 					console.log(err)
-					openErrorDialog(ctx, "Error creating a file: " + name)
+					openErrorDialog(wm, "Error creating a file: " + name)
 				}
 			})
 
@@ -89,7 +89,7 @@ export default function DirView(props) {
 				{ filename: name })
 		}
 
-		openNewFileDialog(ctx, {
+		openNewFileDialog(wm, {
 			onConfirm: createFile
 		})
 	}
@@ -101,10 +101,10 @@ export default function DirView(props) {
 				name,
 				props.authToken,
 				(node) => { props.onNodeAction('makedir', node) },
-				(error) => { openErrorDialog(ctx, error) })
+				(error) => { openErrorDialog(wm, error) })
 		}
 
-		openInputDialog(ctx, {
+		openInputDialog(wm, {
 			text: "Create a directory:",
 			label: "Name of the direcotory",
 			onConfirm: makeDir,
@@ -113,12 +113,12 @@ export default function DirView(props) {
 	}
 
 	function openUpload() {
-		ctx.openWindow('Upload files',
+		wm.openWindow('Upload files',
 			<UploadWindow
 				parent={props.dir}
-				context={ctx}
 				authToken={props.authToken}
-				onDone={props.onNodeAdded} />)
+				onDone={props.onNodeAdded}
+				wm={wm} />)
 	}
 
 	function togglePreviews() {
@@ -148,7 +148,7 @@ export default function DirView(props) {
 			onNodeAction={props.onNodeAction}
 			authToken={props.authToken}
 			settings={props.settings}
-			context={ctx} />
+			wm={wm} />
 	} else {
 		rs = <NodeList
 			nodes={props.nodes}
@@ -157,7 +157,7 @@ export default function DirView(props) {
 			onNodeAction={props.onNodeAction}
 			authToken={props.authToken}
 			settings={props.settings}
-			context={ctx} />
+			wm={wm} />
 	}
 
 	return (

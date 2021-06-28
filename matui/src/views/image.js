@@ -29,14 +29,14 @@ const styles = makeStyles({
  * @param {Node} props.node - the node to view
  * @param {function} props.onNextNode - called when the user skipped to the next node
  * @param {function} props.onPrevNode - called when the user skipped to the previous node
- * @param {Window} wnd - window object containing the view
- * @param {Object} context - the window manager
+ * @param {Window} props.wnd - window object containing the view
+ * @param {WindowManager} props.wm - the window manager
  */
 export default function ImageView(props) {
 	const classes = styles()
 
 	const onLoaded = (ev) => {
-		props.context.resizeWindow(props.wnd,
+		props.wm.resizeWindow(props.wnd,
 			[ev.target.naturalWidth, ev.target.naturalHeight],
 			true)
 	}

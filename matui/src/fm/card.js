@@ -77,7 +77,7 @@ const styles = makeStyles((theme) => ({
  * @param {function} props.onAction - callled with (action, node, ...args) for an action on the node
  * @param {string} props.authToken - JWT authentication token
  * @param {Object} props.settings - user's settings
- * @param {Object} props.context
+ * @param {WindowManager} props.wm - the window manager
  */
 export default function NodeCard(props) {
 	const classes = styles()
@@ -114,7 +114,7 @@ export default function NodeCard(props) {
 						onOpen={props.onOpen}
 						onAction={props.onAction}
 						commands={(props.settings && props.settings.NamedCommands) ? props.settings.NamedCommands : []}
-						context={props.context} />
+						wm={props.wm} />
 				</div>
 			</div>
 

@@ -26,7 +26,7 @@ const styles = makeStyles((theme) => ({
  * @param {function(Node)} props.onSave - called when the text has been saved to a
  * 			file node, either a new one or existing
  * @param {string} props.authToken - JWT authentication token
- * @param {Context} props.context
+ * @param {WindowManager} props.wm - the window manager
  */
 export default function TextEdit(props) {
 	const [initial, setInitial] = React.useState(null)
@@ -45,7 +45,7 @@ export default function TextEdit(props) {
 			},
 			error: (err) => {
 				console.log(err)
-				openErrorDialog(props.context, "Error saving file " + props.node.name)
+				openErrorDialog(props.wm, "Error saving file " + props.node.name)
 			}
 		})
 
@@ -70,7 +70,7 @@ export default function TextEdit(props) {
 					const content = JSON.stringify(convertToRaw(state))
 					setInitial(content)
 				},
-				(error) => { openErrorDialog(props.context, error) })
+				(error) => { openErrorDialog(props.wm, error) })
 	}, [props.node])
 
 	function onKeyDown(ev) {

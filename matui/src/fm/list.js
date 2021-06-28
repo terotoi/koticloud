@@ -62,7 +62,7 @@ const styles = makeStyles((theme) => ({
  * @param {function} props.onNodeAction - callled with (action, node, ...args) for an action on the node
  * @param {string} props.authToken - JWT authentication token
  * @param {Object} props.settings - user's settings
- * @param {Object} props.context
+ * @param {WindowManager} props.wm - the window manager
  */
 export default function NodeList(props) {
 	const classes = styles()
@@ -111,7 +111,7 @@ export default function NodeList(props) {
 									onOpen={props.onNodeOpen}
 									onAction={props.onNodeAction}
 									commands={(props.settings && props.settings.NamedCommands) ? props.settings.NamedCommands : []}
-									context={props.context} />
+									wm={props.wm} />
 							</TableCell>
 						</TableRow>)
 				})}

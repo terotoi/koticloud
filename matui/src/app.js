@@ -13,15 +13,12 @@ const styles = makeStyles((theme) => ({
 		display: 'flex',
 		flexFlow: 'column',
 		overflow: 'hidden'
-	},
-	fm: {
-		border: '8px solid green',
-		flex: 1
 	}
 }))
 
 /**
  * App is the root component of the application.
+ * 
  * @param {WindowManager) wm - the window manager
  */
 export default function App(props) {
@@ -31,7 +28,6 @@ export default function App(props) {
 	const [initialNodeID, setInitialNodeID] = React.useState(null)
 	const [searchResults, setSearchResults] = React.useState(null)
 	const [settings, setSettings] = React.useState(null)
-	const ctx = props.context // React.useContext(GlobalContext)
 	const classes = styles()
 
 	/**
@@ -53,7 +49,7 @@ export default function App(props) {
 		 */
 		function loginOk(resp) {
 			if (resp === null) {
-				openErrorDialog(ctx, "Wrong username or password")
+				openErrorDialog(props.wm, "Wrong username or password")
 			} else {
 				setAuthToken(resp.AuthToken)
 				setUsername(resp.Username)
@@ -72,7 +68,7 @@ export default function App(props) {
 
 		api.login(username, password, loginOk,
 			(error) => {
-				openErrorDialog(ctx, error)
+				openErrorDialog(props.wm, error)
 			})
 	}
 
@@ -94,7 +90,7 @@ export default function App(props) {
 		api.querySettings(token, (settings) => {
 			setSettings(settings)
 		}, (error) => {
-			openErrorDialog(ctx, error)
+			openErrorDialog(props.wm, error)
 		})
 	}
 
@@ -129,17 +125,18 @@ export default function App(props) {
 					className={classes.appBar}
 					username={username}
 					isAdmin={isAdmin}
-					authToken={authToken}
 					onLogout={logout}
 					onSearchResults={(r) => { setSearchResults(r) }}
-					context={props.wm} />
+					initialNodeID={initialNodeID}
+					authToken={authToken}
+					settings={settings}
+					wm={props.wm} />
 
 				<FileManager
-					className={classes.fm}
 					nodes={searchResults}
 					initialNodeID={initialNodeID}
 					authToken={authToken}
 					settings={settings}
-					context={props.wm} />
+					wm={props.wm} />
 			</Container>)
 }

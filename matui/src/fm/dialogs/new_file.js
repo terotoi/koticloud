@@ -67,16 +67,16 @@ export default function NewFileDialog(props) {
 }
 
 /**
- * Creates an NewFileDialog and adds it to the context using context.addDialog(dialog)
- * On close, context.removeDialog(dialog) will be called.
+ * Creates an NewFileDialog and adds it to the window manager
+ * using wm.addDialog(dialog)
  * 
- * @param {Context} context - the context to add the dialog in
+ * @param {WindowManager} wm - the window manager
  * @param {function} props.onConfirm - called on dialog confirmation
  */
-export function openNewFileDialog(context, props) {
+export function openNewFileDialog(wm, props) {
     const dialog =
         <NewFileDialog
             onConfirm={props.onConfirm}
-            onClose={() => { context.removeDialog(dialog) }} />
-    context.addDialog(dialog)
+            onClose={() => { wm.removeDialog(dialog) }} />
+    wm.addDialog(dialog)
 }

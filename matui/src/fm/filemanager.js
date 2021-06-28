@@ -14,7 +14,7 @@ const styles = makeStyles((theme) => ({
 	root: {
 		display: 'flex',
 		flexDirection: 'column',
-		flexGrow: 1
+		flexGrow: 1,
 	}
 }))
 
@@ -22,10 +22,10 @@ const styles = makeStyles((theme) => ({
  * FileManager performs basic operations (open, copy, move, rename, delete) of file system nodes.
  * 
  * @param {[Node...]} props.nodes - optional override for nodes to list
- * @param {string} props.initialNodeID - ID of the node to open
+ * @param {string} props.initialNodeID - ID of the node to open initially
  * @param {string} props.authToken - JWT authentication token
  * @param {Object} props.settings - user's settings
- * @param {Context} props.context
+ * @param {WindowManager} props.wm
  */
 export default function FileManager(props) {
 	const [dir, setDir] = React.useState(null)
@@ -35,7 +35,7 @@ export default function FileManager(props) {
 	const [title, setTitle] = React.useState('')
 	const [clipboard, setClipboard] = React.useState(null)
 	const classes = styles()
-	const ctx = props.context
+	const wm = props.wm
 
 	// Load information about a directory node and its children.
 	// Can be called with id === undefinde, in that case reload the current directory.
@@ -50,7 +50,7 @@ export default function FileManager(props) {
 				setDirPath(r.DirPath)
 				setNodes(r.Children)
 			},
-			(error) => { openErrorDialog(ctx, error) })
+			(error) => { openErrorDialog(wm, error) })
 	}
 
 	// Initial directory
@@ -90,12 +90,12 @@ export default function FileManager(props) {
 			const maximize = isVideo(node.mime_type) ||
 				node.mime_type === "application/pdf"
 
-			ctx.openWindow(node.name, <NodeView
+			wm.openWindow(node.name, <NodeView
 				initialNode={node}
 				nodes={nds}
 				authToken={props.authToken}
 				onNodeSaved={onNodeSaved}
-				context={ctx} />, maximize)
+				wm={wm} />, maximize)
 		}
 	}
 
@@ -121,10 +121,10 @@ export default function FileManager(props) {
 		const onRenameConfirm = (name) => {
 			api.renameNode(node.id, name, props.authToken,
 				onRenameSuccess,
-				(error) => { openErrorDialog(ctx, error) })
+				(error) => { openErrorDialog(wm, error) })
 		}
 
-		openInputDialog(ctx, {
+		openInputDialog(wm, {
 			text: 'Rename a node.',
 			value: node.name,
 			confirmText: 'Rename',
@@ -143,10 +143,10 @@ export default function FileManager(props) {
 		const onAlertConfirm = () => {
 			api.deleteNode(node.id, props.authToken,
 				onDeleteSuccess,
-				(error) => { openErrorDialog(ctx, error) })
+				(error) => { openErrorDialog(wm, error) })
 		}
 
-		openAlertDialog(ctx, {
+		openAlertDialog(wm, {
 			text: 'Are you sure you want to delete?',
 			confirmText: 'Delete',
 			cancelText: 'Cancel',
@@ -160,7 +160,7 @@ export default function FileManager(props) {
 		api.updateMeta(node.id, node.MetaType, node.MetaData, props.authToken, () => {
 			setNodes([...nodes])
 		},
-			(error) => { openErrorDialog(ctx, error) })
+			(error) => { openErrorDialog(wm, error) })
 	}
 
 	function nodeMakedirDone(node) {
@@ -185,7 +185,7 @@ export default function FileManager(props) {
 						const ls = r.filter((n) => n.parent_id === dir.id)
 						setNodes((prev, props) => [...prev, ...ls])
 					},
-					(error) => { openErrorDialog(ctx, error) })
+					(error) => { openErrorDialog(wm, error) })
 			}
 			setClipboard(null)
 		}
@@ -262,6 +262,6 @@ export default function FileManager(props) {
 				onNodeAdded={onNodeAdded}
 				authToken={props.authToken}
 				settings={props.settings}
-				context={ctx} />
+				wm={wm} />
 		</div>)
 }

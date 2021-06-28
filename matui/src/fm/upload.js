@@ -38,7 +38,7 @@ const styles = makeStyles((theme) => ({
  * @param {Node} parent - the target directory
  * @param {string} authToken - JWT authentication token
  * @param {function(Node)} onDone - called when one or more files have been uploaded
- * @param {Object} context - context object
+ * @param {WindowManager} props.wm - the window manager
  */
 export default function UploadWindow(props) {
 	const [files, setFiles] = React.useState([])
@@ -70,7 +70,7 @@ export default function UploadWindow(props) {
 			},
 			error: (err) => {
 				console.log("Upload Error:", err)
-				openErrorDialog(props.context, "Error uploading the file: " + err)
+				openErrorDialog(props.wm, "Error uploading the file: " + err)
 			}
 		})
 
