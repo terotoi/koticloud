@@ -124,7 +124,6 @@ func NodeInfo(auth *jwtauth.JWTAuth, db *sql.DB) func(user *models.User, w http.
 		id, err := strconv.Atoi(chi.URLParam(r, "nodeID"))
 		if reportIf(err, http.StatusBadRequest, "", r, w) != nil {
 			return
-
 		}
 
 		nwm, err := fs.NodeWithMetaByID(ctx, id, user.ID, db)

@@ -36,17 +36,18 @@ export default function ErrorDialog(props) {
 }
 
 /**
- * Creates an ErrorDialog and adds it to the context using context.addDialog(dialog)
- * On close, context.removeDialog(dialog) will be called.
+ * Creates an ErrorDialog and adds it to the window manager
+ * using wm.addDialog(dialog)
+ * On close, wm.removeDialog(dialog) will be called.
  * 
- * @param {Context} context - the context to add the dialog in
+ * @param {WindowManager} wm - the window manager
  * @param {string} error - the error text
  */
-export function openErrorDialog(context, error) {
+export function openErrorDialog(wm, error) {
   const dialog =
     <ErrorDialog
-      text={error}
-      onClose={() => { context.removeDialog(dialog) }} />
-	context.addDialog(dialog)
+      text={error.toString()}
+      onClose={() => { wm.removeDialog(dialog) }} />
+	wm.addDialog(dialog)
 }
 

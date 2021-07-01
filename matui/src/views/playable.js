@@ -120,7 +120,7 @@ export default function PlayableView(props) {
 	React.useEffect(() => {
 		// This is used to prevent the browser from hanging on to the video and its connection.
 		props.wm.addCloseHook(props.wnd, (plr) => {
-			plr.src = ""
+			//plr.src = ""
 			plr.src = isVideo(props.node.mime_type) ? blankVideo : blankAudio
 			plr.load()
 		}, player.current)
@@ -177,7 +177,6 @@ export default function PlayableView(props) {
 	}
 
 	function onLoadedMetadata() {
-		console.log("onLoadedMetaData")
 	}
 
 	function onProgressChanged(ev, value) {

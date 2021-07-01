@@ -13,6 +13,25 @@ import (
 	"github.com/terotoi/koticloud/server/proc"
 )
 
+func serveStaticFiles(cfg *core.Config) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+
+		if path == "/" {
+			if cfg.DevMode {
+				path = "/index_dev.html"
+			} else {
+				path = "/index.html"
+			}
+		} else if path == "/index_dev.html" && !cfg.DevMode {
+			path = "/index.html"
+		}
+
+		log.Printf("Serving static file: %s -> %s", path, cfg.StaticRoot+path)
+		http.ServeFile(w, r, cfg.StaticRoot+path)
+	}
+}
+
 func setupRoutes(r *chi.Mux, cfg *core.Config, np *proc.NodeProcessor, db *sql.DB) {
 	auth := jwtauth.New("HS256", []byte(cfg.JWTSecret), nil)
 
@@ -61,6 +80,7 @@ func setupRoutes(r *chi.Mux, cfg *core.Config, np *proc.NodeProcessor, db *sql.D
 
 		r.Post("/meta/update", api.Authorized(api.MetaUpdate(db), false, db))
 
+		// Execute a name command.
 		r.Post("/cmd/run", api.Authorized(api.RunCommand(auth, cfg, db), false, db))
 	})
 
@@ -70,22 +90,7 @@ func setupRoutes(r *chi.Mux, cfg *core.Config, np *proc.NodeProcessor, db *sql.D
 
 		if cfg.StaticRoot != "" {
 			log.Printf("Serving static files from %s", cfg.StaticRoot)
-			r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
-				path := r.RequestURI
-
-				if path == "/" {
-					if cfg.DevMode {
-						path = "/index_dev.html"
-					} else {
-						path = "/index.html"
-					}
-				} else if path == "/index_dev.html" && !cfg.DevMode {
-					path = "/index.html"
-				}
-
-				log.Printf("Serving static file: %s -> %s", path, cfg.StaticRoot+path)
-				http.ServeFile(w, r, cfg.StaticRoot+path)
-			})
+			r.Get("/*", serveStaticFiles(cfg))
 		}
 	})
 }

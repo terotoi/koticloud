@@ -7,7 +7,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert'
 
 import { openAlertDialog } from '../dialogs/alert'
 import { openErrorDialog } from '../dialogs/error'
-import { isPlayable, nodeURL } from '../util'
+import { isDir, isPlayable, nodeURL } from '../util'
 import api from '../api'
 
 /**
@@ -33,25 +33,35 @@ export default function ActionMenu(props) {
 	}
 
 	function renderItems() {
-		let items = [
-			<MenuItem
-				key="Open"
-				onClick={() => {
-					close()
-					props.onOpen(props.node)
-				}}>
-				Open
-			</MenuItem>,
+		let items = []
 
-			<MenuItem
-				key="Cut"
-				onClick={() => {
-					close()
-					props.onAction('cut', props.node)
-				}}>
-				Cut
-			</MenuItem>,
+		items.push(<MenuItem
+			key="OpenTab"
+			onClick={() => {
+				close()
+				window.open("/?id=" + props.node.id, '_blank')
+			}}>Open in a browser window
+		</MenuItem>)
 
+		items.push(<MenuItem
+			key="Open"
+			onClick={() => {
+				close()
+				props.onOpen(props.node)
+			}}>
+			Open
+		</MenuItem>)
+
+		items.push(<MenuItem
+			key="Cut"
+			onClick={() => {
+				close()
+				props.onAction('cut', props.node)
+			}}>
+			Cut
+		</MenuItem>)
+
+		items.push(
 			<MenuItem
 				key="Copy"
 				onClick={() => {
@@ -59,8 +69,9 @@ export default function ActionMenu(props) {
 					props.onAction('copy', props.node)
 				}}>
 				Copy
-			</MenuItem>,
+			</MenuItem>)
 
+		items.push(
 			<MenuItem
 				key="Rename"
 				onClick={() => {
@@ -68,8 +79,9 @@ export default function ActionMenu(props) {
 					props.onAction('rename', props.node)
 				}}>
 				Rename
-			</MenuItem>,
+			</MenuItem>)
 
+		items.push(
 			<MenuItem
 				key="Delete"
 				onClick={() => {
@@ -77,11 +89,10 @@ export default function ActionMenu(props) {
 					props.onAction('delete', props.node)
 				}}>
 				Delete
-			</MenuItem>
-		]
+			</MenuItem>)
 
 		if (isPlayable(props.node.mime_type)) {
-			if (props.node.MetaData === null || props.node.MetaData.Progress < props.node.length) {
+			if (props.node.MetaData === null || props.node.MetaData.Progress < props.node.length) {
 				items.push(
 					<MenuItem
 						key="mark_viewed"
@@ -151,14 +162,14 @@ export default function ActionMenu(props) {
 			</IconButton>
 			{!open ? null :
 				<Menu
-					id="long-menu"
+					id="action-menu"
 					anchorEl={anchor}
 					keepMounted
 					open={open}
 					onClose={close}
 					PaperProps={{
 						style: {
-							width: '20ch'
+							width: '30ch'
 						}
 					}}>
 					{renderItems()}

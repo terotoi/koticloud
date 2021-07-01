@@ -51,6 +51,7 @@ export default function App(props) {
 			if (resp === null) {
 				openErrorDialog(props.wm, "Wrong username or password")
 			} else {
+
 				setAuthToken(resp.AuthToken)
 				setUsername(resp.Username)
 				setCookie("jwt", resp.AuthToken, 31)
@@ -60,9 +61,10 @@ export default function App(props) {
 				localStorage.setItem('authToken', resp.AuthToken)
 				localStorage.setItem('username', resp.Username)
 				localStorage.setItem('admin', resp.Admin)
+
 				localStorage.setItem('initialNodeID', "" + resp.InitialNodeID)
 
-				loadSettings(resp.AuthTOken)
+				loadSettings(resp.AuthToken)
 			}
 		}
 
@@ -96,20 +98,38 @@ export default function App(props) {
 
 	// Load current authentication from local storage.
 	React.useEffect(() => {
+		var stInitialNodeID = parseInt(localStorage.getItem("initialNodeID")) || null
+
 		if (authToken === null) {
 			const authToken = localStorage.getItem("authToken") || null
 			const username = localStorage.getItem("username") || null
 			const admin = localStorage.getItem("admin") || false
-			const initialNodeID = localStorage.getItem("initialNodeID") || null
 
-			if (authToken !== null && username !== null && initialNodeID !== null) {
+			if (authToken !== null && username !== null && stInitialNodeID !== null) {
 				setAuthToken(authToken)
 				setUsername(username)
 				setAdmin(admin)
-				setInitialNodeID(parseInt(initialNodeID))
 				setCookie("jwt", authToken, 31)
 				loadSettings(authToken)
 			}
+		}
+
+		// Parse ?id=[node-id] from the url, and use the result as an initialNode.
+		// Returns true if the id was successfully parsed, false otherwise.
+		const parseIDinURL = (u) => {
+			const url = new URL(u)
+			const ids = url.searchParams.get('id')
+			if (ids !== null) {
+				const id = parseInt(ids)
+				setInitialNodeID(id)
+				return true
+			}
+			return false
+		}
+
+		if (authToken !== null) {
+			if (!parseIDinURL(window.location.href))
+				setInitialNodeID(stInitialNodeID)
 		}
 	}, [authToken])
 

@@ -91,6 +91,28 @@ function login(username, password, success, error) {
   }, "", success, error)
 }
 
+
+/**
+ * Query information about a single node.
+ *
+ * @param {string} id - ID of the node
+ * @param {string} authToken - JWT authentication token
+ * @param {function} success - function(node) called on success
+ * @param {function} error - function(message) called on error
+ */
+function queryNode(id, authToken, success, error) {
+  fetchData('/node/info/' + id, 'get', 'json', null,
+    authToken,
+    (r) => {
+      if (r === null)
+        error("Failed to fetch node information")
+      else {
+        success(r)
+      }
+    }, error)
+}
+
+
 /**
  * List nodes in a directory.
  * @param {string} id - ID of the directory to list
@@ -325,14 +347,16 @@ class Uploader {
 
 // The public API
 const api = {
+  fetchData: fetchData,
+
   copyNode: copyNode,
   deleteNode: deleteNode,
   runNamedCommand: runNamedCommand,
-  fetchData: fetchData,
   listDir: listDir,
   login: login,
   makeDir: makeDir,
   moveNode: moveNode,
+  queryNode: queryNode,
   querySettings: querySettings,
   renameNode: renameNode,
   searchNodes: searchNodes,

@@ -7,7 +7,7 @@ import { openAlertDialog } from '../dialogs/alert'
 import { openErrorDialog } from '../dialogs/error'
 import { openInputDialog } from '../dialogs/input'
 import { sortNodes } from './util'
-import { isVideo, setNodeMeta } from '../util'
+import { isDir, isVideo, setNodeMeta } from '../util'
 import api from '../api'
 
 const styles = makeStyles((theme) => ({
@@ -25,7 +25,7 @@ const styles = makeStyles((theme) => ({
  * @param {string} props.initialNodeID - ID of the node to open initially
  * @param {string} props.authToken - JWT authentication token
  * @param {Object} props.settings - user's settings
- * @param {WindowManager} props.wm
+ * @param {WindowManager} props.wm - the window manager
  */
 export default function FileManager(props) {
 	const [dir, setDir] = React.useState(null)
@@ -37,11 +37,32 @@ export default function FileManager(props) {
 	const classes = styles()
 	const wm = props.wm
 
+	// Initial directory
+	React.useEffect(() => {
+		if (props.authToken && props.initialNodeID !== null) {
+			api.queryNode(props.initialNodeID, props.authToken, (node) => {
+				console.log("Opening node", node.id)
+				nodeOpen(node)
+			},
+				(error) => { openErrorDialog(wm, error) })
+		}
+	}, [props.authToken, props.initialNodeID])
+
+	// Copy nodes from the override to nodes state, use by search.
+	React.useEffect(() => {
+		if (props.nodes) {
+			setNodes(props.nodes)
+			setTitle("Search results:")
+		} else {
+			setTitle(dirPath)
+		}
+	}, [props.nodes])
+
 	// Load information about a directory node and its children.
 	// Can be called with id === undefinde, in that case reload the current directory.
 	function loadDir(id) {
-		if (id === undefined)
-			id = dir.id
+		//if (id === undefined)
+		//	id = dir.id
 
 		api.listDir(id,
 			props.authToken,
@@ -53,38 +74,13 @@ export default function FileManager(props) {
 			(error) => { openErrorDialog(wm, error) })
 	}
 
-	// Initial directory
-	React.useEffect(() => {
-		if (props.authToken && props.initialNodeID !== null) {
-			loadDir(props.initialNodeID)
-		}
-	}, [props.authToken, props.initialNodeID])
-
-	// Copy nodes from the override to nodes state, use by search.
-	React.useEffect(() => {
-		if (props.nodes !== null) {
-			setNodes(props.nodes)
-			setTitle("Search results:")
-		} else {
-			setTitle(dirPath)
-			//loadPath()
-		}
-	}, [props.nodes])
-
-	function onBack() {
-		if (dir !== null && dir.parent_id !== null) {
-			setTitle(null)
-			loadDir(dir.parent_id)
-		}
-	}
-
 	/**
 	 * nodeOpen
 	 * @param {Node} node 
 	 */
 	function nodeOpen(node) {
-		console.log("Open:", node.mime_type)
-		if (node.mime_type == "inode/directory") {
+		console.log("Open:", node.id, node.mime_type)
+		if (isDir(node.mime_type)) {
 			loadDir(node.id)
 		} else {
 			const maximize = isVideo(node.mime_type) ||
@@ -239,6 +235,13 @@ export default function FileManager(props) {
 				break
 			default:
 				break
+		}
+	}
+
+	function onBack() {
+		if (dir !== null && dir.parent_id !== null) {
+			setTitle(null)
+			loadDir(dir.parent_id)
 		}
 	}
 

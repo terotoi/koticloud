@@ -2,21 +2,21 @@
 /* Check if the given content type is a video type.
  * Currently video/mp4 and video/webm are considered videos.
  *
- * @param {string} contentType - content type to check
+ * @param {string} mimeType - content type to check
  * @returns true or false
  */
-export function isVideo(contentType) {
-  return ['video/mp4', 'video/webm'].indexOf(contentType) !== -1
+export function isVideo(mimeType) {
+  return ['video/mp4', 'video/webm'].indexOf(mimeType) !== -1
 }
 
 /* Check if the given content type is an audio type.
  * Currently audio/aac and audio/mp3 are considered audio types.
  *
- * @param {string} contentType - content type to check
+ * @param {string} mimeType - content type to check
  * @returns true or false
  */
-export function isAudio(contentType) {
-  return  ['audio/aac', 'audio/mpeg', 'audio/mp3', 'audio/ogg'].indexOf(contentType) !== -1
+export function isAudio(mimeType) {
+  return  ['audio/aac', 'audio/mpeg', 'audio/mp3', 'audio/ogg'].indexOf(mimeType) !== -1
 }
 
 
@@ -25,47 +25,47 @@ export function isAudio(contentType) {
  *
  * @param {string} contenit
  */
-export function isPlayable(contentType) {
-  return isVideo(contentType) || isAudio(contentType)
+export function isPlayable(mimeType) {
+  return isVideo(mimeType) || isAudio(mimeType)
 }
 
 /* Check if the given content type is an image type.
  * Currently image/jpeg and image/png are supported.
  *
- * @param {string} contentType - content type to check
+ * @param {string} mimeType - content type to check
  * @returns true or false
  */
-export function isImage(contentType) {
-  return ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].indexOf(contentType) !== -1
+export function isImage(mimeType) {
+  return ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].indexOf(mimeType) !== -1
 }
 
 /* Check if the given content type is a media type.
  * Media content types are video, audio and images.
  * Image types are: image/jpeg and image/png
  *
- * @param {string} contentType - content type to check
+ * @param {string} mimeType - content type to check
  * @returns true or false
  */
-export function isMedia(contentType) {
-  return isPlayable(contentType) || isImage(contentType)
+export function isMedia(mimeType) {
+  return isPlayable(mimeType) || isImage(mimeType)
 }
 
 /* Check if the given content type is a directory.
  *
- * @param {string} contentType - content type to check
+ * @param {string} mimeType - content type to check
  * @returns true or false
  */
-export function isDir(contentType) {
-  return contentType == 'inode/directory'
+export function isDir(mimeType) {
+  return mimeType == 'inode/directory'
 }
 
 /* Check if the given content type is text.
  *
- * @param {string} contentType - content type to check
+ * @param {string} mimeType - content type to check
  * @returns true or false
  */
-export function isText(contentType) {
-  return ['text/plain', 'application/json', 'application/x-ndjson'].indexOf(contentType) !== -1
+export function isText(mimeType) {
+  return ['text/plain', 'application/json', 'application/x-ndjson'].indexOf(mimeType) !== -1
 }
 
 /* Limit string to n number of characters. If the length of

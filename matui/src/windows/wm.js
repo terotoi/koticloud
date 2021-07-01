@@ -13,9 +13,9 @@ export default class WindowManager extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = {
-			// list of {
+			// window is {
 			// content: Object, title: String, id: int, zIndex: int,
-			// pos: [number, number], size: [number, number]} objects }
+			// pos: [number, number], size: [number, number]} }
 			windows: [],
 			dialogs: [],
 			closeHooks: [],

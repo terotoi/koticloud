@@ -178,14 +178,12 @@ export default function MyAppBar(props) {
 								onClick={() => {
 									setMainMenuAnchor(null)
 
-									/*
 									props.wm.openWindow("File manager",
 										<FileManager
 											initialNodeID={props.initialNodeID}
 											authToken={props.authToken}
 											settings={props.settings}
 											wm={props.wm} />, false)
-									*/
 								}}>New file manager
 							</MenuItem>
 						</Menu>}
