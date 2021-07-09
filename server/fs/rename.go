@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	. "github.com/terotoi/koticloud/server/core"
+	"github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/models"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
@@ -15,12 +15,12 @@ import (
 // Rename a filesystem node.
 func Rename(ctx context.Context, node *models.Node, filename string, user *models.User, tx *sql.Tx) error {
 	if !IsValidName(filename) {
-		return NewSystemError(http.StatusBadRequest, "",
+		return core.NewSystemError(http.StatusBadRequest, "",
 			fmt.Sprintf("invalid node name: %s", filename))
 	}
 
 	if !AccessAllowed(user, node, false) {
-		return NewSystemError(http.StatusUnauthorized, "", "not authorized")
+		return core.NewSystemError(http.StatusUnauthorized, "", "not authorized")
 	}
 
 	if node.ParentID.Valid {
@@ -30,7 +30,7 @@ func Rename(ctx context.Context, node *models.Node, filename string, user *model
 		}
 
 		if dup != nil {
-			return NewSystemError(http.StatusConflict, "",
+			return core.NewSystemError(http.StatusConflict, "",
 				fmt.Sprintf("file exists: %s", filename))
 		}
 	}

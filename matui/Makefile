@@ -22,9 +22,35 @@ clean:
 	rm -rf static/ui/* static/fonts/* node_modules static/*.js static/*js.*txt
 
 SRC=\
-	src/api.js            src/dialogs/error.js     src/fm/filemanager.js  src/init.js         src/views/node.js \
-	src/appbar.js         src/dialogs/input.js     src/fm/grid.js         src/login.js        src/views/pdf.js \
-	src/app.js            src/dialogs/password.js  src/fm/list.js         src/theme.js        src/views/playable.js \
-	src/context.js        src/fm/action_menu.js    src/fm/progress.js     src/thumbs.js       src/views/text.js \
-	src/dialogs/about.js  src/fm/card.js           src/fm/upload.js       src/util.js         src/window.js \
-	src/dialogs/alert.js  src/fm/dirview.js        src/fm/util.js         src/views/image.js
+	./dialogs/input.js \
+	./dialogs/alert.js \
+	./dialogs/password.js \
+	./dialogs/error.js \
+	./dialogs/about.js \
+	./fm/upload.js \
+	./fm/grid.js \
+	./fm/action_menu.js \
+	./fm/dialogs/new_file.js \
+	./fm/card.js \
+	./fm/progress.js \
+	./fm/util.js \
+	./fm/filemanager.js \
+	./fm/list.js \
+	./fm/dirview.js \
+	./app.js \
+	./login.js \
+	./util.js \
+	./appbar.js \
+	./theme.js \
+	./api.js \
+	./init.js \
+	./windows/window.js \
+	./windows/wm.js \
+	./windows/render.js \
+	./views/image.js \
+	./views/text.js \
+	./views/pdf.js \
+	./views/playable.js \
+	./views/blank.js \
+	./views/node.js \
+	./thumbs.js

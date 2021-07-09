@@ -31,6 +31,7 @@ type Config struct {
 	UploadDir     string `json:"upload_dir"`
 	StaticRoot    string `json:"static_Root"`
 	JWTSecret     string `json:"jwt_secret"`
+	JWTMaxAge     int    `json:"jwt_max_age"` // Maximum age for the token, in hours. Use 0 for no age check.
 
 	InitialUser string `json:"initial_user"`
 	InitialPW   string `json:"initial_password"`
@@ -92,7 +93,7 @@ func ParseArgs() (*Config, error) {
 
 	if len(flag.Args()) == 0 {
 		flag.Usage()
-		return nil, fmt.Errorf("Commands: serve, create-admin")
+		return nil, fmt.Errorf("commands: serve, create-admin")
 	}
 
 	configFile = util.ReplaceEnvs(configFile)

@@ -16,7 +16,6 @@ import SkipNextIcon from '@material-ui/icons/SkipNext'
 import VolumeUp from '@material-ui/icons/VolumeUp'
 import VolumeOff from '@material-ui/icons/VolumeOff'
 import VolumeMute from '@material-ui/icons/VolumeMute'
-import { useHotkeys } from 'react-hotkeys-hook'
 
 import { formatDuration, isVideo, nodeURL, setNodeMeta } from '../util'
 import { openErrorDialog } from '../dialogs/error'
@@ -137,6 +136,8 @@ export default function PlayableView(props) {
 			setVolume(v)
 			player.current.currentTime = pr
 			player.current.volume = v
+
+			props.wm.setTitle(props.wnd, props.node.name)
 		}
 
 		setPlaying(false)
@@ -270,7 +271,10 @@ export default function PlayableView(props) {
 		})
 	}
 
-	useHotkeys('space', togglePause)
+	function onKeyDown(ev) {
+		if(ev.key === ' ')
+			togglePause()
+	}
 
 	function renderControls(vid) {
 		return (
@@ -323,6 +327,7 @@ export default function PlayableView(props) {
 						preload="metadata"
 						autoPlay={true}
 						controls={fullscreen}
+						onKeyDown={onKeyDown}
 						onMouseEnter={() => { setHover(true) }}
 						onMouseLeave={() => { setHover(false) }}
 						onDoubleClick={togglePause}
@@ -350,6 +355,7 @@ export default function PlayableView(props) {
 					preload="metadata"
 					controls={false}
 					autoPlay={true}
+					onKeyDown={onKeyDown}
 					onDragStart={(ev) => { ev.preventDefault(); return false }}
 					onLoadedMetadata={onLoadedMetadata}
 					onTimeUpdate={onTimeUpdate}

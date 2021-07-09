@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	. "github.com/terotoi/koticloud/server/core"
+	"github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/models"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
@@ -15,7 +15,7 @@ import (
 func Delete(ctx context.Context, node *models.Node, recursive, followDataSymLink bool,
 	user *models.User, fileRoot, thumbRoot string, tx boil.ContextExecutor) ([]*models.Node, error) {
 	if !AccessAllowed(user, node, true) {
-		return nil, NewSystemError(http.StatusUnauthorized, "", "not authorized")
+		return nil, core.NewSystemError(http.StatusUnauthorized, "", "not authorized")
 	}
 
 	var deleted []*models.Node
@@ -32,12 +32,11 @@ func Delete(ctx context.Context, node *models.Node, recursive, followDataSymLink
 				if err != nil {
 					return nil, err
 				}
-				for _, d := range dels {
-					deleted = append(deleted, d)
-				}
+
+				deleted = append(deleted, dels...)
 			}
 		} else {
-			return nil, NewSystemError(http.StatusBadRequest, "",
+			return nil, core.NewSystemError(http.StatusBadRequest, "",
 				"directory not empty and recursive deletion not requested")
 		}
 	}

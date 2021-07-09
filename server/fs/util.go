@@ -13,7 +13,6 @@ import (
 )
 
 const emptyFileType = "text/plain"
-const unknownFileType = "application/octet-stream"
 
 // IsDir returns true if the given node is a directory.
 func IsDir(node *models.Node) bool {

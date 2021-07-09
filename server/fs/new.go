@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	. "github.com/terotoi/koticloud/server/core"
+	"github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/models"
 	"github.com/terotoi/koticloud/server/util"
 	"github.com/volatiletech/null/v8"
@@ -21,17 +21,17 @@ func NewFile(ctx context.Context, parent *models.Node, filename,
 
 	if !IsValidName(filename) {
 		msg := fmt.Sprintf("illegal filename: %s", filename)
-		return nil, NewSystemError(http.StatusBadRequest, msg, msg)
+		return nil, core.NewSystemError(http.StatusBadRequest, msg, msg)
 	}
 
 	existing, err := NodeChildByName(ctx, filename, parent.ID, tx)
 	if err != nil {
-		return nil, NewInternalError(err)
+		return nil, core.NewInternalError(err)
 	}
 
 	if existing != nil {
 		msg := fmt.Sprintf("node already exists: %s", filename)
-		return nil, NewSystemError(http.StatusConflict, msg, msg)
+		return nil, core.NewSystemError(http.StatusConflict, msg, msg)
 	}
 
 	node := models.Node{}
@@ -89,7 +89,7 @@ func CopyData(node *models.Node, sourceFile string, symlink bool, fileRoot strin
 
 	err = util.EnsureDirExists(NodeLocalPath(fileRoot, node.ID, false))
 	if err != nil {
-		return NewInternalError(err)
+		return core.NewInternalError(err)
 	}
 
 	localPath := NodeLocalPath(fileRoot, node.ID, true)
@@ -97,11 +97,11 @@ func CopyData(node *models.Node, sourceFile string, symlink bool, fileRoot strin
 	if symlink {
 		err := os.Symlink(sourceFile, localPath)
 		if err != nil {
-			return NewInternalError(err)
+			return core.NewInternalError(err)
 		}
 	} else {
 		if err := CopyFile(sourceFile, localPath); err != nil {
-			return NewInternalError(err)
+			return core.NewInternalError(err)
 		}
 	}
 

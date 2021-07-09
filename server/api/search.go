@@ -60,6 +60,6 @@ func NodeSearch(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *ht
 			}
 		}
 
-		respJSON(nodes, r, w)
+		respJSON(filtered, r, w)
 	}
 }

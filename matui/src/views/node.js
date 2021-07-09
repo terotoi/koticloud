@@ -47,6 +47,7 @@ export default function NodeView(props) {
 				for (let j = i + 1; j < props.nodes.length; j++) {
 					if (!isDir(props.nodes[j].mime_type)) {
 						setNode(props.nodes[j])
+						props.wm.setTitle(props.wnd, props.nodes[j].name)
 						break
 					}
 				}
@@ -62,6 +63,7 @@ export default function NodeView(props) {
 				for (let j = i - 1; j >= 0; j--) {
 					if (!isDir(props.nodes[j].mime_type)) {
 						setNode(props.nodes[j])
+						props.wm.setTitle(props.wnd, props.nodes[j].name)
 						break
 					}
 				}

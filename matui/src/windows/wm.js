@@ -8,14 +8,15 @@ import { remSize } from '../util'
 
 /**
  * WindowManager manages windows and dialogs.
+ * 
+ * WindowManager contains a list of window objects:
+ *    content, title: String, id: int, zIndex: int
+ *    pos: [number, number], size: [number, number]
  */
 export default class WindowManager extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = {
-			// window is {
-			// content: Object, title: String, id: int, zIndex: int,
-			// pos: [number, number], size: [number, number]} }
 			windows: [],
 			dialogs: [],
 			closeHooks: [],
@@ -25,6 +26,7 @@ export default class WindowManager extends React.Component {
 			closeWindow: this.closeWindow.bind(this),
 			raiseWindow: this.raiseWindow.bind(this),
 			resizeWindow: this.resizeWindow.bind(this),
+			setTitle: this.setTitle.bind(this),
 			addDialog: this.addDialog.bind(this),
 			removeDialog: this.removeDialog.bind(this),
 		}
@@ -133,6 +135,17 @@ export default class WindowManager extends React.Component {
 			}
 			this.setState({ windows: this.state.windows })
 		}
+	}
+
+	/**
+	 * Changes the title of a window.
+	 * 
+	 * @param {*} wnd - the window to modify
+	 * @param {*} title - the new title
+	 */
+	setTitle(wnd, title) {
+		wnd.title = title
+		this.setState({ windows: this.state.windows })
 	}
 
 	/**

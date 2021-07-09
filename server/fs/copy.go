@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	. "github.com/terotoi/koticloud/server/core"
+	"github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/models"
 )
 
@@ -14,19 +14,19 @@ func Copy(ctx context.Context, src *models.Node, parent *models.Node, filename s
 	symlinkData bool, fileRoot, thumbRoot string, user *models.User,
 	tx *sql.Tx) ([]*models.Node, error) {
 	if !AccessAllowed(user, src, false) {
-		return nil, NewSystemError(http.StatusUnauthorized, "", "not authorized")
+		return nil, core.NewSystemError(http.StatusUnauthorized, "", "not authorized")
 	}
 
 	if !AccessAllowed(user, parent, false) {
-		return nil, NewSystemError(http.StatusUnauthorized, "", "not authorized")
+		return nil, core.NewSystemError(http.StatusUnauthorized, "", "not authorized")
 	}
 
 	if !IsDir(parent) {
-		return nil, NewSystemError(http.StatusUnauthorized, "", "destination is not a directory")
+		return nil, core.NewSystemError(http.StatusUnauthorized, "", "destination is not a directory")
 	}
 
 	if !parent.OwnerID.Valid || parent.OwnerID.Int != src.OwnerID.Int {
-		return nil, NewSystemError(http.StatusUnauthorized, "", "destination directory has an invalid owner")
+		return nil, core.NewSystemError(http.StatusUnauthorized, "", "destination directory has an invalid owner")
 	}
 
 	var copied []*models.Node
@@ -61,7 +61,7 @@ func Copy(ctx context.Context, src *models.Node, parent *models.Node, filename s
 				dstThumbPath)
 			if err := CopyFile(srcThumbPath, dstThumbPath); err != nil {
 				log.Println(err)
-				return nil, NewInternalError(err)
+				return nil, core.NewInternalError(err)
 			}
 		}
 	} else {

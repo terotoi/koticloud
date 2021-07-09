@@ -4,19 +4,19 @@ import (
 	"context"
 	"net/http"
 
-	. "github.com/terotoi/koticloud/server/core"
+	"github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/models"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
-// MakeDir a filesystem directory.
+// MakeDir creates a filesystem directory.
 func MakeDir(ctx context.Context, parent *models.Node, filename string,
 	user *models.User, tx boil.ContextExecutor) (*models.Node, error) {
 
 	if parent != nil {
 		if !AccessAllowed(user, parent, false) {
-			return nil, NewSystemError(http.StatusUnauthorized, "", "not authorized")
+			return nil, core.NewSystemError(http.StatusUnauthorized, "", "not authorized")
 		}
 	}
 
