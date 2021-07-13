@@ -57,7 +57,10 @@ func Delete(ctx context.Context, node *models.Node, recursive, followDataSymLink
 		}
 	}
 
-	os.Remove(NodeLocalPath(thumbRoot, node.ID, true))
+	if err := os.Remove(NodeLocalPath(thumbRoot, node.ID, true)); err != nil {
+		log.Println(err)
+	}
+
 	if _, err = node.Delete(ctx, tx); err != nil {
 		return nil, err
 	}

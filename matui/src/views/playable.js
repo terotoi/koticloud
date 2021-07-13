@@ -110,7 +110,6 @@ export default function PlayableView(props) {
 	React.useEffect(() => {
 		const size = [player.current.scrollWidth, player.current.scrollHeight]
 		if (size[0] != windowSize[0] || size[1] != windowSize[1]) {
-			console.log("setting player size")
 			setWindowSize(size)
 			setControlSize([player.current.offsetWidth, player.current.offsetHeight])
 		}
@@ -119,9 +118,12 @@ export default function PlayableView(props) {
 	React.useEffect(() => {
 		// This is used to prevent the browser from hanging on to the video and its connection.
 		props.wm.addCloseHook(props.wnd, (plr) => {
-			//plr.src = ""
-			plr.src = isVideo(props.node.mime_type) ? blankVideo : blankAudio
+
+			plr.pause()
+			plr.removeAttribute('src'); // empty source
 			plr.load()
+			//plr.src = isVideo(props.node.mime_type) ? blankVideo : blankAudio
+			//plr.load()
 		}, player.current)
 	}, [])
 

@@ -23,7 +23,8 @@ const styles = makeStyles((theme) => ({
 	},
 
 	titleBar: {
-		minHeight: '2rem',
+		minHeight: '1em',
+		maxHeight: '2em',
 		backgroundColor: theme.palette.primary.main,
 		fontSize: theme.typography.fontSize * 1.2,
 		display: 'flex',
@@ -35,7 +36,8 @@ const styles = makeStyles((theme) => ({
 
 	statusBar: {
 		marginTop: 'auto',
-		height: '2rem',
+		minHeight: '1em',
+		maxHeight: '2em',
 		backgroundColor: theme.palette.primary.main,
 		fontSize: theme.typography.fontSize * 1.2,
 		display: 'flex',

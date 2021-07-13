@@ -42,6 +42,7 @@ func ScanDeletedNodes(fileRoot, thumbRoot string, db *sql.DB) func(user *models.
 					deleted = append(deleted, node)
 
 					if node.ParentID.Valid {
+						// Add unique parents
 						found := false
 						for _, dir := range dirs {
 							if node.ParentID.Int == dir.ID {
@@ -54,7 +55,8 @@ func ScanDeletedNodes(fileRoot, thumbRoot string, db *sql.DB) func(user *models.
 							dir, err := fs.NodeByID(ctx, node.ParentID.Int, db)
 							if err != nil {
 								log.Println(err)
-							} else if dir != nil {
+							} else if dir != nil && !dir.ParentID.Valid {
+								// Do not delete any root directories
 								dirs = append(dirs, dir)
 							}
 						}

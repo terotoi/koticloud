@@ -13,24 +13,23 @@ import (
 const thumbWidth = 600
 
 func generateImageThumbnail(src, dst, method string) error {
-	var command string
+	var format string
 	switch method {
 	default:
 		fallthrough
-	case "scale_width":
-		command = fmt.Sprintf("convert \"%s\" -scale %dx \"%s\"", src, thumbWidth, dst)
+	case "crop_169":
+		format = "convert \"%s\" -gravity center -crop 16:9 -geometry %dx \"%s\""
 
 	case "crop_11":
-		// NOTE: does not work well with posters, because the thumbs are also used for them.
-		command = fmt.Sprintf("convert \"%s\" -geometry %dx%d^ -gravity center -crop %dx%d+0+0 \"%s\"",
-			src, thumbWidth, thumbWidth, thumbWidth, thumbWidth, dst)
+		format = "convert \"%s\" -gravity center -crop 1:1 -geometry %dx \"%s\""
 
 	case "crop_43":
-		// NOTE: does not work well with posters, because the thumbs are also used for them.
-		command = fmt.Sprintf("convert \"%s\" -geometry %dx%d^ -gravity center -crop %dx%d+0+0 \"%s\"",
-			src, thumbWidth, thumbWidth, int(thumbWidth*(3.0/4.0)), thumbWidth, dst)
+		format = "convert \"%s\" -gravity center -crop 1:1 -geometry %dx \"%s\""
+
+	case "scale_width":
+		format = "convert \"%s\" -scale %dx \"%s\""
 	}
-	_, err := util.Exec(command)
+	_, err := util.Exec(fmt.Sprintf(format, src, thumbWidth, dst))
 	return err
 }
 
@@ -50,6 +49,7 @@ func generateVideoThumbnail(src, dst, tempDir, method string) error {
 	previewCmd := fmt.Sprintf("ffmpeg -y -ss `ffprobe -v 0 -show_entries format=duration "+
 		"-of default=noprint_wrappers=1:nokey=1 \"%s\" | awk '{printf(\"%%.0f\\n\", $1/5)}'` "+
 		"-i \"%s\" -vframes 1 -an \"%s\"", src, src, previewFile)
+
 	if _, err := util.Exec(previewCmd); err != nil {
 		return err
 	}
@@ -58,13 +58,6 @@ func generateVideoThumbnail(src, dst, tempDir, method string) error {
 	if err := generateImageThumbnail(previewFile, dst, method); err != nil {
 		return err
 	}
-
-	// Create a poster
-	/*
-		toPoster := fmt.Sprintf("convert \"%s\" \"%s\"", fname, posterOut)
-		if _, err := Exec(toPoster); err != nil {
-			return err
-		}*/
 
 	return nil
 }

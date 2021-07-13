@@ -18,17 +18,18 @@ const styles = makeStyles((theme) => ({
 	},
 	thumb: {
 		width: '100%',
+		height: '100%',
 		boxSizing: 'border-box',
 		display: 'block',
 		objectFit: 'contain',  // contain forces own aspect
-		objectPosition: '50% 0%'
+		objectPosition: '50% 50%'
 	},
 	stdThumb: {
 		borderWidth: '2pt',
 		borderStyle: 'solid',
 		borderColor: theme.palette.primary.light,
 		borderRadius: '5%',
-		padding: '8%'
+		padding: '8%',
 	},
 	dirThumb: {
 		borderWidth: '2pt',

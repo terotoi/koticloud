@@ -86,7 +86,7 @@ func (app *App) upload(cmd string, args []string) error {
 			err =
 				filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 					if err != nil {
-						fmt.Fprintf(os.Stderr, ": %s: %s", root, err)
+						fmt.Fprintf(os.Stderr, ": %s: %s\n", root, err)
 						return nil
 					}
 
