@@ -43,7 +43,7 @@ services:
     volumes:
       - koticloud_data:/data
     ports:
-      - \"7070:7070\"
+      - \"127.0.0.1:7070:7070\"
     restart: always
     environment:
       TZ: ${_timezone}

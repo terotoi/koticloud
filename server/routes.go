@@ -48,7 +48,7 @@ func setupRoutes(r *chi.Mux, cfg *core.Config, np *proc.NodeProcessor, db *sql.D
 		r.Use(jwtauth.Authenticator)
 
 		r.Post("/node/id_for", api.Authorized(api.NodeIDForPath(auth, db), false, cfg, db))
-		r.Post("/node/ls", api.Authorized(api.NodeList(auth, db), false, cfg, db))
+		r.Get("/node/ls/{nodeID:[0-9]+}", api.Authorized(api.NodeList(auth, db), false, cfg, db))
 		r.Post("/node/mkdir", api.Authorized(api.NodeMakeDir(db), false, cfg, db))
 		r.Post("/node/new", api.Authorized(api.NodeNew(cfg.UploadDir, cfg.FileRoot, cfg.ThumbRoot, np.Channel, db),
 			false, cfg, db))
@@ -81,7 +81,9 @@ func setupRoutes(r *chi.Mux, cfg *core.Config, np *proc.NodeProcessor, db *sql.D
 			},
 			api.ContentServeThumbFallback(cfg.ThumbRoot, cfg.StaticRoot), db), false, cfg, db))
 
+		// TODO: remove
 		r.Post("/meta/update", api.Authorized(api.MetaUpdate(db), false, cfg, db))
+		r.Post("/progress/update", api.Authorized(api.UpdateProgress(db), false, cfg, db))
 
 		// Execute a name command.
 		r.Post("/cmd/run", api.Authorized(api.RunCommand(auth, cfg, db), false, cfg, db))

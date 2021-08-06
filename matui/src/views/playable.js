@@ -45,7 +45,7 @@ const styles = makeStyles((theme) => ({
 		margin: 0,
 
 		// For left-aligning content
-		objectPosition: '0% 0%',
+		objectPosition: '50% 0%',
 		maxWidth: '100%',
 		height: '100%',
 	},
@@ -156,7 +156,7 @@ export default function PlayableView(props) {
 			api.updateMeta(props.node.id, props.node.MetaType, props.node.MetaData,
 				props.authToken,
 				() => {
-					console.log("updateMeta:", progress, "/", props.node.length, volume)
+					console.log("updateProgress:", progress, "/", props.node.length, volume)
 				},
 				(error) => { openErrorDialog(props.wm, error) })
 		}, updateInterval))

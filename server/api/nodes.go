@@ -146,9 +146,14 @@ func NodeInfo(auth *jwtauth.JWTAuth, db *sql.DB) func(user *models.User, w http.
 // NodeList returns a directory listing of a path.
 func NodeList(auth *jwtauth.JWTAuth, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
-		dec := json.NewDecoder(r.Body)
+		/*dec := json.NewDecoder(r.Body)
 		var id int
 		err := dec.Decode(&id)
+		if reportIf(err, http.StatusBadRequest, "", r, w) != nil {
+			return
+		}*/
+
+		id, err := strconv.Atoi(chi.URLParam(r, "nodeID"))
 		if reportIf(err, http.StatusBadRequest, "", r, w) != nil {
 			return
 		}

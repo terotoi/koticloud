@@ -121,7 +121,7 @@ function queryNode(id, authToken, success, error) {
  * @param {function} error - function(message) called on error
  */
 function listDir(id, authToken, success, error) {
-  fetchData('/node/ls', 'post', 'json', id,
+  fetchData('/node/ls/' + id, 'get', 'json', null,
     authToken,
     (r) => {
       if (r === null)
@@ -235,6 +235,7 @@ function searchNodes(text, authToken, success, error) {
 
 /**
  * Creates or updates user-specific metadata on a node.
+ * TODO: replace with proper updateProgress
  * 
  * @param {int} nodeID - ID of the node
  * @param {type} type - metadata type
@@ -244,11 +245,11 @@ function searchNodes(text, authToken, success, error) {
  * @param {function} error - function(message) called on error
  */
 function updateMeta(nodeID, type, metadata, authToken, success, error) {
-  fetchData('/meta/update', 'post', 'json',
+  fetchData('/progress/update', 'post', 'json',
     {
       NodeID: nodeID,
-      Type: type,
-      Data: metadata
+      Volume: metadata.Volume,
+      Progress: metadata.Progress,
     }, authToken, success, error)
 }
 

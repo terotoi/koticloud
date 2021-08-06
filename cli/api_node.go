@@ -55,8 +55,8 @@ func apiList(path, authToken, baseURL string) (*models.Node, []*fs.NodeWithMeta,
 	}
 
 	client := http.Client{}
-	res, err := PostJSON(&client, fmt.Sprintf("%s/node/ls", baseURL),
-		authToken, id)
+	res, err := RequestURL(&client, fmt.Sprintf("%s/node/ls/%d", baseURL, id),
+		"application/json", authToken, nil, nil)
 	if err != nil {
 		return nil, nil, err
 	}
