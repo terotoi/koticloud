@@ -25,7 +25,7 @@ func (app *App) scanDeleted(cmd string, args []string) error {
 	fmt.Printf("Deleted unexisting nodes:\n")
 	printNodeHeader()
 	for _, n := range nodes {
-		printNode(&n)
+		printNode(&n, true)
 	}
 	return nil
 }

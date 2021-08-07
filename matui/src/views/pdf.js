@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { makeStyles } from '@material-ui/core/styles'
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack'
-import { nodeURL, setNodeMeta } from '../util'
+import { nodeURL } from '../util'
 import api from '../api'
 
 const styles = makeStyles((theme) => ({
@@ -62,16 +62,14 @@ export default function PDFView(props) {
 	const classes = styles()
 
 	function updateProgress(page) {
-		setNodeMeta(props.node, page)
-
 		if (updateTimeout !== null)
 			clearTimeout(updateTimeout)
 
 		setUpdateTimeout(setTimeout(() => {
-			api.updateMeta(props.node.id, props.node.MetaType, props.node.MetaData,
+			api.updateProgress(props.node.id, page, 0.0,
 				props.authToken,
 				() => {
-					console.log("updateProgress OK", JSON.stringify(props.node.MetaData))
+					console.log("updateProgress OK", props.node.id, props.node.progress, props.node.volume)
 				},
 				(error) => { openErrorDialog(props.wm, error) })
 		}, updateInterval))
@@ -81,9 +79,8 @@ export default function PDFView(props) {
 		console.log("onLoaded", numPages)
 		setNumPages(numPages)
 
-		if (props.node.MetaType === 'progress' && props.node.MetaData !== null &&
-			props.node.MetaData.Progress)
-			setPageNum(props.node.MetaData.Progress)
+		if (props.node.progress !== null)
+			setPageNum(props.node.progress)
 	}
 
 	function turnPage(dir) {

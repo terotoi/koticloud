@@ -28,15 +28,15 @@ func NodeByID(ctx context.Context, id int, db boil.ContextExecutor) (*models.Nod
 	return node, err
 }
 
-// NodeWithMetaByID returns a node by ID.
-func NodeWithMetaByID(ctx context.Context, nodeID, userID int, db boil.ContextExecutor) (*NodeWithMeta, error) {
-	// NOTE: Current system supports only one metum per user-node.
-	// This means that metadata on multiple users cannot be returned.
-	var nwm NodeWithMeta
+// NodeWithProgressByID returns a node with progress information.
+func NodeWithProgressByID(ctx context.Context, nodeID, userID int, db boil.ContextExecutor) (*NodeWithProgress, error) {
+	// NOTE: Current system supports only one progress datum per user-node.
+	// This means that progress for multiple users cannot be returned.
+	var nwm NodeWithProgress
 	err := models.NewQuery(
-		qm.Select("nodes.*", "meta.type AS meta_type", "meta.data"),
+		qm.Select("nodes.*", "progress.progress", "progress.volume"),
 		qm.From("nodes"),
-		qm.LeftOuterJoin("meta on nodes.id=meta.node_id and meta.user_id=?", userID),
+		qm.LeftOuterJoin("progress on nodes.id=progress.node_id and progress.user_id=?", userID),
 		qm.Where("nodes.id=?", nodeID)).Bind(ctx, db, &nwm)
 	return &nwm, err
 }
@@ -47,16 +47,15 @@ func NodesByParentID(ctx context.Context, parentID int, db boil.ContextExecutor)
 	return n, err
 }
 
-// NodesWithMetaByParentID returns nodes with the given parent ID.
-// Associated metadata for the node and user is returned also.
-func NodesWithMetaByParentID(ctx context.Context, parentID, userID int, db boil.ContextExecutor) ([]*NodeWithMeta, error) {
-	// NOTE: Current system supports only one metum per user-node.
-	// This means that metadata on multiple users cannot be returned.
-	var nwm []*NodeWithMeta
+// NodesWithProgressByParentID returns nodes with progress information.
+func NodesWithProgressByParentID(ctx context.Context, parentID, userID int, db boil.ContextExecutor) ([]*NodeWithProgress, error) {
+	// NOTE: Current system supports only one progress datum per user-node.
+	// This means that progress for  ultiple users cannot be returned.
+	var nwm []*NodeWithProgress
 	err := models.NewQuery(
-		qm.Select("nodes.*", "meta.type AS meta_type", "meta.data"),
+		qm.Select("nodes.*", "progress.progress", "progress.volume"),
 		qm.From("nodes"),
-		qm.FullOuterJoin("meta on nodes.id=meta.node_id and meta.user_id=?", userID),
+		qm.FullOuterJoin("progress on nodes.id=progress.node_id and progress.user_id=?", userID),
 		qm.Where("parent_id=?", parentID)).Bind(ctx, db, &nwm)
 	return nwm, err
 }

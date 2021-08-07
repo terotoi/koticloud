@@ -24,20 +24,34 @@ func printNodeHeader() {
 	fmt.Printf("===============================================================================================\n")
 }
 
-func printNode(node *models.Node) {
-	fmt.Printf("%-4d %-40s %-10s %-16s %12d  %s\n",
+func printNode(node *models.Node, nl bool) {
+	fmt.Printf("%-5d  %-40.40s  %-10.10s  %-16.16s %12d  %30.30s  ",
 		node.ID, node.Name, node.Type, node.MimeType, node.Size.Int64,
 		node.ModifiedOn.Format(time.UnixDate))
+
+	if nl {
+		fmt.Println()
+	}
 }
 
-func printNodeWithMeta(node *fs.NodeWithMeta) {
-	fmt.Printf("%-4d %-40s %-10s %-16s %12d  %s\n",
-		node.ID, node.Name, node.Type, node.MimeType, node.Size.Int64,
-		node.ModifiedOn.Format(time.UnixDate))
+func printNodeWithProgress(node *fs.NodeWithProgress) {
+	printNode(&node.Node, false)
 
-	if node.MetaData.Valid {
-		fmt.Printf("   meta: %s\n", node.MetaData.JSON)
+	if node.Progress.Valid || node.Volume.Valid {
+		var progress float32
+		var volume float32
+
+		if node.Progress.Valid {
+			progress = node.Progress.Float32
+		}
+
+		if node.Volume.Valid {
+			volume = node.Volume.Float32
+		}
+
+		fmt.Printf("  progress: %.1f volume: %.1f\n", progress, volume)
 	}
+	fmt.Println()
 }
 
 // Resolve path using current remove dir.

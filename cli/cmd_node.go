@@ -24,7 +24,7 @@ func (app *App) info(cmd string, args []string) error {
 		return err
 	}
 	printNodeHeader()
-	printNodeWithMeta(node)
+	printNodeWithProgress(node)
 	return nil
 }
 
@@ -46,7 +46,7 @@ func (app *App) list(cmd string, args []string) error {
 	} else {
 		printNodeHeader()
 		for _, node := range nodes {
-			printNodeWithMeta(node)
+			printNodeWithProgress(node)
 		}
 	}
 	return nil
@@ -115,7 +115,7 @@ func (app *App) copy(cmd string, args []string) error {
 		fmt.Printf("Copied %d nodes:\n", len(nodes))
 		printNodeHeader()
 		for _, n := range nodes {
-			printNode(n)
+			printNode(n, true)
 		}
 	}
 	return nil
@@ -137,7 +137,7 @@ func (app *App) rename(cmd string, args []string) error {
 		fmt.Printf("Renamed %d nodes:\n", len(nodes))
 		printNodeHeader()
 		for _, n := range nodes {
-			printNode(&n)
+			printNode(&n, true)
 		}
 	}
 	return nil
@@ -169,7 +169,7 @@ func (app *App) delete(cmd string, args []string) error {
 			fmt.Printf("Deleted %d nodes:\n", len(nodes))
 			printNodeHeader()
 			for _, n := range nodes {
-				printNode(&n)
+				printNode(&n, true)
 			}
 		}
 	}
@@ -188,7 +188,7 @@ func (app *App) search(cmd string, args []string) error {
 		} else {
 			printNodeHeader()
 			for _, node := range nodes {
-				printNode(node)
+				printNode(node, true)
 			}
 		}
 	}

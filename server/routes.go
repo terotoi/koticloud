@@ -81,8 +81,6 @@ func setupRoutes(r *chi.Mux, cfg *core.Config, np *proc.NodeProcessor, db *sql.D
 			},
 			api.ContentServeThumbFallback(cfg.ThumbRoot, cfg.StaticRoot), db), false, cfg, db))
 
-		// TODO: remove
-		r.Post("/meta/update", api.Authorized(api.MetaUpdate(db), false, cfg, db))
 		r.Post("/progress/update", api.Authorized(api.UpdateProgress(db), false, cfg, db))
 
 		// Execute a name command.

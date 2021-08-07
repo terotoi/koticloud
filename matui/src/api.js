@@ -234,22 +234,21 @@ function searchNodes(text, authToken, success, error) {
 }
 
 /**
- * Creates or updates user-specific metadata on a node.
- * TODO: replace with proper updateProgress
+ * Creates or updates user-specific progress data on a node.
  * 
  * @param {int} nodeID - ID of the node
- * @param {type} type - metadata type
- * @param {object} meta - metadata
+ * @param {number} progress - progress (type specific, usually seconds)
+ * @param {number} volume - volume (0.0-1.0)
  * @param {string} authToken - JWT authentication token
  * @param {function} success - function to call on success
  * @param {function} error - function(message) called on error
  */
-function updateMeta(nodeID, type, metadata, authToken, success, error) {
+function updateProgress(nodeID, progress, volume, authToken, success, error) {
   fetchData('/progress/update', 'post', 'json',
     {
       NodeID: nodeID,
-      Volume: metadata.Volume,
-      Progress: metadata.Progress,
+      Progress: progress,
+      Volume: volume,
     }, authToken, success, error)
 }
 
@@ -362,7 +361,7 @@ const api = {
   renameNode: renameNode,
   searchNodes: searchNodes,
   setPassword: setPassword,
-  updateMeta: updateMeta,
+  updateProgress: updateProgress,
   Uploader: Uploader
 }
 

@@ -33,7 +33,7 @@ func (app *App) uploadFile(path, targetPath string, local bool) error {
 			return nil
 		} else if err == nil {
 			for _, node := range nodes {
-				printNode(node)
+				printNode(node, true)
 			}
 		}
 	} else {

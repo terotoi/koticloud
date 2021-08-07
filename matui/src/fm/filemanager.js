@@ -7,7 +7,7 @@ import { openAlertDialog } from '../dialogs/alert'
 import { openErrorDialog } from '../dialogs/error'
 import { openInputDialog } from '../dialogs/input'
 import { sortNodes } from './util'
-import { isDir, isVideo, setNodeMeta } from '../util'
+import { isDir, isVideo } from '../util'
 import api from '../api'
 
 const styles = makeStyles((theme) => ({
@@ -150,10 +150,8 @@ export default function FileManager(props) {
 		})
 	}
 
-	function nodeMarkViewed(node, progress) {
-		setNodeMeta(node, progress, (node.MetaType === 'progress' && node.MetaData.Volume !== undefined) ?
-			node.MetaData.Volume : 1.0)
-		api.updateMeta(node.id, node.MetaType, node.MetaData, props.authToken, () => {
+	function nodeUpdateProgress(node) {
+		api.updateProgress(node.id, node.progress, node.volume, props.authToken, () => {
 			setNodes([...nodes])
 		},
 			(error) => { openErrorDialog(wm, error) })
@@ -219,10 +217,10 @@ export default function FileManager(props) {
 				break
 
 			case 'mark_viewed':
-				nodeMarkViewed(n, n.length)
+				nodeUpdateProgress(n)
 				break
 			case 'mark_notviewed':
-				nodeMarkViewed(n, 0.0)
+				nodeUpdateProgress(n)
 				break
 			case 'rename':
 				nodeRename(n)

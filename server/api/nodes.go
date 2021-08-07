@@ -20,7 +20,7 @@ import (
 type ListDirResponse struct {
 	Dir      models.Node
 	DirPath  string // Full path of the directory
-	Children []*fs.NodeWithMeta
+	Children []*fs.NodeWithProgress
 }
 
 // CopyRequest requests copying of a node to a directory.
@@ -126,7 +126,7 @@ func NodeInfo(auth *jwtauth.JWTAuth, db *sql.DB) func(user *models.User, w http.
 			return
 		}
 
-		nwm, err := fs.NodeWithMetaByID(ctx, id, user.ID, db)
+		nwm, err := fs.NodeWithProgressByID(ctx, id, user.ID, db)
 		if reportInt(err, r, w) != nil {
 			return
 		}
@@ -146,13 +146,6 @@ func NodeInfo(auth *jwtauth.JWTAuth, db *sql.DB) func(user *models.User, w http.
 // NodeList returns a directory listing of a path.
 func NodeList(auth *jwtauth.JWTAuth, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
-		/*dec := json.NewDecoder(r.Body)
-		var id int
-		err := dec.Decode(&id)
-		if reportIf(err, http.StatusBadRequest, "", r, w) != nil {
-			return
-		}*/
-
 		id, err := strconv.Atoi(chi.URLParam(r, "nodeID"))
 		if reportIf(err, http.StatusBadRequest, "", r, w) != nil {
 			return
@@ -185,7 +178,7 @@ func NodeList(auth *jwtauth.JWTAuth, db *sql.DB) func(user *models.User, w http.
 				return
 			}
 
-			nwm, err := fs.NodesWithMetaByParentID(ctx, node.ID, user.ID, db)
+			nwm, err := fs.NodesWithProgressByParentID(ctx, node.ID, user.ID, db)
 			if reportInt(err, r, w) != nil {
 				return
 			}
@@ -335,7 +328,7 @@ func NodeMove(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http
 		}
 		defer tx.Rollback()
 
-		node, err := fs.NodeWithMetaByID(ctx, req.SourceID, user.ID, tx)
+		node, err := fs.NodeWithProgressByID(ctx, req.SourceID, user.ID, tx)
 		if reportIf(err, http.StatusNotFound, fmt.Sprintf("node not found: %d", req.SourceID), r, w) != nil {
 			return
 		}
@@ -354,7 +347,7 @@ func NodeMove(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http
 			return
 		}
 
-		respJSON([]*fs.NodeWithMeta{node}, r, w)
+		respJSON([]*fs.NodeWithProgress{node}, r, w)
 	}
 }
 
@@ -377,7 +370,7 @@ func NodeRename(fileRoot, thumbRoot string, db *sql.DB) func(user *models.User, 
 		}
 		defer tx.Rollback()
 
-		node, err := fs.NodeWithMetaByID(ctx, req.ID, user.ID, tx)
+		node, err := fs.NodeWithProgressByID(ctx, req.ID, user.ID, tx)
 		if reportIf(err, http.StatusNotFound, fmt.Sprintf("node not found: %d", req.ID), r, w) != nil {
 			return
 		}
@@ -391,7 +384,7 @@ func NodeRename(fileRoot, thumbRoot string, db *sql.DB) func(user *models.User, 
 			return
 		}
 
-		respJSON([]*fs.NodeWithMeta{node}, r, w)
+		respJSON([]*fs.NodeWithProgress{node}, r, w)
 	}
 }
 

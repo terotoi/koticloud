@@ -31,7 +31,7 @@ func apiNodeIDForPath(path, authToken, baseURL string) (int, error) {
 }
 
 // apiInfo requests information about one node from the server.
-func apiInfo(id int, authToken, baseURL string) (*fs.NodeWithMeta, error) {
+func apiInfo(id int, authToken, baseURL string) (*fs.NodeWithProgress, error) {
 	client := http.Client{}
 
 	body, err := RequestURL(&client, fmt.Sprintf("%s/node/info/%d", baseURL, id),
@@ -40,7 +40,7 @@ func apiInfo(id int, authToken, baseURL string) (*fs.NodeWithMeta, error) {
 		return nil, err
 	}
 
-	var rs fs.NodeWithMeta
+	var rs fs.NodeWithProgress
 	if err := json.Unmarshal(body, &rs); err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func apiInfo(id int, authToken, baseURL string) (*fs.NodeWithMeta, error) {
 }
 
 // apiList requests a directory listing.
-func apiList(path, authToken, baseURL string) (*models.Node, []*fs.NodeWithMeta, error) {
+func apiList(path, authToken, baseURL string) (*models.Node, []*fs.NodeWithProgress, error) {
 	id, err := apiNodeIDForPath(path, authToken, baseURL)
 	if err != nil {
 		return nil, nil, err

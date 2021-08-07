@@ -136,15 +136,6 @@ export function nodeURL(node) {
   return "/node/get/" + node.id
 }
 
-/** Set progress and volume metadata on a node */
-export function setNodeMeta(node, progress, volume) {
-  node.MetaType = 'progress'
-  node.MetaData = {
-    Progress: progress,
-    Volume: volume
-  }
-}
-
 // Returns the size of 1rem in pixels.
 export function remSize() {    
   return parseFloat(getComputedStyle(document.documentElement).fontSize);

@@ -92,24 +92,26 @@ export default function ActionMenu(props) {
 			</MenuItem>)
 
 		if (isPlayable(props.node.mime_type)) {
-			if (props.node.MetaData === null || props.node.MetaData.Progress < props.node.length) {
+			if (props.node.progress === null || props.node.progress < props.node.length) {
 				items.push(
 					<MenuItem
 						key="mark_viewed"
 						onClick={() => {
 							close()
+							props.node.progress = props.node.length
 							props.onAction('mark_viewed', props.node)
 						}}>
 						Mark viewed
 					</MenuItem>)
 			}
 
-			if (props.node.MetaData === null || props.node.MetaData.Progress > 0) {
+			if (props.node.progress !== null && props.node.progress > 0) {
 				items.push(
 					<MenuItem
 						key="mark_notviewed"
 						onClick={() => {
 							close()
+							props.node.progress = 0.0
 							props.onAction('mark_notviewed', props.node)
 						}}>
 						Mark not viewed

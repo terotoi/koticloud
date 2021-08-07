@@ -5,10 +5,9 @@ import (
 	"github.com/volatiletech/null/v8"
 )
 
-// NodeWithMeta contains models.Node data and associated metadata.
-// Only one metum per returned node is supported.
-type NodeWithMeta struct {
+// NodeWithProgress contains models.Node data and associated progress data..
+type NodeWithProgress struct {
 	models.Node `boil:",bind"`
-	MetaType    null.String `boil:"meta_type"`
-	MetaData    null.JSON   `boil:"meta.data"`
+	Progress    null.Float32 `boil:"progress.progress" json:"progress"`
+	Volume      null.Float32 `boil:"progress.volume" json:"volume"`
 }

@@ -17,10 +17,9 @@ import VolumeUp from '@material-ui/icons/VolumeUp'
 import VolumeOff from '@material-ui/icons/VolumeOff'
 import VolumeMute from '@material-ui/icons/VolumeMute'
 
-import { formatDuration, isVideo, nodeURL, setNodeMeta } from '../util'
+import { formatDuration, isVideo, nodeURL } from '../util'
 import { openErrorDialog } from '../dialogs/error'
 import { nodeThumb } from '../thumbs'
-import { blankVideo, blankAudio } from './blank'
 import api from '../api'
 
 const styles = makeStyles((theme) => ({
@@ -130,15 +129,14 @@ export default function PlayableView(props) {
 	React.useEffect(() => {
 		console.log("Node changed to:", props.node.id, "was:", props.node.id)
 
-		if (props.node.MetaType === "progress" && props.node.MetaData != null) {
-			const pr = props.node.MetaData.Progress
-			const v = props.node.MetaData.Volume
+		if (props.node.progress !== null || props.node.volume !== null) {
+			const pr = props.node.progress || 0
+			const v = (props.node.volume !== null) ? props.node.volume : 1.0
 
 			setProgress(pr)
 			setVolume(v)
 			player.current.currentTime = pr
 			player.current.volume = v
-
 			props.wm.setTitle(props.wnd, props.node.name)
 		}
 
@@ -146,14 +144,12 @@ export default function PlayableView(props) {
 		setStarted(false)
 	}, [props.node])
 
-	function updateMeta(progress, volume) {
-		setNodeMeta(props.node, progress, volume)
-
+	function updateProgress(progress, volume) {
 		if (updateTimeout !== null)
 			clearTimeout(updateTimeout)
 
 		setUpdateTimeout(setTimeout(() => {
-			api.updateMeta(props.node.id, props.node.MetaType, props.node.MetaData,
+			api.updateProgress(props.node.id, progress, volume,
 				props.authToken,
 				() => {
 					console.log("updateProgress:", progress, "/", props.node.length, volume)
@@ -172,9 +168,10 @@ export default function PlayableView(props) {
 
 			if (Math.abs(pr - prevUpdate) > progressUpdateInterval) {
 				setPrevUpdate(pr)
-				updateMeta(pr, volume)
+				updateProgress(pr, volume)
 			} else {
-				setNodeMeta(props.node, pr, volume)
+				props.node.progress = pr
+				props.node.volume = volume
 			}
 		}
 	}
@@ -186,7 +183,7 @@ export default function PlayableView(props) {
 		const d = player.current ? player.current.duration : props.node.length
 		const new_pr = value / 100.0 * d
 		setProgress(new_pr)
-		updateMeta(new_pr, volume)
+		updateProgress(new_pr, volume)
 
 		if (player.current)
 			player.current.currentTime = new_pr
@@ -198,14 +195,14 @@ export default function PlayableView(props) {
 			player.current.volume = volume
 			setVolume(volume)
 		}
-		updateMeta(progress, volume)
+		updateProgress(progress, volume)
 	}
 
 	function onSeeked(ev) {
 		if (player.current) {
 			const pr = player.current.currentTime
 			setProgress(pr)
-			updateMeta(pr, volume)
+			updateProgress(pr, volume)
 		}
 	}
 
@@ -224,7 +221,7 @@ export default function PlayableView(props) {
 		if (player.current) {
 			const pr = player.current ? player.current.currentTime : progress
 			setProgress(pr)
-			updateMeta(pr, volume)
+			updateProgress(pr, volume)
 		}
 	}
 
@@ -232,7 +229,7 @@ export default function PlayableView(props) {
 		if (player.current) {
 			const pr = player.current.currentTime
 			setProgress(pr)
-			updateMeta(pr, volume)
+			updateProgress(pr, volume)
 
 			if (pr === player.current.duration && props.onEnded) {
 				if (endTimeout !== null)
@@ -274,7 +271,7 @@ export default function PlayableView(props) {
 	}
 
 	function onKeyDown(ev) {
-		if(ev.key === ' ')
+		if (ev.key === ' ')
 			togglePause()
 	}
 
