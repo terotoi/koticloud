@@ -1,93 +1,55 @@
 package api
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"net/http"
-	"os"
 
-	"github.com/terotoi/koticloud/server/fs"
+	"github.com/terotoi/koticloud/server/core"
+	"github.com/terotoi/koticloud/server/jobs"
 	"github.com/terotoi/koticloud/server/models"
 	"github.com/terotoi/koticloud/server/proc"
 )
 
-// ScanDeletedNodes scans for deleted files or dangling links in the file store.
-func ScanDeletedNodes(fileRoot, thumbRoot string, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
-	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-
-		log.Printf("Scanning for physically deleted nodes issued by %s.", user.Name)
-
-		nodes, err := fs.NodesAll(ctx, db)
-		if reportInt(err, r, w) != nil {
-			return
-		}
-
-		var deleted []*models.Node
-		var dirs []*models.Node
-
-		for _, node := range nodes {
-			if fs.IsDir(node) {
-				continue
-			}
-
-			_, err := os.Stat(fs.NodeLocalPath(fileRoot, node.ID, true))
-			if os.IsNotExist(err) {
-				log.Printf("Node %d does not exist in filesystem, deleting from database.", node.ID)
-
-				if _, err = fs.Delete(ctx, node, false, false, user, fileRoot, thumbRoot, db); err != nil {
-					log.Println(err)
-				} else {
-					log.Printf("Deleted a file node: %d %s", node.ID, node.Name)
-					deleted = append(deleted, node)
-
-					if node.ParentID.Valid {
-						// Add unique parents
-						found := false
-						for _, dir := range dirs {
-							if node.ParentID.Int == dir.ID {
-								found = true
-								break
-							}
-						}
-
-						if !found {
-							dir, err := fs.NodeByID(ctx, node.ParentID.Int, db)
-							if err != nil {
-								log.Println(err)
-							} else if dir != nil && !dir.ParentID.Valid {
-								// Do not delete any root directories
-								dirs = append(dirs, dir)
-							}
-						}
-					}
-				}
-			}
-
-			// Delete resulting empty directories
-			for _, dir := range dirs {
-				_, err := fs.Delete(ctx, dir, false, false, user, fileRoot, thumbRoot, db)
-				if err != nil {
-					log.Println(err)
-				} else {
-					log.Printf("Deleted an empty directory node: %d %s", node.ID, node.Name)
-				}
-			}
-		}
-
-		log.Printf("Scanning of physically deleted files finished (issued by %s)", user.Name)
-		respJSON(append(deleted, dirs...), r, w)
-	}
-}
-
 // GenerateAllThumbnails regenerates all thumbnails.
-func GenerateAllThumbnails(np *proc.NodeProcessor, fileRoot string, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
+func GenerateAllThumbnails(np *proc.NodeProcessor, homeRoot string, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
 		log.Println("Regenerating all thumbnails.")
-		if err := np.GenerateAllThumbs(r.Context(), fileRoot, db); err != nil {
+		if err := np.GenerateAllThumbs(r.Context(), homeRoot, db); err != nil {
 			log.Println(err)
 		}
 
 		log.Println("Done regenerating all thumbnails.")
+	}
+}
+
+// Scan for deleted nodes and new files and directories from all home directories.
+func ScanAll(np *proc.NodeProcessor, cfg *core.Config, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
+	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
+
+		job := func() {
+			ctx := context.Background()
+			log.Printf("[scan] Scanning for physically deleted nodes issued by %s", user.Name)
+
+			err := jobs.ScanDeletedNodes(ctx, user, cfg, db)
+			if err != nil {
+				log.Printf("[scan] Error: %s", err.Error())
+				return
+			}
+
+			log.Printf("[scan] Scanning of physically deleted files finished (issued by %s)", user.Name)
+
+			log.Printf("[scan] Scanning for new files and directories issued by %s", user.Name)
+			err = jobs.ScanAllHomes(ctx, cfg, np, db)
+			if err != nil {
+				log.Printf("[scan] Error: %s", err.Error())
+				return
+			}
+
+			log.Printf("[scan] All scans issued by %s are done", user.Name)
+		}
+
+		go job()
 	}
 }

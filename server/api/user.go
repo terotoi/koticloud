@@ -54,7 +54,7 @@ type SettingsResponse struct {
 }
 
 // UserLogin logins in as an existing user.
-func UserLogin(auth *jwtauth.JWTAuth, db *sql.DB) func(w http.ResponseWriter, r *http.Request) {
+func UserLogin(auth *jwtauth.JWTAuth, cfg *core.Config, db *sql.DB) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req LoginRequest
 
@@ -89,7 +89,7 @@ func UserLogin(auth *jwtauth.JWTAuth, db *sql.DB) func(w http.ResponseWriter, r 
 			homeID = user.RootID.Int
 		} else {
 			log.Printf("User %s (%d) has no home directory, creating one.", user.Name, user.ID)
-			home, err := mx.UserEnsureRootNode(ctx, user, tx)
+			home, err := mx.UserEnsureRootNode(ctx, user, cfg.HomeRoot, tx)
 			if reportIf(err, http.StatusInternalServerError, "failed to create a home directory", r, w); err != nil {
 				return
 			}
@@ -123,7 +123,7 @@ func UserLogin(auth *jwtauth.JWTAuth, db *sql.DB) func(w http.ResponseWriter, r 
 }
 
 // UserCreate creates a new user.
-func UserCreate(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
+func UserCreate(cfg *core.Config, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
 		var req CreateUserRequest
 		dec := json.NewDecoder(r.Body)
@@ -133,7 +133,7 @@ func UserCreate(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *ht
 		}
 
 		log.Printf("User %s created by %s [%s]", req.Username, user.Name, r.Host)
-		if err = mx.UserCreate(r.Context(), req.Username, req.Password, false, db); err != nil {
+		if err = mx.UserCreate(r.Context(), req.Username, req.Password, false, cfg.HomeRoot, db); err != nil {
 			reportSystemError(err, r, w)
 			return
 		}

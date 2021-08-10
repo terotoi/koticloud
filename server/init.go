@@ -10,7 +10,7 @@ import (
 )
 
 // Creates an initial user if there are no users in the database.
-func createInitialUser(username, password string, db *sql.DB) error {
+func createInitialUser(username, password, homeRoot string, db *sql.DB) error {
 	ctx := context.Background()
 
 	tx, err := db.Begin()
@@ -27,7 +27,7 @@ func createInitialUser(username, password string, db *sql.DB) error {
 	if count == 0 {
 		log.Printf("No users in the database, creating an initial user: %s", username)
 
-		if err := mx.UserCreate(ctx, username, password, true, tx); err != nil {
+		if err := mx.UserCreate(ctx, username, password, true, homeRoot, tx); err != nil {
 			return err
 		}
 	}

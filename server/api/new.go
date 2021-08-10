@@ -20,10 +20,9 @@ import (
 // LocalUploadRequest requests an upload of a file accessible
 // by the server itself.
 type LocalUploadRequest struct {
-	ParentID    int // ID of the target directory
-	Filename    string
-	LocalPath   string // Path from where to read the file
-	SymlinkData bool
+	ParentID  int // ID of the target directory
+	Filename  string
+	LocalPath string // Path from where to read the file
 }
 
 // Processes data from multipart upload. Returns the path to the uploaded file.
@@ -71,14 +70,13 @@ func dataFromMultipart(r *http.Request, uploadDir string) (string, error) {
 }
 
 // NodeNew creates a new file. Data is retrieved from multipart upload.
-func NodeNew(uploadDir, fileRoot, thumbRoot string, procCh chan proc.NodeProcessRequest,
+func NodeNew(uploadDir, homeRoot, thumbRoot string, procCh chan proc.NodeProcessRequest,
 	db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
 		multiPart := strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data")
 		var uploadFile string
 		var filename string
 		var removeUploadFile bool
-		var symlinkData bool
 
 		ctx := r.Context()
 		tx, err := db.BeginTx(ctx, nil)
@@ -111,7 +109,6 @@ func NodeNew(uploadDir, fileRoot, thumbRoot string, procCh chan proc.NodeProcess
 			uploadFile = req.LocalPath
 			parentID = req.ParentID
 			filename = req.Filename
-			symlinkData = req.SymlinkData
 		}
 
 		if filename == "" {
@@ -172,31 +169,37 @@ func NodeNew(uploadDir, fileRoot, thumbRoot string, procCh chan proc.NodeProcess
 			return
 		}
 
-		if err = fs.CopyData(node, uploadFile, symlinkData, fileRoot); err != nil {
+		if err = fs.CopyData(ctx, node, uploadFile, homeRoot, tx); err != nil {
+			reportSystemError(err, r, w)
+			return
+		}
+
+		path, err := fs.PhysPath(ctx, node, homeRoot, tx)
+		if err != nil {
 			reportSystemError(err, r, w)
 			return
 		}
 
 		log.Printf("new: %s -> %s [%s] (%s, %d bytes)", uploadFile, filename,
-			fs.NodeLocalPath(fileRoot, node.ID, true), node.MimeType, st.Size())
+			path, node.MimeType, st.Size())
 
 		err = tx.Commit()
 		if reportInt(err, r, w) != nil {
 			return
 		}
 
-		if err := proc.AddNodeProcessRequest(ctx, procCh, node, uploadFile, removeUploadFile, db); err != nil {
+		if err := proc.AddNodeProcessRequest(ctx, procCh, node, path, false, db); err != nil {
 			reportIf(err, http.StatusInternalServerError, "failed to process upload", r, w)
 		}
 
 		// NodeProcessor will remove the upload file, if needed.
-		removeUploadFile = false
+		//removeUploadFile = false
 		respJSON([]*models.Node{node}, r, w)
 	}
 }
 
 // NodeUpdate updates an existing node. Data is retrieved from multipart upload.
-func NodeUpdate(uploadDir, fileRoot, thumbRoot string, procCh chan proc.NodeProcessRequest,
+func NodeUpdate(uploadDir, homeRoot, thumbRoot string, procCh chan proc.NodeProcessRequest,
 	db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
 		err := r.ParseMultipartForm(int64(32 << 20))
@@ -253,28 +256,34 @@ func NodeUpdate(uploadDir, fileRoot, thumbRoot string, procCh chan proc.NodeProc
 			return
 		}
 
-		if err := os.Remove(fs.NodeLocalPath(fileRoot, node.ID, true)); err != nil {
+		path, err := fs.PhysPath(ctx, node, homeRoot, tx)
+		if err != nil {
+			reportSystemError(err, r, w)
+			return
+		}
+
+		// Remove old contents
+		if err := os.Remove(path); err != nil {
 			log.Println(err)
 		}
 
-		if err = fs.CopyData(node, uploadFile, false, fileRoot); err != nil {
+		if err = fs.CopyData(ctx, node, uploadFile, homeRoot, tx); err != nil {
 			reportSystemError(err, r, w)
 			return
 		}
 
 		log.Printf("update: %s -> %s (%s, %d bytes)", uploadFile,
-			fs.NodeLocalPath(fileRoot, node.ID, true), node.MimeType, st.Size())
+			path, node.MimeType, st.Size())
 
 		err = tx.Commit()
 		if reportInt(err, r, w) != nil {
 			return
 		}
 
-		// NodeProcessor will remove the upload file
-		if err := proc.AddNodeProcessRequest(ctx, procCh, node, uploadFile, true, db); err != nil {
+		if err := proc.AddNodeProcessRequest(ctx, procCh, node, uploadFile, false, db); err != nil {
 			reportIf(err, http.StatusInternalServerError, "failed to process upload", r, w)
 		}
-		removeUploadFile = false
+		//removeUploadFile = false
 		respJSON([]*models.Node{node}, r, w)
 	}
 }

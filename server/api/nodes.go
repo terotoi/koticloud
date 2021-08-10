@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
+	"github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/fs"
 	"github.com/terotoi/koticloud/server/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -173,7 +174,7 @@ func NodeList(auth *jwtauth.JWTAuth, db *sql.DB) func(user *models.User, w http.
 				return
 			}
 
-			path, err := fs.FullPath(ctx, node, tx)
+			path, err := fs.PathFor(ctx, node, tx)
 			if reportInt(err, r, w) != nil {
 				return
 			}
@@ -199,7 +200,7 @@ func NodeList(auth *jwtauth.JWTAuth, db *sql.DB) func(user *models.User, w http.
 }
 
 // NodeMakeDir creates a new diectory..
-func NodeMakeDir(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
+func NodeMakeDir(cfg *core.Config, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
 		dec := json.NewDecoder(r.Body)
 		var req MakeDirRequest
@@ -252,7 +253,7 @@ func NodeMakeDir(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *h
 			return
 		}
 
-		node, err := fs.MakeDir(r.Context(), parent, req.Name, user, tx)
+		node, err := fs.MakeDir(r.Context(), parent, req.Name, user, cfg.HomeRoot, false, tx)
 		if reportInt(err, r, w) != nil {
 			return
 		}
@@ -268,7 +269,7 @@ func NodeMakeDir(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *h
 }
 
 // NodeCopy copies a node to a possibly different parent.
-func NodeCopy(fileRoot, thumbRoot string, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
+func NodeCopy(homeRoot, thumbRoot string, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
 		dec := json.NewDecoder(r.Body)
 
@@ -295,7 +296,7 @@ func NodeCopy(fileRoot, thumbRoot string, db *sql.DB) func(user *models.User, w 
 			return
 		}
 
-		copied, err := fs.Copy(ctx, src, dest, req.NewName, false, fileRoot, thumbRoot,
+		copied, err := fs.Copy(ctx, src, dest, req.NewName, homeRoot, thumbRoot,
 			user, tx)
 		if err != nil {
 			reportSystemError(err, r, w)
@@ -311,7 +312,7 @@ func NodeCopy(fileRoot, thumbRoot string, db *sql.DB) func(user *models.User, w 
 }
 
 // NodeMove moves a node under a new parent node.
-func NodeMove(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
+func NodeMove(cfg *core.Config, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
 		dec := json.NewDecoder(r.Body)
 
@@ -338,7 +339,7 @@ func NodeMove(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http
 			return
 		}
 
-		if err = fs.Move(ctx, &node.Node, dest, user, tx); err != nil {
+		if err = fs.Move(ctx, &node.Node, dest, user, cfg.HomeRoot, tx); err != nil {
 			reportSystemError(err, r, w)
 			return
 		}
@@ -352,7 +353,7 @@ func NodeMove(db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http
 }
 
 // NodeRename renames a node.
-func NodeRename(fileRoot, thumbRoot string, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
+func NodeRename(cfg *core.Config, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
 		dec := json.NewDecoder(r.Body)
 
@@ -375,7 +376,7 @@ func NodeRename(fileRoot, thumbRoot string, db *sql.DB) func(user *models.User, 
 			return
 		}
 
-		if err = fs.Rename(ctx, &node.Node, req.NewName, user, tx); err != nil {
+		if err = fs.Rename(ctx, &node.Node, req.NewName, user, cfg.HomeRoot, tx); err != nil {
 			reportSystemError(err, r, w)
 			return
 		}
@@ -389,7 +390,7 @@ func NodeRename(fileRoot, thumbRoot string, db *sql.DB) func(user *models.User, 
 }
 
 // NodeDelete deletes a node.
-func NodeDelete(fileRoot, thumbRoot string, followDataSymlink bool, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
+func NodeDelete(homeRoot, thumbRoot string, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
 		dec := json.NewDecoder(r.Body)
 
@@ -412,7 +413,7 @@ func NodeDelete(fileRoot, thumbRoot string, followDataSymlink bool, db *sql.DB) 
 			return
 		}
 
-		deleted, err := fs.Delete(ctx, node, req.Recursive, followDataSymlink, user, fileRoot, thumbRoot, tx)
+		deleted, err := fs.Delete(ctx, node, req.Recursive, user, homeRoot, thumbRoot, tx)
 		if err != nil {
 			reportSystemError(err, r, w)
 			return
@@ -424,7 +425,10 @@ func NodeDelete(fileRoot, thumbRoot string, followDataSymlink bool, db *sql.DB) 
 		}
 
 		for _, n := range deleted {
-			log.Printf("Deleted %s %d %s", n.Type, n.ID, fs.NodeLocalPath(fileRoot, n.ID, true))
+			path, err := fs.PhysPath(ctx, n, homeRoot, tx)
+			if err != nil {
+				log.Printf("Deleted %s %d %s", n.Type, n.ID, path)
+			}
 		}
 
 		respJSON(deleted, r, w)

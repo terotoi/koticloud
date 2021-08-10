@@ -21,7 +21,6 @@ import (
 // is assumed to be a node-specific access token.
 func createToken(auth *jwtauth.JWTAuth, user *models.User, node *models.Node) (string, error) {
 	token := map[string]interface{}{"user_id": user.ID, "created": time.Now().Format(time.RFC3339)}
-	fmt.Printf("created: %s\n", token["created"])
 	if node != nil {
 		token["node_id"] = node.ID
 	}

@@ -129,16 +129,15 @@ export default function PlayableView(props) {
 	React.useEffect(() => {
 		console.log("Node changed to:", props.node.id, "was:", props.node.id)
 
-		if (props.node.progress !== null || props.node.volume !== null) {
-			const pr = props.node.progress || 0
-			const v = (props.node.volume !== null) ? props.node.volume : 1.0
+		const pr = props.node.progress || 0
+		const v = (props.node.volume !== undefined && props.node.volume !== null) ?
+			props.node.volume : 1.0
 
-			setProgress(pr)
-			setVolume(v)
-			player.current.currentTime = pr
-			player.current.volume = v
-			props.wm.setTitle(props.wnd, props.node.name)
-		}
+		setProgress(pr)
+		setVolume(v)
+		player.current.currentTime = pr
+		player.current.volume = v
+		props.wm.setTitle(props.wnd, props.node.name)
 
 		setPlaying(false)
 		setStarted(false)

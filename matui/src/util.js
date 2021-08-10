@@ -6,7 +6,7 @@
  * @returns true or false
  */
 export function isVideo(mimeType) {
-  return ['video/mp4', 'video/webm'].indexOf(mimeType) !== -1
+  return ['video/mp4', 'video/webm', 'video/x-m4v'].indexOf(mimeType) !== -1
 }
 
 /* Check if the given content type is an audio type.

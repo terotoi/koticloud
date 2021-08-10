@@ -2,7 +2,6 @@ package fs
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"net/http"
 	"strings"
@@ -60,16 +59,6 @@ func NodesWithProgressByParentID(ctx context.Context, parentID, userID int, db b
 	return nwm, err
 }
 
-// NodeLocalPath returns the path to the file containing file node's content.
-// If includeFile is true, the filename is included in the path,
-// otherwise the directory is returned, without trailing slash.
-func NodeLocalPath(root string, id int, includeFile bool) string {
-	if includeFile {
-		return fmt.Sprintf("%s/%08d/%d", root, id/100*100, id)
-	}
-	return fmt.Sprintf("%s/%08d", root, id/100*100)
-}
-
 // NodeByIDopt returns a node by ID or nil if not found.
 func NodeByIDopt(ctx context.Context, id int, db boil.ContextExecutor) (*models.Node, error) {
 	nodes, err := models.Nodes(qm.Where("id=?", id)).All(ctx, db)
@@ -84,7 +73,7 @@ func NodeByIDopt(ctx context.Context, id int, db boil.ContextExecutor) (*models.
 
 // NodeByPath parses a path and tries to find a node matching it.
 // Returns nil, nil for not found error.
-func NodeByPath(ctx context.Context, path string, root *models.Node, tx *sql.Tx) (*models.Node, error) {
+func NodeByPath(ctx context.Context, path string, root *models.Node, tx boil.ContextExecutor) (*models.Node, error) {
 	if path == "." || path == "" || path == "/" {
 		return root, nil
 	}
@@ -114,7 +103,7 @@ func NodeByPath(ctx context.Context, path string, root *models.Node, tx *sql.Tx)
 
 // NodeChildByName returns a child with the given name in the parent node.
 // Returns nil, nil for not found error.
-func NodeChildByName(ctx context.Context, name string, parentID int, tx *sql.Tx) (*models.Node, error) {
+func NodeChildByName(ctx context.Context, name string, parentID int, tx boil.ContextExecutor) (*models.Node, error) {
 	n, err := models.Nodes(qm.Where("parent_id=?", parentID), qm.And("name=?", name)).All(ctx, tx)
 	if err != nil {
 		return nil, err

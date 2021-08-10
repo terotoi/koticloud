@@ -15,6 +15,7 @@ type UserConfig struct {
 	Username  string
 	AuthToken string
 	RemoteDir string
+	BaseURL   string
 }
 
 func getConfigDir() string {
@@ -42,6 +43,10 @@ func (app *App) loadUser() error {
 	app.Username = config.Username
 	app.AuthToken = config.AuthToken
 	app.RemoteDir = config.RemoteDir
+	if app.BaseURL == "" {
+		app.BaseURL = config.BaseURL
+	}
+
 	if app.RemoteDir == "" {
 		app.RemoteDir = "/"
 	}
@@ -64,6 +69,7 @@ func (app *App) saveConfig(createDir bool) error {
 		Username:  app.Username,
 		AuthToken: app.AuthToken,
 		RemoteDir: app.RemoteDir,
+		BaseURL:   app.BaseURL,
 	}
 
 	var data []byte

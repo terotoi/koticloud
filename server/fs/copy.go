@@ -3,15 +3,17 @@ package fs
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/models"
 )
 
 func Copy(ctx context.Context, src *models.Node, parent *models.Node, filename string,
-	symlinkData bool, fileRoot, thumbRoot string, user *models.User,
+	homeRoot, thumbRoot string, user *models.User,
 	tx *sql.Tx) ([]*models.Node, error) {
 	if !AccessAllowed(user, src, false) {
 		return nil, core.NewSystemError(http.StatusUnauthorized, "", "not authorized")
@@ -48,15 +50,16 @@ func Copy(ctx context.Context, src *models.Node, parent *models.Node, filename s
 			return nil, err
 		}
 
-		if err = CopyData(copy, NodeLocalPath(fileRoot, src.ID, true), symlinkData, fileRoot); err != nil {
+		srcPath, err := PhysPath(ctx, src, homeRoot, tx)
+		if err = CopyData(ctx, copy, srcPath, homeRoot, tx); err != nil {
 			return nil, err
 		}
 
 		copied = append(copied, copy)
 
 		if src.HasCustomThumb {
-			srcThumbPath := NodeLocalPath(thumbRoot, src.ID, true)
-			dstThumbPath := NodeLocalPath(thumbRoot, copy.ID, true)
+			srcThumbPath := ThumbPath(thumbRoot, src.ID, true)
+			dstThumbPath := ThumbPath(thumbRoot, copy.ID, true)
 			log.Printf("Copying thumb %d (%s) to %d (%s)", src.ID, srcThumbPath, copy.ID,
 				dstThumbPath)
 			if err := CopyFile(srcThumbPath, dstThumbPath); err != nil {
@@ -65,7 +68,7 @@ func Copy(ctx context.Context, src *models.Node, parent *models.Node, filename s
 			}
 		}
 	} else {
-		newDir, err := MakeDir(ctx, parent, filename, user, tx)
+		newDir, err := MakeDir(ctx, parent, filename, user, homeRoot, false, tx)
 		if err != nil {
 			return nil, err
 		}
@@ -78,7 +81,7 @@ func Copy(ctx context.Context, src *models.Node, parent *models.Node, filename s
 		}
 
 		for _, ch := range children {
-			chops, err := Copy(ctx, ch, newDir, ch.Name, symlinkData, fileRoot, thumbRoot, user, tx)
+			chops, err := Copy(ctx, ch, newDir, ch.Name, homeRoot, thumbRoot, user, tx)
 			if err != nil {
 				return nil, err
 			}
@@ -88,4 +91,27 @@ func Copy(ctx context.Context, src *models.Node, parent *models.Node, filename s
 	}
 
 	return copied, nil
+}
+
+// Copy data to a node from source file.
+func CopyData(ctx context.Context, node *models.Node, sourceFile string, homeRoot string, tx *sql.Tx) error {
+	st, err := os.Stat(sourceFile)
+	if err != nil {
+		return err
+	}
+
+	if !st.Mode().IsRegular() {
+		return fmt.Errorf("upload file %s not a regular file", sourceFile)
+	}
+
+	path, err := PhysPath(ctx, node, homeRoot, tx)
+	if err != nil {
+		return core.NewInternalError(err)
+	}
+
+	if err := CopyFile(sourceFile, path); err != nil {
+		return core.NewInternalError(err)
+	}
+
+	return nil
 }

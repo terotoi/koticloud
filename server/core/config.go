@@ -26,19 +26,19 @@ type Config struct {
 	ListenAddress string `json:"listen_address"` // In format [host]:port
 	Database      string
 	DataRoot      string `json:"data_root"`
-	FileRoot      string `json:"file_root"`
+	HomeRoot      string `json:"home_root"`
 	ThumbRoot     string `json:"thumb_root"`
 	UploadDir     string `json:"upload_dir"`
-	StaticRoot    string `json:"static_Root"`
+	StaticRoot    string `json:"static_root"`
 	JWTSecret     string `json:"jwt_secret"`
 	JWTMaxAge     int    `json:"jwt_max_age"` // Maximum age for the token, in hours. Use 0 for no age check.
 
 	InitialUser string `json:"initial_user"`
 	InitialPW   string `json:"initial_password"`
 
-	ThumbMethod       string `json:"thumb_method"`
-	FollowDataSymlink bool   `json:"follow_data_symlink"` // If true, deletion will follow the first symlink
-	DevMode           bool
+	ThumbMethod        string `json:"thumb_method"`
+	DevMode            bool
+	ScanFollowSymlinks bool `json:"scan_follow_symlinks"`
 
 	ExtCommands []ExtCommand `json:"ext_commands"`
 }
@@ -76,7 +76,7 @@ func saveConfig(cfg *Config, path string) error {
 func ParseArgs() (*Config, error) {
 	const defaultListenAddress = ":7070"
 
-	var configFile, address, dbString, DataRoot, fileRoot, thumbRoot, uploadDir, StaticRoot string
+	var configFile, address, dbString, DataRoot, homeRoot, thumbRoot, uploadDir, StaticRoot string
 	var save, devMode bool
 
 	flag.StringVar(&configFile, "c", "$HOME/opt/koticloud/config_$HOSTNAME.json", "config file location")
@@ -84,7 +84,7 @@ func ParseArgs() (*Config, error) {
 	flag.StringVar(&address, "address", "", "the address to listen on, in format [host]:port")
 	flag.StringVar(&dbString, "db", "", "database config")
 	flag.StringVar(&DataRoot, "data", "", "data directory")
-	flag.StringVar(&fileRoot, "files", "", "root of the files directory")
+	flag.StringVar(&homeRoot, "home", "", "root of user home directories")
 	flag.StringVar(&thumbRoot, "thumbs", "", "root of the thumbnails directory")
 	flag.StringVar(&uploadDir, "uploads", "", "upload directory")
 	flag.StringVar(&StaticRoot, "static", "", "root directory for static files (optional)")
@@ -93,7 +93,7 @@ func ParseArgs() (*Config, error) {
 
 	if len(flag.Args()) == 0 {
 		flag.Usage()
-		return nil, fmt.Errorf("commands: serve, create-admin")
+		return nil, fmt.Errorf("commands: scan, serve, create-admin")
 	}
 
 	configFile = util.ReplaceEnvs(configFile)
@@ -125,10 +125,10 @@ func ParseArgs() (*Config, error) {
 		cfg.ListenAddress = defaultListenAddress
 	}
 
-	cfg.DevMode = devMode
+	cfg.DevMode = cfg.DevMode || devMode
 
-	if cfg.FileRoot == "" && cfg.DataRoot != "" {
-		cfg.FileRoot = cfg.DataRoot + "/files"
+	if cfg.HomeRoot == "" && cfg.DataRoot != "" {
+		cfg.HomeRoot = cfg.DataRoot + "/home"
 	}
 
 	if cfg.ThumbRoot == "" && cfg.DataRoot != "" {
@@ -136,7 +136,7 @@ func ParseArgs() (*Config, error) {
 	}
 
 	if cfg.UploadDir == "" && cfg.DataRoot != "" {
-		cfg.UploadDir = cfg.DataRoot + "/files"
+		cfg.UploadDir = cfg.DataRoot + "/upload"
 	}
 
 	if cfg.StaticRoot == "" && cfg.DataRoot != "" {
@@ -144,12 +144,12 @@ func ParseArgs() (*Config, error) {
 	}
 
 	cfg.DataRoot = util.ReplaceEnvs(cfg.DataRoot)
-	cfg.FileRoot = util.ReplaceEnvs(cfg.FileRoot)
+	cfg.HomeRoot = util.ReplaceEnvs(cfg.HomeRoot)
 	cfg.ThumbRoot = util.ReplaceEnvs(cfg.ThumbRoot)
 	cfg.UploadDir = util.ReplaceEnvs(cfg.UploadDir)
 	cfg.StaticRoot = util.ReplaceEnvs(cfg.StaticRoot)
 
-	log.Printf("Fileroot: %s", cfg.FileRoot)
+	log.Printf("Homeroot: %s", cfg.HomeRoot)
 	log.Printf("Thumbfiles root: %s", cfg.ThumbRoot)
 	log.Printf("Uploads: %s", cfg.UploadDir)
 	log.Printf("Static dir: %s", cfg.StaticRoot)

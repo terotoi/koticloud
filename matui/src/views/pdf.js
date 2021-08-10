@@ -61,39 +61,41 @@ export default function PDFView(props) {
 	const [updateTimeout, setUpdateTimeout] = useState(null)
 	const classes = styles()
 
-	function updateProgress(page) {
+	function updateProgress() {
 		if (updateTimeout !== null)
 			clearTimeout(updateTimeout)
 
 		setUpdateTimeout(setTimeout(() => {
-			api.updateProgress(props.node.id, page, 0.0,
+			api.updateProgress(props.node.id, props.node.progress, 0.0,
 				props.authToken,
 				() => {
-					console.log("updateProgress OK", props.node.id, props.node.progress, props.node.volume)
+					console.log("updateProgress OK", props.node.id, props.node.progress)
 				},
 				(error) => { openErrorDialog(props.wm, error) })
 		}, updateInterval))
 	}
 
 	function onLoaded({ numPages }) {
-		console.log("onLoaded", numPages)
+		console.log("onLoaded", numPages, props.node.progress)
 		setNumPages(numPages)
-
-		if (props.node.progress !== null)
-			setPageNum(props.node.progress)
+		if(!props.node.progress)
+			props.node.progress = 1
+		setPageNum(props.node.progress)
 	}
 
 	function turnPage(dir) {
 		if ((pageNum + dir > 0) && (pageNum + dir <= numPages)) {
 			setPageNum(pageNum + dir)
-			updateProgress(pageNum + dir)
+			props.node.progress = pageNum + dir
+			updateProgress()
 		}
 	}
 
 	function jumpToPage(num) {
 		if (num >= 1 && num <= numPages) {
 			setPageNum(num)
-			updateProgress(num)
+			props.node.progress = num
+			updateProgress()
 		}
 	}
 

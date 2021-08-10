@@ -1,8 +1,6 @@
 package fs
 
 import (
-	"context"
-	"database/sql"
 	"io"
 	"log"
 	"os"
@@ -44,33 +42,6 @@ func CopyFile(srcPath, dstPath string) error {
 
 	_, err = io.Copy(dfh, sfh)
 	return err
-}
-
-// FullPath returns a full path for a node.
-func FullPath(ctx context.Context, node *models.Node, tx *sql.Tx) (string, error) {
-	path := []string{}
-
-	var err error
-	for node.ParentID.Valid {
-		path = append(path, node.Name)
-
-		node, err = models.FindNode(ctx, tx, node.ParentID.Int)
-		if err != nil {
-			return "", err
-		}
-	}
-
-	if len(path) == 0 {
-		return "/", nil
-	} else {
-		path = append(path, "")
-		// Reverse the list
-		for i, j := 0, len(path)-1; i < j; i, j = i+1, j-1 {
-			path[i], path[j] = path[j], path[i]
-		}
-	}
-
-	return strings.Join(path, "/"), nil
 }
 
 // Returns the mime type of a file or a default type.

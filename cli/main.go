@@ -13,17 +13,20 @@ func main() {
 	baseURL := flag.String("base", defaultBaseURL, "base URL")
 	flag.Parse()
 
-	*baseURL = strings.TrimRight(*baseURL, "/")
-
 	args := flag.Args()
 
 	var err error
 
-	app := App{BaseURL: *baseURL, RemoteDir: "/"}
+	app := App{BaseURL: "", RemoteDir: "/"}
 	if err := app.loadUser(); err != nil && !os.IsNotExist(err) {
 		fmt.Println(err.Error())
 		return
 	}
+
+	if app.BaseURL == "" {
+		app.BaseURL = *baseURL
+	}
+	app.BaseURL = strings.TrimRight(app.BaseURL, "/")
 
 	aliases := map[string]string{
 		"cp": "copy",
@@ -44,7 +47,7 @@ func main() {
 		"mkdir":           app.makeDir,
 		"move":            app.copy,
 		"rename":          app.rename,
-		"scan-deleted":    app.scanDeleted,
+		"scan":            app.scanAll,
 		"search":          app.search,
 		"setpassword":     app.setPassword,
 		"upload":          app.upload,

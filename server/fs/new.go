@@ -2,22 +2,19 @@ package fs
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/models"
-	"github.com/terotoi/koticloud/server/util"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 func NewFile(ctx context.Context, parent *models.Node, filename,
 	mimeType string, size int64, owner *models.User,
-	length *float64, hasCustomThumb bool, tx *sql.Tx) (*models.Node, error) {
+	length *float64, hasCustomThumb bool, tx boil.ContextExecutor) (*models.Node, error) {
 
 	if !IsValidName(filename) {
 		msg := fmt.Sprintf("illegal filename: %s", filename)
@@ -58,7 +55,7 @@ func NewFile(ctx context.Context, parent *models.Node, filename,
 // Update data on an existing node. Does not update the filename or parent ID.
 func UpdateFile(ctx context.Context, node *models.Node,
 	mimeType string, size int64, owner *models.User,
-	length *float64, hasCustomThumb bool, tx *sql.Tx) error {
+	length *float64, hasCustomThumb bool, tx boil.ContextExecutor) error {
 
 	node.MimeType = mimeType
 	node.Size = null.Int64{Int64: size, Valid: true}
@@ -71,38 +68,6 @@ func UpdateFile(ctx context.Context, node *models.Node,
 
 	if _, err := node.Update(ctx, tx, boil.Infer()); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-// Copy data to a node from source file.
-func CopyData(node *models.Node, sourceFile string, symlink bool, fileRoot string) error {
-	st, err := os.Stat(sourceFile)
-	if err != nil {
-		return err
-	}
-
-	if !st.Mode().IsRegular() {
-		return fmt.Errorf("upload file %s not a regular file", sourceFile)
-	}
-
-	err = util.EnsureDirExists(NodeLocalPath(fileRoot, node.ID, false))
-	if err != nil {
-		return core.NewInternalError(err)
-	}
-
-	localPath := NodeLocalPath(fileRoot, node.ID, true)
-
-	if symlink {
-		err := os.Symlink(sourceFile, localPath)
-		if err != nil {
-			return core.NewInternalError(err)
-		}
-	} else {
-		if err := CopyFile(sourceFile, localPath); err != nil {
-			return core.NewInternalError(err)
-		}
 	}
 
 	return nil

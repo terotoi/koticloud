@@ -1,7 +1,7 @@
 package util
 
 var imageFormats = []string{"image/jpeg", "image/png", "image/webp"}
-var videoFormats = []string{"video/mp4", "video/webm", "image/gif"}
+var videoFormats = []string{"video/mp4", "video/webm", "video/x-m4v", "image/gif"}
 var audioFormats = []string{"audio/aac", "audio/flac", "audio/mpeg", "audio/ogg", "audio/x-m4a"}
 
 // IsImage returns true if the given mime type is a supported image type.

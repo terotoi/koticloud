@@ -11,43 +11,8 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/terotoi/koticloud/server/api"
 	"github.com/terotoi/koticloud/server/models"
 )
-
-// apiLocalUpload uploads a file locally. The file must
-// reside in a location accessible by the server.
-// Only really meant for development and testing purposes.
-func apiLocalUpload(path, targetPath string, symlinkData bool, authToken string,
-	baseURL string) ([]*models.Node, error) {
-	targetDir := filepath.Dir(targetPath + "/")
-
-	parentID, err := apiNodeIDForPath(targetDir, authToken, baseURL)
-	if err != nil {
-		return nil, err
-	}
-
-	client := http.Client{}
-	req := api.LocalUploadRequest{
-		ParentID:    parentID,
-		Filename:    filepath.Base(path),
-		LocalPath:   path,
-		SymlinkData: symlinkData,
-	}
-
-	res, err := PostJSON(&client, fmt.Sprintf("%s/node/new", baseURL),
-		authToken, req)
-	if err != nil {
-		return nil, err
-	}
-
-	var nodes []*models.Node
-	if err := json.Unmarshal(res, &nodes); err != nil {
-		return nil, err
-	}
-
-	return nodes, nil
-}
 
 func newFileUploadRequest(url string, params map[string]string, paramName,
 	path, authToken string) (*http.Response, error) {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"flag"
 	"log"
@@ -10,6 +11,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/terotoi/koticloud/server/core"
+	"github.com/terotoi/koticloud/server/jobs"
 	"github.com/terotoi/koticloud/server/proc"
 
 	_ "github.com/lib/pq" // For PostgreSQL driver
@@ -61,7 +63,7 @@ func main() {
 	}
 
 	if cfg.InitialUser != "" && cfg.InitialPW != "" {
-		if err := createInitialUser(cfg.InitialUser, cfg.InitialPW, db); err != nil {
+		if err := createInitialUser(cfg.InitialUser, cfg.InitialPW, cfg.HomeRoot, db); err != nil {
 			log.Println(err)
 			return
 		}
@@ -86,7 +88,20 @@ func main() {
 		}
 		np.End()
 		np.WaitGroup.Wait()
+	} else if cmd == "scan" {
+		np := proc.RunNodeProc(cfg.ThumbRoot, cfg.ThumbRoot, cfg.ThumbMethod, db)
+		err = jobs.ScanAllHomes(context.Background(), cfg, np, db)
+		np.End()
+		np.WaitGroup.Wait()
+
 	} else {
 		log.Printf("Unknown command: %s", cmd)
 	}
+
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	return
 }

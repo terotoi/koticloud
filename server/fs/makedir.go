@@ -2,7 +2,9 @@ package fs
 
 import (
 	"context"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/models"
@@ -12,7 +14,8 @@ import (
 
 // MakeDir creates a filesystem directory.
 func MakeDir(ctx context.Context, parent *models.Node, filename string,
-	user *models.User, tx boil.ContextExecutor) (*models.Node, error) {
+	user *models.User, homeRoot string, dontCreatePhys bool,
+	tx boil.ContextExecutor) (*models.Node, error) {
 
 	if parent != nil {
 		if !AccessAllowed(user, parent, false) {
@@ -30,8 +33,27 @@ func MakeDir(ctx context.Context, parent *models.Node, filename string,
 		node.ParentID = null.Int{Int: parent.ID, Valid: true}
 	}
 
-	err := node.Insert(ctx, tx, boil.Infer())
+	path, err := PhysPath(ctx, &node, homeRoot, tx)
 	if err != nil {
+		return nil, err
+	}
+
+	if !dontCreatePhys {
+		log.Printf("Creating physical directory %s", path)
+
+		if err := os.MkdirAll(path, 0700); err != nil && !os.IsNotExist(err) {
+			return nil, err
+		}
+	}
+
+	// Only store paths for roots.
+	/*
+		if parent == nil {
+			node.Path = null.String{String: path, Valid: true}
+		}*/
+
+	if err = node.Insert(ctx, tx, boil.Infer()); err != nil {
+		os.Remove(path)
 		return nil, err
 	}
 

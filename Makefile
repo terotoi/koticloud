@@ -6,7 +6,7 @@ all: matui/node_modules matui/static/main.js server/koticloud cli/koticli
 server/koticloud: server/*.go server/*/*.go
 	cd server && go build -o koticloud
 
-cli/koticli: cli/*.go
+cli/koticli: cli/*.go server/api/*.go
 	cd cli && go build -o koticli
 
 servedev: server/koticloud

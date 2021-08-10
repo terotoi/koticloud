@@ -12,8 +12,8 @@ import (
 )
 
 // Delete a filesystem node.
-func Delete(ctx context.Context, node *models.Node, recursive, followDataSymLink bool,
-	user *models.User, fileRoot, thumbRoot string, tx boil.ContextExecutor) ([]*models.Node, error) {
+func Delete(ctx context.Context, node *models.Node, recursive bool,
+	user *models.User, homeRoot, thumbRoot string, tx boil.ContextExecutor) ([]*models.Node, error) {
 	if !AccessAllowed(user, node, true) {
 		return nil, core.NewSystemError(http.StatusUnauthorized, "", "not authorized")
 	}
@@ -28,7 +28,7 @@ func Delete(ctx context.Context, node *models.Node, recursive, followDataSymLink
 	if children != nil {
 		if recursive {
 			for _, n := range children {
-				dels, err := Delete(ctx, n, true, followDataSymLink, user, fileRoot, thumbRoot, tx)
+				dels, err := Delete(ctx, n, true, user, homeRoot, thumbRoot, tx)
 				if err != nil {
 					return nil, err
 				}
@@ -41,23 +41,18 @@ func Delete(ctx context.Context, node *models.Node, recursive, followDataSymLink
 		}
 	}
 
-	if node.Type == "file" {
-		path := NodeLocalPath(fileRoot, node.ID, true)
-
-		if followDataSymLink {
-			if target, err := os.Readlink(path); err == nil {
-				if err := os.Remove(target); err != nil {
-					log.Println(err)
-				}
-			}
-		}
-
-		if err := os.Remove(path); err != nil {
-			log.Println(err)
-		}
+	path, err := PhysPath(ctx, node, homeRoot, tx)
+	if err != nil {
+		return nil, err
 	}
 
-	if err := os.Remove(NodeLocalPath(thumbRoot, node.ID, true)); err != nil {
+	if err := os.Remove(path); err != nil {
+		log.Println(err)
+	}
+
+	// Technically should only try for files.
+	// if node.Type == "file" {
+	if err := os.Remove(ThumbPath(thumbRoot, node.ID, true)); err != nil {
 		log.Println(err)
 	}
 

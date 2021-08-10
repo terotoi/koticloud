@@ -122,7 +122,7 @@ func (np *NodeProcessor) processRequest(req *models.NodeProcessReq, tx boil.Cont
 
 	var updated bool
 	if err := generateThumbnail(node, req.RemoveUpload, req.Path, np.thumbRoot, np.tempDir, np.thumbMethod); err != nil {
-		log.Printf("Error generating thumbnail for node: %d path: %s: %s",
+		log.Printf("Error generating thumbnail for node: %d path: %s: error: %s",
 			node.ID, req.Path, err.Error())
 	} else {
 		updated = true
@@ -158,7 +158,7 @@ func AddNodeProcessRequest(ctx context.Context, procCh chan NodeProcessRequest, 
 }
 
 // (Re)generate all thumbnails.
-func (np *NodeProcessor) GenerateAllThumbs(ctx context.Context, fileRoot string, db *sql.DB) error {
+func (np *NodeProcessor) GenerateAllThumbs(ctx context.Context, homeRoot string, db *sql.DB) error {
 	formats := util.TypesWithCustomThumbnails()
 	types := "'" + strings.Join(formats, "', '") + "'"
 
@@ -168,8 +168,13 @@ func (np *NodeProcessor) GenerateAllThumbs(ctx context.Context, fileRoot string,
 	}
 
 	for _, n := range nodes {
-		AddNodeProcessRequest(ctx, np.Channel, n, fs.NodeLocalPath(fileRoot, n.ID, true),
-			false, db)
+		path, err := fs.PhysPath(ctx, n, homeRoot, db)
+		if err != nil {
+			log.Println(err)
+		} else {
+			AddNodeProcessRequest(ctx, np.Channel, n, path,
+				false, db)
+		}
 	}
 
 	return nil

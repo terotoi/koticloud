@@ -119,7 +119,7 @@ export default function NodeCard(props) {
 				</div>
 			</div>
 
-			{(props.node.progress !== null) ?
+			{(props.node.progress && props.node.length) ?
 				<div className={classes.progress}>
 					{renderProgress(props.node)}
 				</div> : null}

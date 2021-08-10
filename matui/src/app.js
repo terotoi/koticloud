@@ -79,7 +79,7 @@ export default function App(props) {
 		localStorage.removeItem('authToken')
 		localStorage.removeItem('username')
 		localStorage.removeItem('admin')
-		localStorage.removeItem('intialNodeID')
+		localStorage.removeItem('initialNodeID')
 		setInitialNodeID(null)
 		setAuthToken(null)
 		setUsername('')

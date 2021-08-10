@@ -14,7 +14,7 @@ import (
 )
 
 // UserCreate creates an user object.
-func UserCreate(ctx context.Context, username, password string, admin bool, tx boil.ContextExecutor) error {
+func UserCreate(ctx context.Context, username, password string, admin bool, homeRoot string, tx boil.ContextExecutor) error {
 	pwhash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	if err != nil {
 		return nil
@@ -43,7 +43,7 @@ func UserCreate(ctx context.Context, username, password string, admin bool, tx b
 	}
 
 	log.Printf("Creating root node for user %s", user.Name)
-	_, err = UserEnsureRootNode(ctx, user, tx)
+	_, err = UserEnsureRootNode(ctx, user, homeRoot, tx)
 	if err != nil {
 		return err
 	}
@@ -53,12 +53,13 @@ func UserCreate(ctx context.Context, username, password string, admin bool, tx b
 
 // UserEnsureRootNode makes sure that a root node exists for an users
 // and creates it if it doesn't.
-func UserEnsureRootNode(ctx context.Context, user *models.User, tx boil.ContextExecutor) (*models.Node, error) {
+func UserEnsureRootNode(ctx context.Context, user *models.User, homeRoot string, tx boil.ContextExecutor) (*models.Node, error) {
 	var node *models.Node
 	var err error
+
 	if !user.RootID.Valid {
 		log.Printf("Creating a root node for user %s.", user.Name)
-		node, err = fs.MakeDir(ctx, nil, fmt.Sprintf("root: %s", user.Name), user, tx)
+		node, err = fs.MakeDir(ctx, nil, user.Name, user, homeRoot, false, tx)
 		if err != nil {
 			return nil, err
 		}

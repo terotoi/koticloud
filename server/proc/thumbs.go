@@ -65,8 +65,8 @@ func generateVideoThumbnail(src, dst, tempDir, method string) error {
 // generateThumbnail generates a thumbnail image for a node
 func generateThumbnail(node *models.Node, removeUpload bool, uploadFile, thumbRoot, tempDir, method string) error {
 	if util.IsMedia(node.MimeType) {
-		destFile := fs.NodeLocalPath(thumbRoot, node.ID, true)
-		err := util.EnsureDirExists(fs.NodeLocalPath(thumbRoot, node.ID, false))
+		destFile := fs.ThumbPath(thumbRoot, node.ID, true)
+		err := util.EnsureDirExists(fs.ThumbPath(thumbRoot, node.ID, false))
 		if err != nil {
 			return err
 		}

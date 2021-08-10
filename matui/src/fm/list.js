@@ -100,7 +100,9 @@ export default function NodeList(props) {
 							<TableCell component="th" scope="row" onClick={() => { props.onNodeOpen(node) }}>
 								{node.name}
 							</TableCell>
-							<TableCell align="right" className={classes.progressCell}>{(node.length !== null) ? renderProgress(node) : null}</TableCell>
+							<TableCell align="right" className={classes.progressCell}>
+								{(node.length && node.progress) ? renderProgress(node) : null}
+							</TableCell>
 							<TableCell align="right" className={classes.sizeCell}>{node.size}</TableCell>
 							<TableCell align="center" className={classes.modifiedCell}>
 								{modified_on.toLocaleDateString() + " " + modified_on.toLocaleTimeString()}</TableCell>

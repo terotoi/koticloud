@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/models"
@@ -13,7 +14,8 @@ import (
 )
 
 // Rename a filesystem node.
-func Rename(ctx context.Context, node *models.Node, filename string, user *models.User, tx *sql.Tx) error {
+func Rename(ctx context.Context, node *models.Node, filename string, user *models.User,
+	homeRoot string, tx *sql.Tx) error {
 	if !IsValidName(filename) {
 		return core.NewSystemError(http.StatusBadRequest, "",
 			fmt.Sprintf("invalid node name: %s", filename))
@@ -35,8 +37,22 @@ func Rename(ctx context.Context, node *models.Node, filename string, user *model
 		}
 	}
 
+	srcPath, err := PhysPath(ctx, node, homeRoot, tx)
+	if err != nil {
+		return err
+	}
 	oldName := node.Name
 	node.Name = filename
+
+	dstPath, err := PhysPath(ctx, node, homeRoot, tx)
+	if err != nil {
+		return err
+	}
+
+	if err := os.Rename(srcPath, dstPath); err != nil {
+		return err
+	}
+
 	if _, err := node.Update(ctx, tx, boil.Infer()); err != nil {
 		return err
 	}

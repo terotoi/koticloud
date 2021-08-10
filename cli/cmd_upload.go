@@ -10,7 +10,7 @@ import (
 	"github.com/terotoi/koticloud/server/models"
 )
 
-func (app *App) uploadFile(path, targetPath string, local bool) error {
+func (app *App) uploadFile(path, targetPath string) error {
 	st, err := os.Stat(path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "cannot stat %s: %s\n", path, err)
@@ -21,11 +21,7 @@ func (app *App) uploadFile(path, targetPath string, local bool) error {
 
 	if st.Mode().IsRegular() {
 		var nodes []*models.Node
-		if local {
-			nodes, err = apiLocalUpload(path, targetPath, true, app.AuthToken, app.BaseURL)
-		} else {
-			nodes, err = apiUpload(path, targetPath, app.AuthToken, app.BaseURL)
-		}
+		nodes, err = apiUpload(path, targetPath, app.AuthToken, app.BaseURL)
 
 		herror, ok := err.(*HTTPError)
 		if ok && herror.StatusCode == http.StatusConflict {
@@ -48,12 +44,10 @@ func (app *App) upload(cmd string, args []string) error {
 		return nil
 	}
 
-	var local, recursive bool
+	var recursive bool
 	var rest []string
 	for _, arg := range args {
-		if arg == "-l" {
-			local = true
-		} else if arg == "-r" {
+		if arg == "-r" {
 			recursive = true
 		} else {
 			rest = append(rest, arg)
@@ -69,7 +63,7 @@ func (app *App) upload(cmd string, args []string) error {
 
 			fmt.Printf("Uploading %s to %s\n", abs, app.RemoteDir)
 			printNodeHeader()
-			if err := app.uploadFile(abs, app.RemoteDir, local); err != nil {
+			if err := app.uploadFile(abs, app.RemoteDir); err != nil {
 				return err
 			}
 		}
@@ -102,7 +96,7 @@ func (app *App) upload(cmd string, args []string) error {
 					if info.Mode().IsRegular() {
 						targetPath = filepath.Dir(targetPath)
 
-						err = app.uploadFile(abs, targetPath, local)
+						err = app.uploadFile(abs, targetPath)
 						if err != nil {
 							fmt.Fprintf(os.Stderr, "got error, aborting\n")
 							return err

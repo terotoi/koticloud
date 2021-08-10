@@ -60,7 +60,7 @@ const styles = makeStyles((theme) => ({
  * @param {WindowManager} props.wm - the window manager
  */
 export default function DirView(props) {
-	const settingPreviews = localStorage.getItem("previews") === "true"
+	const settingPreviews = localStorage.getItem("previews") !== "false"
 	const settingZoom = localStorage.getItem("zoom") ?
 		parseInt(localStorage.getItem("zoom")) : defaultZoom
 
