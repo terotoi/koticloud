@@ -33,6 +33,7 @@ const styles = makeStyles((theme) => ({
  * @param {[...Node]} props.nodes - list of nodes which can be used to move forward / backward
  * @param {Node} props.onNodeSaved - called when a node has been saved either to a new file or existing
  * @param {string} props.authToken - JWT authentication token
+ * @param {state} props.ctx
  * @param {WindowManager} props.wm - the window manager
  */
 export default function NodeView(props) {
@@ -80,6 +81,7 @@ export default function NodeView(props) {
 			onNextNode={onNextNode}
 			onPrevNode={onPrevNode}
 			wnd={props.wnd}
+			ctx={props.ctx}
 			wm={wm} />
 	}
 
@@ -89,6 +91,7 @@ export default function NodeView(props) {
 			onNextNode={onNextNode}
 			onPrevNode={onPrevNode}
 			wnd={props.wnd}
+			ctx={props.ctx}
 			wm={wm} />
 	}
 
@@ -96,6 +99,7 @@ export default function NodeView(props) {
 		return <PDFView
 			node={node}
 			authToken={props.authToken}
+			ctx={props.ctx}
 			wm={wm} />
 	}
 
@@ -104,6 +108,7 @@ export default function NodeView(props) {
 			node={node}
 			onSave={props.onNodeSaved}
 			authToken={props.authToken}
+			ctx={props.ctx}
 			wm={wm} />
 	}
 

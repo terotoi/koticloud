@@ -5,7 +5,8 @@ import LoginView from './login'
 import MyAppBar from './appbar'
 import FileManager from './fm/filemanager'
 import { openErrorDialog } from './dialogs/error'
-import { setCookie } from './util'
+import { isDir, setCookie } from './util'
+import NodeView from './views/node'
 import api from './api'
 
 const styles = makeStyles((theme) => ({
@@ -19,13 +20,16 @@ const styles = makeStyles((theme) => ({
 /**
  * App is the root component of the application.
  * 
+ * @param {number} initialNodeID - ID passed in the URL
+ * @param {state} props.ctx
  * @param {WindowManager) wm - the window manager
  */
 export default function App(props) {
 	const [username, setUsername] = React.useState('')
 	const [isAdmin, setAdmin] = React.useState(false)
 	const [authToken, setAuthToken] = React.useState(null)
-	const [initialNodeID, setInitialNodeID] = React.useState(null)
+	const [homeNodeID, setHomeNodeID] = React.useState(null)
+	const [fmNodeID, setFmNodeID] = React.useState(null)
 	const [searchResults, setSearchResults] = React.useState(null)
 	const [settings, setSettings] = React.useState(null)
 	const classes = styles()
@@ -51,18 +55,16 @@ export default function App(props) {
 			if (resp === null) {
 				openErrorDialog(props.wm, "Wrong username or password")
 			} else {
-
 				setAuthToken(resp.AuthToken)
 				setUsername(resp.Username)
 				setCookie("jwt", resp.AuthToken, 31)
 				setAdmin(resp.Admin)
-				setInitialNodeID(resp.InitialNodeID)
+				setHomeNodeID(resp.InitialNodeID)
 
 				localStorage.setItem('authToken', resp.AuthToken)
 				localStorage.setItem('username', resp.Username)
 				localStorage.setItem('admin', resp.Admin)
-
-				localStorage.setItem('initialNodeID', "" + resp.InitialNodeID)
+				localStorage.setItem('homeNodeID', "" + resp.InitialNodeID)
 
 				loadSettings(resp.AuthToken)
 			}
@@ -79,8 +81,8 @@ export default function App(props) {
 		localStorage.removeItem('authToken')
 		localStorage.removeItem('username')
 		localStorage.removeItem('admin')
-		localStorage.removeItem('initialNodeID')
-		setInitialNodeID(null)
+		localStorage.removeItem('homeNodeID')
+		setHomeNodeID(null)
 		setAuthToken(null)
 		setUsername('')
 		setAdmin(false)
@@ -98,14 +100,17 @@ export default function App(props) {
 
 	// Load current authentication from local storage.
 	React.useEffect(() => {
-		var stInitialNodeID = parseInt(localStorage.getItem("initialNodeID")) || null
+		var localHomeNodeID = parseInt(localStorage.getItem("homeNodeID")) || null
+		if (localHomeNodeID !== null) {
+			setHomeNodeID(localHomeNodeID)
+		}
 
 		if (authToken === null) {
 			const authToken = localStorage.getItem("authToken") || null
 			const username = localStorage.getItem("username") || null
 			const admin = localStorage.getItem("admin") || false
 
-			if (authToken !== null && username !== null && stInitialNodeID !== null) {
+			if (authToken !== null && username !== null) {
 				setAuthToken(authToken)
 				setUsername(username)
 				setAdmin(admin)
@@ -113,25 +118,24 @@ export default function App(props) {
 				loadSettings(authToken)
 			}
 		}
-
-		// Parse ?id=[node-id] from the url, and use the result as an initialNode.
-		// Returns true if the id was successfully parsed, false otherwise.
-		const parseIDinURL = (u) => {
-			const url = new URL(u)
-			const ids = url.searchParams.get('id')
-			if (ids !== null) {
-				const id = parseInt(ids)
-				setInitialNodeID(id)
-				return true
-			}
-			return false
-		}
-
-		if (authToken !== null) {
-			if (!parseIDinURL(window.location.href))
-				setInitialNodeID(stInitialNodeID)
-		}
 	}, [authToken])
+
+	React.useEffect(() => {
+		if (authToken !== null && (homeNodeID !== null || props.ctx.initialNodeID !== null)) {
+			api.queryNode(props.ctx.initialNodeID || homeNodeID , authToken, (node) => {
+				if (isDir(node.mime_type)) {
+					setFmNodeID(node.id)
+				} else {
+					props.wm.openWindow(node.name, <NodeView
+						initialNode={node}
+						nodes={[]}
+						authToken={authToken}
+						onNodeSaved={() => { alert("Saving url opened nodes not supported yet.") }}
+						wm={props.wm} />, true)
+				}
+			}, (error) => { openErrorDialog(wm, error) })
+		}
+	}, [homeNodeID])
 
 	return (
 		(authToken == null) ?
@@ -147,16 +151,19 @@ export default function App(props) {
 					isAdmin={isAdmin}
 					onLogout={logout}
 					onSearchResults={(r) => { setSearchResults(r) }}
-					initialNodeID={initialNodeID}
+					homeNodeID={homeNodeID}
 					authToken={authToken}
 					settings={settings}
+					ctx={props.ctx}
 					wm={props.wm} />
 
-				<FileManager
-					nodes={searchResults}
-					initialNodeID={initialNodeID}
-					authToken={authToken}
-					settings={settings}
-					wm={props.wm} />
+				{(props.ctx.fmEnabled && (fmNodeID !== null)) ?
+					<FileManager
+						nodes={searchResults}
+						initialNodeID={fmNodeID}
+						authToken={authToken}
+						settings={settings}
+						ctx={props.ctx}
+						wm={props.wm} /> : null}
 			</Container>)
 }

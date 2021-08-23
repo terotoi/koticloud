@@ -1,7 +1,7 @@
-import { createMuiTheme } from '@material-ui/core/styles'
+import { createTheme } from '@material-ui/core/styles'
 
 /** Application theme */
-const theme = createMuiTheme({
+const theme = createTheme({
 	spacing: 6,
 
 	palette: {

@@ -7,7 +7,7 @@ import { openAlertDialog } from '../dialogs/alert'
 import { openErrorDialog } from '../dialogs/error'
 import { openInputDialog } from '../dialogs/input'
 import { sortNodes } from './util'
-import { isDir, isVideo } from '../util'
+import { isDir, isAudio } from '../util'
 import api from '../api'
 
 const styles = makeStyles((theme) => ({
@@ -15,6 +15,7 @@ const styles = makeStyles((theme) => ({
 		display: 'flex',
 		flexDirection: 'column',
 		flexGrow: 1,
+		padding: theme.spacing(2)
 	}
 }))
 
@@ -25,6 +26,7 @@ const styles = makeStyles((theme) => ({
  * @param {string} props.initialNodeID - ID of the node to open initially
  * @param {string} props.authToken - JWT authentication token
  * @param {Object} props.settings - user's settings
+ * @param {state} props.ctx
  * @param {WindowManager} props.wm - the window manager
  */
 export default function FileManager(props) {
@@ -83,14 +85,16 @@ export default function FileManager(props) {
 		if (isDir(node.mime_type)) {
 			loadDir(node.id)
 		} else {
-			const maximize = isVideo(node.mime_type) ||
-				node.mime_type === "application/pdf"
+			const maximize = !isAudio(node.mime_type)
+
+			props.ctx.setFmEnabled(!maximize)
 
 			wm.openWindow(node.name, <NodeView
 				initialNode={node}
 				nodes={nds}
 				authToken={props.authToken}
 				onNodeSaved={onNodeSaved}
+				ctx={props.ctx}
 				wm={wm} />, maximize)
 		}
 	}
@@ -263,6 +267,7 @@ export default function FileManager(props) {
 				onNodeAdded={onNodeAdded}
 				authToken={props.authToken}
 				settings={props.settings}
+				ctx={props.ctx}
 				wm={wm} />
 		</div>)
 }

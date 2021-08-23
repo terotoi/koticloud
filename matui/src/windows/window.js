@@ -23,8 +23,7 @@ const styles = makeStyles((theme) => ({
 	},
 
 	titleBar: {
-		minHeight: '1em',
-		maxHeight: '2em',
+		height: '2em',
 		backgroundColor: theme.palette.primary.main,
 		fontSize: theme.typography.fontSize * 1.2,
 		display: 'flex',
@@ -131,14 +130,16 @@ export default function Window(props) {
 			</div >)
 	}
 
+	console.log("maximized:", props.wnd.maximized)
+	
 	return (
 		<div className={classes.window}
 			style={{
 				zIndex: props.zIndex,
-				left: props.wnd.pos[0] + "px",
-				top: props.wnd.pos[1] + "px",
-				width: props.wnd.size[0] + "px",
-				height: props.wnd.size[1] + "px"
+				left: props.wnd.maximized ? "0px" : props.wnd.pos[0] + "px",
+				top: props.wnd.maximized ? "0px" : props.wnd.pos[1] + "px",
+				width: props.wnd.maximized ? "100%" : (props.wnd.size[0] + "px"),
+				height: props.wnd.maximized ? "100%" : (props.wnd.size[1] + "px")
 			}}
 			datawindowid={props.wnd.id}
 			onMouseDown={(ev) => {

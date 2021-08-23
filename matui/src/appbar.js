@@ -1,6 +1,6 @@
 
 import React from 'react'
-import { fade, makeStyles } from '@material-ui/core/styles'
+import { alpha, makeStyles } from '@material-ui/core/styles'
 import AppBar from '@material-ui/core/AppBar'
 import AccountCircle from '@material-ui/icons/AccountCircle'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -36,9 +36,9 @@ const useStyles = makeStyles((theme) => ({
 	search: {
 		position: 'relative',
 		borderRadius: theme.shape.borderRadius,
-		backgroundColor: fade(theme.palette.common.white, 0.15),
+		backgroundColor: alpha(theme.palette.common.white, 0.15),
 		'&:hover': {
-			backgroundColor: fade(theme.palette.common.white, 0.25),
+			backgroundColor: alpha(theme.palette.common.white, 0.25),
 		},
 		marginLeft: 0,
 		flexGrow: 1,
@@ -80,9 +80,10 @@ const useStyles = makeStyles((theme) => ({
  * @param {function} props.onLogout - called when the user logs out
  * @param {[Node...]} props.onSearchResults - called when user typed in a search
  *    and the results are in
- * @param {string} props.initialNodeID - ID of the node to open initially
+ * @param {string} props.homeNodeID - ID of the node users home directory
  * @param {string} props.authToken - JWT authentication token
  * @param {Object} props.settings - user's settings
+ * @param {state} props.ctx
  * @param {WindowManager} props.wm
 */
 export default function MyAppBar(props) {
@@ -180,9 +181,10 @@ export default function MyAppBar(props) {
 
 									props.wm.openWindow("File manager",
 										<FileManager
-											initialNodeID={props.initialNodeID}
+											initialNodeID={props.homeNodeID}
 											authToken={props.authToken}
 											settings={props.settings}
+											ctx={props.ctx}
 											wm={props.wm} />, false)
 								}}>New file manager
 							</MenuItem>

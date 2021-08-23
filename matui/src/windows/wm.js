@@ -12,8 +12,12 @@ import { remSize } from '../util'
  * WindowManager contains a list of window objects:
  *    content, title: String, id: int, zIndex: int
  *    pos: [number, number], size: [number, number]
+ * 
  */
 export default class WindowManager extends React.Component {
+	/**
+	 * @param {state} props.ctx
+	 */
 	constructor(props) {
 		super(props)
 		this.state = {
@@ -54,8 +58,8 @@ export default class WindowManager extends React.Component {
 		const id = (max_id === null) ? 0 : max_id.id + 1
 
 		const doc = document.documentElement
-		const pos_f = (maximized === true) ? 0.0 : 0.1
-		const size_f = (maximized === true) ? 1.0 : 0.6
+		const pos_f = 0.1 // (maximized === true) ? 0.0 : 0.1
+		const size_f = 0.6 // (maximized === true) ? 1.0 : 0.6
 
 		const pos = [doc.scrollLeft + doc.clientWidth * pos_f,
 		doc.scrollTop + doc.clientHeight * pos_f]
@@ -67,7 +71,8 @@ export default class WindowManager extends React.Component {
 				content: content,
 				title: title, id: id, zIndex: idx,
 				pos: pos,
-				size: size
+				size: size,
+				maximized: maximized
 			}]
 		})
 		return window
@@ -100,6 +105,8 @@ export default class WindowManager extends React.Component {
 			hooks: this.state.closeHooks.filter((x) => x.id !== window.id),
 			windows: this.state.windows.filter((x) => x.id !== window.id)
 		})
+
+		this.props.ctx.setFmEnabled(true)
 	}
 
 	/** Raise a window to the top. */
@@ -171,7 +178,7 @@ export default class WindowManager extends React.Component {
 				<MuiThemeProvider theme={theme}>
 					<CssBaseline />
 					<WindowRenderer wm={this.state}>
-						<App wm={this.state} />
+						<App ctx={this.props.ctx} wm={this.state} />
 					</WindowRenderer>
 				</MuiThemeProvider>
 			</React.Fragment>)

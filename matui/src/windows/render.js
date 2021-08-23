@@ -38,7 +38,7 @@ export default function WindowRenderer(props) {
 		setWindow(wnd)
 		props.wm.raiseWindow(wnd.id)
 
-		if (action === 'resize' || action === 'move') {
+		if (!wnd.maximized && (action === 'resize' || action === 'move')) {
 			const isResize = (action === 'resize')
 			setResizeActive(isResize)
 
@@ -99,9 +99,10 @@ export default function WindowRenderer(props) {
 	function onMaximize(ev, wnd) {
 		console.log("onMaximize")
 
-		const doc = document.documentElement
-		wnd.pos = [doc.scrollLeft, doc.scrollTop]
-		wnd.size = [doc.clientWidth, doc.clientHeight]
+		//const doc = document.documentElement
+		//wnd.pos = [doc.scrollLeft, doc.scrollTop]
+		//wnd.size = [doc.clientWidth, doc.clientHeight]
+		wnd.maximized = !wnd.maximized
 		setUpdated(!updated) // Force refresh
 	}
 

@@ -87,6 +87,7 @@ const skipDuration = 10.0
  * @param {function} props.onEnded - called when the media has finished
  * @param {function} props.onNextNode - called when the user skipped to the next node
  * @param {function} props.onPrevNode - called when the user skipped to the previous node
+ * @param {state} props.ctx
  * @param {Window} wnd - window object containing the view
  * @param {WindowManager} props.wm - the window manager
  */

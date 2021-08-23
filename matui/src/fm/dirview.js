@@ -57,6 +57,7 @@ const styles = makeStyles((theme) => ({
  * @param {function} props.onNodeAdded - called when a node has been uploaded
  * @param {Object} props.clipboard - contents of the clipboard
  * @param {Object} props.settings - user's settings
+ * @param {state} props.ctx
  * @param {WindowManager} props.wm - the window manager
  */
 export default function DirView(props) {
