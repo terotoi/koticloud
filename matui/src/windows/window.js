@@ -129,8 +129,6 @@ export default function Window(props) {
 				</Button>
 			</div >)
 	}
-
-	console.log("maximized:", props.wnd.maximized)
 	
 	return (
 		<div className={classes.window}

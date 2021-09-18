@@ -1,11 +1,11 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
+import { ContentState, convertFromHTML, convertToRaw } from 'draft-js'
+import MUIRichTextEditor from 'mui-rte'
 import { nodeURL } from '../util'
 import { openErrorDialog } from '../dialogs/error'
+import { NodeNavigationToolbar } from './nav'
 import api from '../api'
-
-import MUIRichTextEditor from 'mui-rte'
-import { ContentState, convertFromHTML, convertToRaw } from 'draft-js'
 
 
 const styles = makeStyles((theme) => ({
@@ -25,7 +25,7 @@ const styles = makeStyles((theme) => ({
  * @param {Node} props.node - the node to edit
  * @param {function(Node)} props.onSave - called when the text has been saved to a
  * 			file node, either a new one or existing
- * @param {string} props.authToken - JWT authentication token
+ * @param {state} props.ctx
  * @param {WindowManager} props.wm - the window manager
  */
 export default function TextEdit(props) {
@@ -37,7 +37,7 @@ export default function TextEdit(props) {
 
 		const uploader = new api.Uploader({
 			url: "/node/update",
-			authToken: props.authToken,
+			authToken: props.ctx.authToken,
 			done: (node) => {
 				console.log("File saved")
 				if (props.onSave)
@@ -61,7 +61,7 @@ export default function TextEdit(props) {
 
 	React.useEffect(() => {
 		if (initial === null)
-			api.fetchData(nodeURL(props.node), 'get', 'text', null, props.authToken,
+			api.fetchData(nodeURL(props.node), 'get', 'text', null, props.ctx.authToken,
 				(text) => {
 					const html = fromText(text)
 					const chtml = convertFromHTML(html)
@@ -81,6 +81,12 @@ export default function TextEdit(props) {
 	return (
 		(initial === null) ? null :
 			<div onKeyDown={onKeyDown} className={classes.root}>
+				<NodeNavigationToolbar
+					node={props.node}
+					onNextNode={props.onNextNode}
+					onPrevNode={props.onPrevNode}
+					ctx={props.ctx} />
+
 				<MUIRichTextEditor
 					label="Type here..."
 					defaultValue={initial}

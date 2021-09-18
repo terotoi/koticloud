@@ -5,18 +5,16 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 
 import ImageView from './image'
+import MediaView from './media/media'
 import PDFView from './pdf'
-import PlayableView from './playable'
 import TextEdit from './text'
 
-import { isPlayable, isImage, isDir, isVideo, isText, nodeURL } from '../util'
+import { isImage, isDir, isText, isMedia, nodeURL } from '../util'
 import { nodeThumb } from '../thumbs'
 
 const styles = makeStyles((theme) => ({
 	root: {
-		display: 'flex',
-		flexGrow: 1,
-		flexDirection: 'column',
+		height: '100%'
 	},
 	download: {
 		height: '16rem',
@@ -32,8 +30,8 @@ const styles = makeStyles((theme) => ({
  * @param {Node} props.initialNode - the node to render
  * @param {[...Node]} props.nodes - list of nodes which can be used to move forward / backward
  * @param {Node} props.onNodeSaved - called when a node has been saved either to a new file or existing
- * @param {string} props.authToken - JWT authentication token
  * @param {state} props.ctx
+ * @param {Window} props.wnd - optional window object
  * @param {WindowManager} props.wm - the window manager
  */
 export default function NodeView(props) {
@@ -42,13 +40,15 @@ export default function NodeView(props) {
 	const wm = props.wm
 
 	function onNextNode() {
+		console.log("onNextNode", props.nodes.length)
 		for (let i = 0; i < props.nodes.length - 1; i++) {
 			if (node.id === props.nodes[i].id) {
 				// Skip to next non-dir node
 				for (let j = i + 1; j < props.nodes.length; j++) {
 					if (!isDir(props.nodes[j].mime_type)) {
 						setNode(props.nodes[j])
-						props.wm.setTitle(props.wnd, props.nodes[j].name)
+						if (props.wnd)
+							props.wm.setTitle(props.wnd, props.nodes[j].name)
 						break
 					}
 				}
@@ -58,13 +58,16 @@ export default function NodeView(props) {
 	}
 
 	function onPrevNode() {
+		console.log("onPrevNode", props.nodes.length)
+
 		for (let i = 1; i < props.nodes.length; i++) {
 			if (node.id === props.nodes[i].id) {
 				// Skip to next non-dir node
 				for (let j = i - 1; j >= 0; j--) {
 					if (!isDir(props.nodes[j].mime_type)) {
 						setNode(props.nodes[j])
-						props.wm.setTitle(props.wnd, props.nodes[j].name)
+						if (props.wnd)
+							props.wm.setTitle(props.wnd, props.nodes[j].name)
 						break
 					}
 				}
@@ -73,10 +76,9 @@ export default function NodeView(props) {
 		}
 	}
 
-	function renderPlayable() {
-		return <PlayableView
+	function renderMedia() {
+		return <MediaView
 			node={node}
-			authToken={props.authToken}
 			onEnded={onNextNode}
 			onNextNode={onNextNode}
 			onPrevNode={onPrevNode}
@@ -98,7 +100,8 @@ export default function NodeView(props) {
 	function renderPDF() {
 		return <PDFView
 			node={node}
-			authToken={props.authToken}
+			onNextNode={onNextNode}
+			onPrevNode={onPrevNode}
 			ctx={props.ctx}
 			wm={wm} />
 	}
@@ -107,7 +110,6 @@ export default function NodeView(props) {
 		return <TextEdit
 			node={node}
 			onSave={props.onNodeSaved}
-			authToken={props.authToken}
 			ctx={props.ctx}
 			wm={wm} />
 	}
@@ -128,8 +130,8 @@ export default function NodeView(props) {
 	}
 
 	let html
-	if (isPlayable(node.mime_type))
-		html = renderPlayable()
+	if (isMedia(node.mime_type))
+		html = renderMedia(node)
 	else if (isImage(node.mime_type))
 		html = renderImage()
 	else if (node.mime_type === "application/pdf")

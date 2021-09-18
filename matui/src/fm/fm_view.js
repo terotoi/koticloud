@@ -44,23 +44,21 @@ const styles = makeStyles((theme) => ({
 }))
 
 /**
- * DirView displays nodes of a directory nodes in either a grid or a list.
+ * FileManagerView displays nodes of a directory nodes in either a grid or a list.
  * 
  * @param {Node} dir - the directory node
  * @param {string} path - current path
  * @param {string} title - optional title to display, instead of a path
  * @param {[...Node]} nodes - list of nodes to display
  * @param {functoin} props.onBack - called when user clicks on the back button
- * @param {function} props.onNodeOpen - called when an node should be opened
  * @param {function} props.onNodeAction - callled with (action, node, ...args) for an action on the node
- * @param {string} props.authToken - JWT authentication token
  * @param {function} props.onNodeAdded - called when a node has been uploaded
  * @param {Object} props.clipboard - contents of the clipboard
  * @param {Object} props.settings - user's settings
  * @param {state} props.ctx
  * @param {WindowManager} props.wm - the window manager
  */
-export default function DirView(props) {
+export default function FileManagerView(props) {
 	const settingPreviews = localStorage.getItem("previews") !== "false"
 	const settingZoom = localStorage.getItem("zoom") ?
 		parseInt(localStorage.getItem("zoom")) : defaultZoom
@@ -75,7 +73,7 @@ export default function DirView(props) {
 			const uploader = new api.Uploader({
 				parentID: props.dir.id,
 				url: "/node/new",
-				authToken: props.authToken,
+				authToken: props.ctx.authToken,
 				done: (node) => {
 					console.log("File created")
 					props.onNodeAdded(node)
@@ -100,7 +98,7 @@ export default function DirView(props) {
 			api.makeDir(
 				props.dir.id,
 				name,
-				props.authToken,
+				props.ctx.authToken,
 				(node) => { props.onNodeAction('makedir', node) },
 				(error) => { openErrorDialog(wm, error) })
 		}
@@ -117,7 +115,7 @@ export default function DirView(props) {
 		wm.openWindow('Upload files',
 			<UploadWindow
 				parent={props.dir}
-				authToken={props.authToken}
+				authToken={props.ctx.authToken}
 				onDone={props.onNodeAdded}
 				wm={wm} />)
 	}
@@ -147,7 +145,7 @@ export default function DirView(props) {
 			previews={previews}
 			onNodeOpen={props.onNodeOpen}
 			onNodeAction={props.onNodeAction}
-			authToken={props.authToken}
+			authToken={props.ctx.authToken}
 			settings={props.settings}
 			wm={wm} />
 	} else {
@@ -156,7 +154,7 @@ export default function DirView(props) {
 			previews={previews}
 			onNodeOpen={props.onNodeOpen}
 			onNodeAction={props.onNodeAction}
-			authToken={props.authToken}
+			authToken={props.ctx.authToken}
 			settings={props.settings}
 			wm={wm} />
 	}

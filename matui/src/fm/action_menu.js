@@ -7,7 +7,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert'
 
 import { openAlertDialog } from '../dialogs/alert'
 import { openErrorDialog } from '../dialogs/error'
-import { isDir, isPlayable, nodeURL } from '../util'
+import { isMedia, nodeURL } from '../util'
 import api from '../api'
 
 /**
@@ -91,7 +91,7 @@ export default function ActionMenu(props) {
 				Delete
 			</MenuItem>)
 
-		if (isPlayable(props.node.mime_type)) {
+		if (isMedia(props.node.mime_type)) {
 			if (props.node.progress === null || props.node.progress < props.node.length) {
 				items.push(
 					<MenuItem

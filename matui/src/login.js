@@ -78,7 +78,7 @@ export default function LoginView(props) {
 						color="primary"
 						className={classes.submit}
 						onClick={() => props.onSubmit(username, password)}>
-						Sign In
+						Log in
 			    </Button>
 				</form>
 			</div>

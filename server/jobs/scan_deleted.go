@@ -18,7 +18,6 @@ func ScanDeletedNodes(ctx context.Context, user *models.User, cfg *core.Config, 
 		return err
 	}
 
-	var deleted []*models.Node
 	var dirs []*models.Node
 
 	for _, node := range nodes {
@@ -39,7 +38,6 @@ func ScanDeletedNodes(ctx context.Context, user *models.User, cfg *core.Config, 
 				log.Println(err)
 			} else {
 				log.Printf("Deleted a file node: %d %s", node.ID, node.Name)
-				deleted = append(deleted, node)
 
 				if node.ParentID.Valid {
 					// Add unique parents

@@ -1,7 +1,7 @@
 import React from 'react'
 import { MuiThemeProvider } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
-import App from '../app'
+import AppView from '../app_view'
 import WindowRenderer from './render'
 import theme from '../theme'
 import { remSize } from '../util'
@@ -105,8 +105,6 @@ export default class WindowManager extends React.Component {
 			hooks: this.state.closeHooks.filter((x) => x.id !== window.id),
 			windows: this.state.windows.filter((x) => x.id !== window.id)
 		})
-
-		this.props.ctx.setFmEnabled(true)
 	}
 
 	/** Raise a window to the top. */
@@ -178,7 +176,7 @@ export default class WindowManager extends React.Component {
 				<MuiThemeProvider theme={theme}>
 					<CssBaseline />
 					<WindowRenderer wm={this.state}>
-						<App ctx={this.props.ctx} wm={this.state} />
+						<AppView ctx={this.props.ctx} wm={this.state} />
 					</WindowRenderer>
 				</MuiThemeProvider>
 			</React.Fragment>)

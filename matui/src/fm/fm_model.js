@@ -1,13 +1,11 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core'
 
-import DirView from './dirview'
-import NodeView from '../views/node'
+import FileManagerView from './fm_view'
 import { openAlertDialog } from '../dialogs/alert'
 import { openErrorDialog } from '../dialogs/error'
 import { openInputDialog } from '../dialogs/input'
 import { sortNodes } from './util'
-import { isDir, isAudio } from '../util'
 import api from '../api'
 
 const styles = makeStyles((theme) => ({
@@ -20,35 +18,23 @@ const styles = makeStyles((theme) => ({
 }))
 
 /**
- * FileManager performs basic operations (open, copy, move, rename, delete) of file system nodes.
+ * FileManagerModel is the model class of the file manager.
+ * File manager performs basic operations (open, copy, move, rename, delete) of file system nodes.
  * 
  * @param {[Node...]} props.nodes - optional override for nodes to list
- * @param {string} props.initialNodeID - ID of the node to open initially
- * @param {string} props.authToken - JWT authentication token
+ * @param {Object} props.node - directory node to open
+ * @param {string} props.ctx.authToken - JWT authentication token
  * @param {Object} props.settings - user's settings
  * @param {state} props.ctx
  * @param {WindowManager} props.wm - the window manager
  */
-export default function FileManager(props) {
-	const [dir, setDir] = React.useState(null)
+export default function FileManagerModel(props) {
 	const [dirPath, setDirPath] = React.useState('')
-
 	const [nodes, setNodes] = React.useState([])
 	const [title, setTitle] = React.useState('')
 	const [clipboard, setClipboard] = React.useState(null)
 	const classes = styles()
 	const wm = props.wm
-
-	// Initial directory
-	React.useEffect(() => {
-		if (props.authToken && props.initialNodeID !== null) {
-			api.queryNode(props.initialNodeID, props.authToken, (node) => {
-				console.log("Opening node", node.id)
-				nodeOpen(node)
-			},
-				(error) => { openErrorDialog(wm, error) })
-		}
-	}, [props.authToken, props.initialNodeID])
 
 	// Copy nodes from the override to nodes state, use by search.
 	React.useEffect(() => {
@@ -60,44 +46,21 @@ export default function FileManager(props) {
 		}
 	}, [props.nodes])
 
-	// Load information about a directory node and its children.
-	// Can be called with id === undefinde, in that case reload the current directory.
-	function loadDir(id) {
-		//if (id === undefined)
-		//	id = dir.id
 
-		api.listDir(id,
-			props.authToken,
-			(r) => {
-				setDir(r.Dir)
-				setDirPath(r.DirPath)
-				setNodes(r.Children)
-			},
-			(error) => { openErrorDialog(wm, error) })
-	}
-
-	/**
-	 * nodeOpen
-	 * @param {Node} node 
-	 */
-	function nodeOpen(node) {
-		console.log("Open:", node.id, node.mime_type)
-		if (isDir(node.mime_type)) {
-			loadDir(node.id)
-		} else {
-			const maximize = !isAudio(node.mime_type)
-
-			props.ctx.setFmEnabled(!maximize)
-
-			wm.openWindow(node.name, <NodeView
-				initialNode={node}
-				nodes={nds}
-				authToken={props.authToken}
-				onNodeSaved={onNodeSaved}
-				ctx={props.ctx}
-				wm={wm} />, maximize)
-		}
-	}
+	React.useEffect(() => {
+		// Load information about a directory node and its children.
+		if (props.node.children !== undefined && props.node.path !== undefined) {
+			setDirPath(props.node.path)
+			setNodes(props.node.children)
+		} else
+			api.listDir(props.node.id,
+				props.ctx.authToken,
+				(r) => {
+					setDirPath(r.DirPath)
+					setNodes(r.Children)
+				},
+				(error) => { openErrorDialog(wm, error) })
+	}, [props.node])
 
 	/**
 	 * nodeRename
@@ -119,7 +82,7 @@ export default function FileManager(props) {
 		}
 
 		const onRenameConfirm = (name) => {
-			api.renameNode(node.id, name, props.authToken,
+			api.renameNode(node.id, name, props.ctx.authToken,
 				onRenameSuccess,
 				(error) => { openErrorDialog(wm, error) })
 		}
@@ -141,7 +104,7 @@ export default function FileManager(props) {
 		}
 
 		const onAlertConfirm = () => {
-			api.deleteNode(node.id, props.authToken,
+			api.deleteNode(node.id, props.ctx.authToken,
 				onDeleteSuccess,
 				(error) => { openErrorDialog(wm, error) })
 		}
@@ -155,7 +118,7 @@ export default function FileManager(props) {
 	}
 
 	function nodeUpdateProgress(node) {
-		api.updateProgress(node.id, node.progress, node.volume, props.authToken, () => {
+		api.updateProgress(node.id, node.progress, node.volume, props.ctx.authToken, () => {
 			setNodes([...nodes])
 		},
 			(error) => { openErrorDialog(wm, error) })
@@ -174,13 +137,13 @@ export default function FileManager(props) {
 		if (clipboard !== null) {
 			const n = clipboard.node
 
-			if (n.parent_id != dir.id) {
+			if (n.parent_id != props.node.id) {
 				const f = (clipboard.action === 'copy') ? api.copyNode :
 					((clipboard.action == 'cut') ? api.moveNode : null)
 
-				f(n, dir, props.authToken,
+				f(n, props.node, props.ctx.authToken,
 					(r) => {
-						const ls = r.filter((n) => n.parent_id === dir.id)
+						const ls = r.filter((n) => n.parent_id === props.node.id)
 						setNodes((prev, props) => [...prev, ...ls])
 					},
 					(error) => { openErrorDialog(wm, error) })
@@ -191,12 +154,13 @@ export default function FileManager(props) {
 
 	// Called when a new node has been added.
 	function onNodeAdded(n) {
-		if (n.parent_id === dir.id)
+		if (n.parent_id === props.node.id)
 			setNodes((prev, props) => [...prev, n])
 	}
 
+	/*
 	function onNodeSaved(n) {
-		if (n.parent_id == dir.id) {
+		if (n.parent_id == props.node.id) {
 			console.log("Save:", n.id)
 
 			const i = nodes.findIndex((k) => k.id === n.id)
@@ -208,7 +172,7 @@ export default function FileManager(props) {
 				})
 			}
 		}
-	}
+	}*/
 
 	function nodeAction(action, n, ...args) {
 		switch (action) {
@@ -240,11 +204,8 @@ export default function FileManager(props) {
 		}
 	}
 
-	function onBack() {
-		if (dir !== null && dir.parent_id !== null) {
-			setTitle(null)
-			loadDir(dir.parent_id)
-		}
+	const onBack = () => {
+		props.ctx.up(props.node)
 	}
 
 	// Filter out cut nodes and sort the rest.
@@ -255,17 +216,16 @@ export default function FileManager(props) {
 
 	return (
 		<div className={classes.root}>
-			<DirView
-				dir={dir}
+			<FileManagerView
+				dir={props.node}
 				path={dirPath}
 				title={title}
 				nodes={nds}
 				clipboard={clipboard}
 				onBack={onBack}
-				onNodeOpen={nodeOpen}
+				onNodeOpen={(node) => { props.ctx.pushCurrentNodes([node, ...nds]) }} //.filter((n) => n !== node)]) }}
 				onNodeAction={nodeAction}
 				onNodeAdded={onNodeAdded}
-				authToken={props.authToken}
 				settings={props.settings}
 				ctx={props.ctx}
 				wm={wm} />

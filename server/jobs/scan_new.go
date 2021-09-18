@@ -15,7 +15,6 @@ import (
 	"github.com/terotoi/koticloud/server/models"
 	"github.com/terotoi/koticloud/server/mx"
 	"github.com/terotoi/koticloud/server/proc"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 func ScanAllHomes(ctx context.Context, cfg *core.Config,
@@ -42,34 +41,15 @@ func ScanHome(ctx context.Context, user *models.User, cfg *core.Config,
 		return err
 	}
 
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-
-	ok := false
-	defer func() {
-		if !ok {
-			tx.Rollback()
-		}
-	}()
-
-	defer tx.Rollback()
-
-	path, err := fs.PhysPath(ctx, root, cfg.HomeRoot, tx)
+	path, err := fs.PhysPath(ctx, root, cfg.HomeRoot, db)
 	if err != nil {
 		return err
 	}
 
 	var done []*models.Node
-	if done, err = scanDir(ctx, path, user, root, cfg, tx); err != nil {
+	if done, err = scanDir(ctx, path, user, root, cfg, db); err != nil {
 		return err
 	}
-
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-	ok = true
 
 	for _, node := range done {
 		path, err := fs.PhysPath(ctx, node, cfg.HomeRoot, db)
@@ -86,7 +66,7 @@ func ScanHome(ctx context.Context, user *models.User, cfg *core.Config,
 }
 
 func scanDir(ctx context.Context, root string, user *models.User,
-	rootNode *models.Node, cfg *core.Config, tx boil.ContextExecutor) ([]*models.Node, error) {
+	rootNode *models.Node, cfg *core.Config, db *sql.DB) ([]*models.Node, error) {
 	var done []*models.Node
 
 	f := func(path string, info os.FileInfo, err error) error {
@@ -94,6 +74,12 @@ func scanDir(ctx context.Context, root string, user *models.User,
 			return err
 		}
 		rpath := strings.TrimPrefix(path, root)
+
+		tx, err := db.BeginTx(ctx, nil)
+		if err != nil {
+			return err
+		}
+		defer tx.Rollback()
 
 		node, err := fs.NodeByPath(ctx, rpath, rootNode, tx)
 		if err != nil {
@@ -122,6 +108,11 @@ func scanDir(ctx context.Context, root string, user *models.User,
 				if err != nil {
 					return err
 				}
+
+				if err := tx.Commit(); err != nil {
+					return err
+				}
+
 				log.Printf("  [mkdir] %s", path)
 			} else {
 				mimeType, err := fs.DetectMimeType(path)
@@ -136,14 +127,19 @@ func scanDir(ctx context.Context, root string, user *models.User,
 					if err != nil {
 						return err
 					}
-					log.Printf("  [new] %s", path)
+
+					if err := tx.Commit(); err != nil {
+						return err
+					}
 
 					done = append(done, node)
+
+					log.Printf("  [new] %s", path)
 				}
 			}
 		} else {
 			if fs.IsDir(node) != info.IsDir() {
-				return fmt.Errorf("File entry type mismatch: %s", rpath)
+				return fmt.Errorf("file entry type mismatch: %s", rpath)
 			}
 		}
 		return nil

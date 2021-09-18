@@ -291,7 +291,6 @@ function querySettings(authToken, success, error) {
  * @param {function} error - function(message) called on error
  */
 function runNamedCommand(command, node, authToken, success, error) {
-  console.log("command:", command.ID, "node:", node.id)
   fetchData('/cmd/run', 'post', 'json', {
     CommandID: command.ID,
     NodeID: node.id

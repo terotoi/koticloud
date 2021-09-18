@@ -1,5 +1,5 @@
 
-# KotiCloud - file and multimedia server #
+# KotiCloud - file storage and multimedia server #
 
 ![Main view](docs/images/main.png)
 
@@ -7,11 +7,11 @@
 
 KotiCloud is a file and multimedia server. Is is currently heavily work-in-progress.
 
-At this time it might be usable as a personal file server in a safe environment. It can be used through a web interface or a command line client. You can upload, download, copy, move, rename and delete files, edit text files, read PDFs, watch videos, listen to audio files and look at images.
+It can be used through a web interface or a command line client. You can upload, download, copy, move, rename and delete files, edit text files, read PDFs, watch videos, listen to audio files and look at images.
 
 ## Requirements ##
 
-Go 1.16, node.js, yarn, docker, docker-compose and make.
+Go 1.17, node.js, yarn, docker, docker-compose and make.
 
 ## Building a demo image ##
 
@@ -35,6 +35,3 @@ Use "admin" as username and password.
 - React-pdf [https://react-pdf.org/]
 - Icons are from RemixIcons [https://remixicon.com]
 
-## TODO ##
-
-Many many things to do. User management, file sharing, support for more file types, bookmark manager, bug fixes, etc...

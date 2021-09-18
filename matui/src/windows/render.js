@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { makeStyles } from '@material-ui/core'
 import Window from './window'
 

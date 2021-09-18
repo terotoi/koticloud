@@ -1,7 +1,7 @@
 "use strict"
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Context from './context'
+import AppModel from './app_model'
 import 'typeface-roboto'
 
 (function () {
@@ -19,6 +19,6 @@ import 'typeface-roboto'
 	console.log("id:", id)
 
 	const ui = document.getElementById("ui")
-	ReactDOM.render(<Context initialNodeID={id} />, ui)
+	ReactDOM.render(<AppModel initialNodeID={id} />, ui)
 })()
 

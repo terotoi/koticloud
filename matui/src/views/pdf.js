@@ -1,19 +1,25 @@
 import React, { useState } from 'react'
+import { makeStyles } from '@material-ui/core/styles'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack'
+import ArrowForwardIcon from '@material-ui/icons/ArrowForward'
+
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { makeStyles } from '@material-ui/core/styles'
+import { NodeNavigationToolbar } from './nav'
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack'
 import { nodeURL } from '../util'
 import api from '../api'
+import { IconButton } from '@material-ui/core'
 
 const styles = makeStyles((theme) => ({
 	root: {
 		flexGrow: 1,
 		display: 'flex',
-		flexDirection: 'column'
+		flexDirection: 'column',
+		height: '100%'
 	},
 	doc: {
 		display: 'flex',
@@ -29,6 +35,7 @@ const styles = makeStyles((theme) => ({
 		flexDirection: 'row'
 	},
 	controls: {
+		alignSelf: 'center',
 		display: 'flex',
 		flexGrow: 0,
 		flexDirection: 'row',
@@ -49,7 +56,9 @@ const updateInterval = 2000
  * PDFView shows a PDF renderer.
  * 
  * @param {Node} props.node - the node to view
- * @param {string} props.authToken - JWT authentication token
+ * @param {function} props.onNextNode - called when the user skipped to the next node
+ * @param {function} props.onPrevNode - called when the user skipped to the previous node
+ * @param {state} props.ctx - app context
  * @param {WindowManager} props.wm - the window manager
  */
 export default function PDFView(props) {
@@ -67,7 +76,7 @@ export default function PDFView(props) {
 
 		setUpdateTimeout(setTimeout(() => {
 			api.updateProgress(props.node.id, props.node.progress, 0.0,
-				props.authToken,
+				props.ctx.authToken,
 				() => {
 					console.log("updateProgress OK", props.node.id, props.node.progress)
 				},
@@ -78,7 +87,7 @@ export default function PDFView(props) {
 	function onLoaded({ numPages }) {
 		console.log("onLoaded", numPages, props.node.progress)
 		setNumPages(numPages)
-		if(!props.node.progress)
+		if (!props.node.progress)
 			props.node.progress = 1
 		setPageNum(props.node.progress)
 	}
@@ -117,15 +126,26 @@ export default function PDFView(props) {
 			</Document>
 
 			<Box className={classes.controls}>
-				<Button variant="contained"
-					color="secondary"
+				<NodeNavigationToolbar
+					node={props.node}
+					onNextNode={props.onNextNode}
+					onPrevNode={props.onPrevNode}
+					ctx={props.ctx} />
+
+				<IconButton
+					aria-label="previous page"
 					disabled={pageNum === 1}
 					className={classes.controlItem}
-					onClick={() => { turnPage(-1) }}>Prev Page</Button>
-				<Button variant="contained" color="secondary"
+					onClick={() => { turnPage(-1) }}>
+					<ArrowBackIcon />
+				</IconButton>
+				<IconButton
+					aria-label="next page"
 					className={classes.controlItem}
 					disabled={pageNum === numPages}
-					onClick={() => { turnPage(1) }}>Next Page</Button>
+					onClick={() => { turnPage(1) }}>
+					<ArrowForwardIcon />
+				</IconButton>
 				<Typography className={classes.controlItem} onClick={() => { setJumpToVisible(true) }}>{pageNum} / {numPages}</Typography>
 				{!jumpToVisible ? null :
 					<React.Fragment>

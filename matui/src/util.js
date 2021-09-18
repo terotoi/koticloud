@@ -25,7 +25,7 @@ export function isAudio(mimeType) {
  *
  * @param {string} contenit
  */
-export function isPlayable(mimeType) {
+export function isMedia(mimeType) {
   return isVideo(mimeType) || isAudio(mimeType)
 }
 
@@ -37,17 +37,6 @@ export function isPlayable(mimeType) {
  */
 export function isImage(mimeType) {
   return ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].indexOf(mimeType) !== -1
-}
-
-/* Check if the given content type is a media type.
- * Media content types are video, audio and images.
- * Image types are: image/jpeg and image/png
- *
- * @param {string} mimeType - content type to check
- * @returns true or false
- */
-export function isMedia(mimeType) {
-  return isPlayable(mimeType) || isImage(mimeType)
 }
 
 /* Check if the given content type is a directory.

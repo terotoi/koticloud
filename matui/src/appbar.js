@@ -15,7 +15,6 @@ import AboutDialog from './dialogs/about'
 import { openAlertDialog } from './dialogs/alert'
 import { openErrorDialog } from './dialogs/error'
 import { openPasswordDialog } from './dialogs/password'
-import FileManager from './fm/filemanager'
 import api from './api'
 
 // Minimum number of characters
@@ -74,14 +73,10 @@ const useStyles = makeStyles((theme) => ({
 /**
  * MyAppBar is the application main bar. To be overhauled later.
  * 
- * @param {string} props.username - name of the user logged in
- * @param {bool} props.isAdmin - true if the user is an administrator
  * @param {function} props.onTitleClicked - called when user clicks the main title
  * @param {function} props.onLogout - called when the user logs out
  * @param {[Node...]} props.onSearchResults - called when user typed in a search
  *    and the results are in
- * @param {string} props.homeNodeID - ID of the node users home directory
- * @param {string} props.authToken - JWT authentication token
  * @param {Object} props.settings - user's settings
  * @param {state} props.ctx
  * @param {WindowManager} props.wm
@@ -104,7 +99,7 @@ export default function MyAppBar(props) {
 		else if (txt.length >= minSearchLength) {
 			setSearchCall(window.setTimeout(() => {
 				setSearchCall(null)
-				api.searchNodes(txt, props.authToken, (r) => {
+				api.searchNodes(txt, props.ctx.authToken, (r) => {
 					props.onSearchResults(r)
 				},
 					(error) => { openErrorDialog(props.wm, error) })
@@ -114,7 +109,7 @@ export default function MyAppBar(props) {
 
 	function onChangePassword() {
 		function onPasswordConfirm(oldPasswd, newPasswd) {
-			api.setPassword("", oldPasswd, newPasswd, props.authToken,
+			api.setPassword("", oldPasswd, newPasswd, props.ctx.authToken,
 				() => {
 					openAlertDialog(props.wm, {
 						text: "Password changed."
@@ -175,19 +170,6 @@ export default function MyAppBar(props) {
 									setMainMenuAnchor(null)
 								}}>About
 							</MenuItem>
-							<MenuItem
-								onClick={() => {
-									setMainMenuAnchor(null)
-
-									props.wm.openWindow("File manager",
-										<FileManager
-											initialNodeID={props.homeNodeID}
-											authToken={props.authToken}
-											settings={props.settings}
-											ctx={props.ctx}
-											wm={props.wm} />, false)
-								}}>New file manager
-							</MenuItem>
 						</Menu>}
 
 					{/** Account menu **/}
@@ -197,11 +179,11 @@ export default function MyAppBar(props) {
 							open={true}
 							onClose={() => setAccountMenuAnchor(null)}>
 
-							<MenuItem>{props.username ? "Username: " + props.username : "Not logged in"}</MenuItem>
+							<MenuItem>{props.ctx.username ? "Username: " + props.ctx.username : "Not logged in"}</MenuItem>
 
 							<MenuItem onClick={onChangePassword}>Change password</MenuItem>
 
-							{props.isAdmin ?
+							{props.ctx.isAdmin ?
 								<MenuItem disabled>Manage users</MenuItem> : null}
 
 							<MenuItem onClick={() => {
