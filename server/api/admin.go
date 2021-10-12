@@ -46,8 +46,7 @@ func ScanAll(np *proc.NodeProcessor, cfg *core.Config, db *sql.DB) func(user *mo
 				log.Printf("[scan] Error: %s", err.Error())
 				return
 			}
-
-			log.Printf("[scan] All scans issued by %s are done", user.Name)
+			log.Printf("[scan] Scanning for new files and directories issued by %s finished.", user.Name)
 		}
 
 		go job()
