@@ -19,7 +19,7 @@ func MakeDir(ctx context.Context, parent *models.Node, filename string,
 
 	if parent != nil {
 		if !AccessAllowed(user, parent, false) {
-			return nil, core.NewSystemError(http.StatusUnauthorized, "", "not authorized")
+			return nil, core.NewSystemError(http.StatusUnauthorized, "", "not allowed")
 		}
 	}
 

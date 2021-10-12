@@ -17,11 +17,11 @@ import (
 func Move(ctx context.Context, node *models.Node, dest *models.Node,
 	user *models.User, homeRoot string, tx *sql.Tx) error {
 	if !AccessAllowed(user, node, false) {
-		return core.NewSystemError(http.StatusUnauthorized, "", "not authorized")
+		return core.NewSystemError(http.StatusUnauthorized, "", "not allowed")
 	}
 
 	if !AccessAllowed(user, dest, false) {
-		return core.NewSystemError(http.StatusUnauthorized, "", "not authorized")
+		return core.NewSystemError(http.StatusUnauthorized, "", "not allowed")
 	}
 
 	if !IsDir(dest) {

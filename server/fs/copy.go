@@ -16,11 +16,11 @@ func Copy(ctx context.Context, src *models.Node, parent *models.Node, filename s
 	homeRoot, thumbRoot string, user *models.User,
 	tx *sql.Tx) ([]*models.Node, error) {
 	if !AccessAllowed(user, src, false) {
-		return nil, core.NewSystemError(http.StatusUnauthorized, "", "not authorized")
+		return nil, core.NewSystemError(http.StatusUnauthorized, "", "not allowed")
 	}
 
 	if !AccessAllowed(user, parent, false) {
-		return nil, core.NewSystemError(http.StatusUnauthorized, "", "not authorized")
+		return nil, core.NewSystemError(http.StatusUnauthorized, "", "not allowed")
 	}
 
 	if !IsDir(parent) {

@@ -15,7 +15,7 @@ import (
 func Delete(ctx context.Context, node *models.Node, recursive bool,
 	user *models.User, homeRoot, thumbRoot string, tx boil.ContextExecutor) ([]*models.Node, error) {
 	if !AccessAllowed(user, node, true) {
-		return nil, core.NewSystemError(http.StatusUnauthorized, "", "not authorized")
+		return nil, core.NewSystemError(http.StatusUnauthorized, "", "not allowed")
 	}
 
 	var deleted []*models.Node

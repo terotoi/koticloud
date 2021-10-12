@@ -22,7 +22,7 @@ func Rename(ctx context.Context, node *models.Node, filename string, user *model
 	}
 
 	if !AccessAllowed(user, node, false) {
-		return core.NewSystemError(http.StatusUnauthorized, "", "not authorized")
+		return core.NewSystemError(http.StatusUnauthorized, "", "not allowed")
 	}
 
 	if node.ParentID.Valid {
