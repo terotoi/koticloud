@@ -21,6 +21,9 @@ import { formatDuration } from '../../util'
 // Number of seconds to skip when pressing the skip button.
 const skipDuration = 10.0
 
+// Volume change step for hotkeys
+const volumeStep = 0.05
+
 const styles = makeStyles((theme) => ({
 	controls: {
 		width: '100%',
@@ -58,21 +61,26 @@ export default function MediaControls(props) {
 	const [sticky, setSticky] = useState(true)
 
 	React.useEffect(() => {
-		document.addEventListener('keydown', onKeyDown)
+		document.addEventListener('keypress', onKeyDown)
 
 		return () => {
-			document.removeEventListener('keydown', onKeyDown)
+			document.removeEventListener('keypress', onKeyDown)
 		}
 	}, [])
 
 
 	function onKeyDown(ev) {
+		//console.log("key:", ev.key)
 		if (ev.key === ' ')
 			props.onPaused()
 		else if (ev.key === 'Backspace')
 			props.ctx.up(props.node)
 		else if (ev.key === 'm')
 			props.onMuted()
+		else if (ev.key === '+')
+			props.onVolumeChanged(null, volumeStep)
+		else if (ev.key === '-')
+			props.onVolumeChanged(null, -volumeStep)
 	}
 
 	return (
@@ -114,7 +122,7 @@ export default function MediaControls(props) {
 					>{props.muted ? <VolumeOff /> : <VolumeMute />}</IconButton>
 					<Slider
 						value={props.volume * 100.0}
-						onChange={props.onVolumeChanged}
+						onChange={(ev, value) => { props.onVolumeChanged(value / 100) }}
 						aria-labelledby="continuous-slider" />
 					<IconButton disabled><VolumeUp /></IconButton>
 					{props.fullscreen ? <IconButton onClick={props.fullscreen}><FullscreenIcon /></IconButton> : null}

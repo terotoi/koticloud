@@ -10,19 +10,19 @@ require (
 	github.com/facebookgo/symwalk v0.0.0-20150726040526-42004b9f3222
 	github.com/facebookgo/testname v0.0.0-20150612200628-5443337c3a12 // indirect
 	github.com/friendsofgo/errors v0.9.2
-	github.com/gabriel-vasile/mimetype v1.3.1
+	github.com/gabriel-vasile/mimetype v1.4.0
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-chi/jwtauth v1.2.0
-	github.com/goccy/go-json v0.7.8 // indirect
+	github.com/goccy/go-json v0.7.9 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/lestrrat-go/backoff/v2 v2.0.8 // indirect
-	github.com/lestrrat-go/jwx v1.2.6 // indirect
+	github.com/lestrrat-go/jwx v1.2.7 // indirect
 	github.com/lib/pq v1.10.3
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/volatiletech/null v8.0.0+incompatible // indirect
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler v3.7.1+incompatible
-	github.com/volatiletech/sqlboiler/v4 v4.6.0
+	github.com/volatiletech/sqlboiler/v4 v4.7.1
 	github.com/volatiletech/strmangle v0.0.1
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d // indirect

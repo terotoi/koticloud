@@ -82,7 +82,7 @@ export default function VideoView(props) {
 	React.useEffect(() => {
 		const pr = props.node.progress || 0
 		const v = (props.node.volume !== undefined && props.node.volume !== null) ?
-			props.node.volume : props.ctx.settings.volume
+			Math.min(props.node.volume, 1.0) : props.ctx.settings.volume
 
 		setNodeIsAudio(isAudio(props.node.mime_type))
 
@@ -118,7 +118,7 @@ export default function VideoView(props) {
 				api.updateProgress(props.node.id, progress, volume,
 					props.ctx.authToken,
 					() => {
-						console.log("Update progress:", progress, "/", props.node.length, volume)
+						//console.log("Update progress:", progress, "/", props.node.length, volume)
 					},
 					(error) => { openErrorDialog(props.wm, error) })
 		}, updateInterval))
@@ -152,14 +152,20 @@ export default function VideoView(props) {
 			player.current.currentTime = new_pr
 	}
 
-	function onVolumeChanged(ev, value) {
-		const volume = value / 100.0
-		if (player.current) {
-			player.current.volume = volume
-			setVolume(volume)
-			props.ctx.setVolume(volume)
+	function onVolumeChanged(value, diff) {
+		var vol = value
+		if (value === null) {
+			setVolume((oldVol) => { vol = Math.max(Math.min(oldVol + diff, 1.0), 0.0); return vol })
+		} else {
+			vol = value
+			setVolume(vol)
 		}
-		updateProgress(progress, volume)
+
+		if (player.current) {
+			player.current.volume = vol
+			props.ctx.setVolume(vol)
+		}
+		updateProgress(progress, vol)
 	}
 
 	function onSeeked(ev) {
@@ -245,7 +251,7 @@ export default function VideoView(props) {
 			clearTimeout(hoverTimeout)
 		setHoverTimeout(setTimeout(() => { setHover(false) }, hoverOutDelay))
 	}
-
+	
 	function renderVideo() {
 		return (
 			<video
