@@ -234,11 +234,6 @@ export default function VideoView(props) {
 		})
 	}
 
-	function onKeyDown(ev) {
-		if (ev.key === ' ')
-			togglePause()
-	}
-
 	const onMouseEnter = () => {
 		if (hoverTimeout !== null)
 			clearTimeout(hoverTimeout)
@@ -262,7 +257,6 @@ export default function VideoView(props) {
 				autoPlay={true}
 				controls={fullscreen}
 				muted={muted}
-				onKeyDown={onKeyDown}
 				onMouseEnter={onMouseEnter}
 				onMouseLeave={onMouseLeave}
 				onClick={togglePause}
@@ -285,7 +279,6 @@ export default function VideoView(props) {
 				autoPlay={true}
 				controls={fullscreen}
 				muted={muted}
-				onKeyDown={onKeyDown}
 				onMouseEnter={onMouseEnter}
 				onMouseLeave={onMouseLeave}
 				onClick={togglePause}
@@ -315,9 +308,13 @@ export default function VideoView(props) {
 					fullscreen={toggleFullscreen}
 					onNextNode={props.onNextNode}
 					onPrevNode={props.onPrevNode}
-					onSkip={(d) => { console.log("onSkip", d); player.current.currentTime += d }}
+					onSkip={(d) => { player.current.currentTime += d }}
 					muted={muted}
-					onMuted={() => setMuted(!muted)}
+					onMuted={() => {
+						setMuted(m => {
+							return !m
+						})
+					}}
 					volume={volume}
 					onVolumeChanged={onVolumeChanged}
 					ctx={props.ctx} />}

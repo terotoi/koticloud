@@ -57,6 +57,24 @@ export default function MediaControls(props) {
 	const classes = styles()
 	const [sticky, setSticky] = useState(true)
 
+	React.useEffect(() => {
+		document.addEventListener('keydown', onKeyDown)
+
+		return () => {
+			document.removeEventListener('keydown', onKeyDown)
+		}
+	}, [])
+
+
+	function onKeyDown(ev) {
+		if (ev.key === ' ')
+			props.onPaused()
+		else if (ev.key === 'Backspace')
+			props.ctx.up(props.node)
+		else if (ev.key === 'm')
+			props.onMuted()
+	}
+
 	return (
 		<div className={classes.controls}>
 			<Box
