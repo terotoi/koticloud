@@ -24,6 +24,10 @@ const skipDuration = 10.0
 // Volume change step for hotkeys
 const volumeStep = 0.05
 
+// Fast forward and rewind steps
+const fastStep = 10.0
+const veryFastStep = 30.0
+
 const styles = makeStyles((theme) => ({
 	controls: {
 		width: '100%',
@@ -61,26 +65,53 @@ export default function MediaControls(props) {
 	const [sticky, setSticky] = useState(true)
 
 	React.useEffect(() => {
-		document.addEventListener('keypress', onKeyDown)
+		document.addEventListener('keydown', onKeyDown)
+		document.addEventListener('keypress', onKeyPress)
 
 		return () => {
-			document.removeEventListener('keypress', onKeyDown)
+			document.removeEventListener('keypress', onKeyPress)
+			document.removeEventListener('keydown', onKeyDown)
 		}
 	}, [])
 
-
 	function onKeyDown(ev) {
+		//console.log("onKeyDown:", ev.key)
+		var stop = true
+
+		if (ev.key === 'Backspace')
+			props.ctx.up(props.node)
+		else if (ev.key === 'ArrowLeft')
+			props.onProgressChanged(null, -fastStep)
+		else if (ev.key === 'ArrowRight')
+			props.onProgressChanged(null, fastStep)
+		else if (ev.key === 'ArrowDown')
+			props.onProgressChanged(null, -veryFastStep)
+		else if (ev.key === 'ArrowUp')
+			props.onProgressChanged(null, veryFastStep)
+		else
+			stop = false
+
+		if (stop)
+			ev.preventDefault()
+	}
+
+	function onKeyPress(ev) {
 		//console.log("key:", ev.key)
+		var stop = true
 		if (ev.key === ' ')
 			props.onPaused()
-		else if (ev.key === 'Backspace')
-			props.ctx.up(props.node)
+
 		else if (ev.key === 'm')
 			props.onMuted()
 		else if (ev.key === '+')
 			props.onVolumeChanged(null, volumeStep)
 		else if (ev.key === '-')
 			props.onVolumeChanged(null, -volumeStep)
+		else
+			stop = false
+
+		if (stop)
+			ev.preventDefault()
 	}
 
 	return (
@@ -103,7 +134,7 @@ export default function MediaControls(props) {
 							{sticky ? <ToggleOnIcon /> : <ToggleOffIcon />}
 						</IconButton> : null}
 
-					<IconButton onClick={props.onPaused}>
+					<IconButton onClick={(ev) => { ev.stopPropagation(); props.onPaused }}>
 						{props.playing ? <PauseIcon /> : <PlayArrowIcon />}</IconButton>
 					<IconButton onClick={() => { props.onSkip(-skipDuration) }}><Replay10Icon /></IconButton>
 					<IconButton onClick={() => { props.onSkip(skipDuration) }}><Forward10Icon /></IconButton>
@@ -112,7 +143,7 @@ export default function MediaControls(props) {
 						{props.progress ? formatDuration(props.progress) : null}</span>
 					<Slider
 						value={props.progress * 100.0 / props.duration}
-						onChange={props.onProgressChanged}
+						onChange={(ev, value) => { props.onProgressChanged(value / 100.0 * props.node.length) }}
 						aria-labelledby="continuous-slider" />
 					<span className={classes.duration}>{props.node.length ? formatDuration(props.node.length) : null}</span>
 				</Box>

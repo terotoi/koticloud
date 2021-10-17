@@ -102,6 +102,9 @@ export default function VideoView(props) {
 			if (updateTimeout !== null)
 				clearTimeout(updateTimeout)
 
+			if (endTimeout !== null)
+				clearTimeout(endTimeout)
+
 			if (player.current !== null) {
 				//player.current.src = ""
 				player.current = null
@@ -142,20 +145,32 @@ export default function VideoView(props) {
 		}
 	}
 
-	function onProgressChanged(ev, value) {
+	function onProgressChanged(pr, diff) {
 		const d = player.current ? player.current.duration : props.node.length
-		const new_pr = value / 100.0 * d
-		setProgress(new_pr)
-		updateProgress(new_pr, volume)
 
-		if (player.current)
-			player.current.currentTime = new_pr
+		if (pr === null) {
+			setProgress((old) => {
+				const np = Math.min(Math.max(0.0, old + diff), d)
+				updateProgress(np, volume)
+				if (player.current)
+					player.current.currentTime = np
+				return np
+			})
+		} else {
+			setProgress(pr)
+			updateProgress(pr, volume)
+			if (player.current)
+				player.current.currentTime = pr
+		}
 	}
 
 	function onVolumeChanged(value, diff) {
 		var vol = value
 		if (value === null) {
-			setVolume((oldVol) => { vol = Math.max(Math.min(oldVol + diff, 1.0), 0.0); return vol })
+			setVolume((oldVol) => {
+				vol = Math.max(Math.min(oldVol + diff, 1.0), 0.0);
+				return vol
+			})
 		} else {
 			vol = value
 			setVolume(vol)
@@ -251,7 +266,7 @@ export default function VideoView(props) {
 			clearTimeout(hoverTimeout)
 		setHoverTimeout(setTimeout(() => { setHover(false) }, hoverOutDelay))
 	}
-	
+
 	function renderVideo() {
 		return (
 			<video

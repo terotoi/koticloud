@@ -4,7 +4,7 @@
 all: node_modules static/main.js
 
 node_modules: package.json
-	yarn install
+	npm install
 
 static/main.js: ${SRC}
 	INLINE_RUNTIME_CHUNK=false npx webpack --mode=production

@@ -16,7 +16,7 @@ watchdev:
 	find . -iname '*.go' | entr -r make servedev
 
 matui/node_modules: matui/package.json
-	cd matui && yarn install
+	cd matui && npm install
 
 matui/static/main.js: matui/node_modules matui/src/*.js matui/src/*/*.js
 	cd matui && make
@@ -51,4 +51,3 @@ clean:
 		config_docker.json etc/config_demo.json docker-compose.yml \
 		koticloud.tar koticloud_db.tar \
 		koticloud.tar.gz koticloud_db.tar.gz
-		
