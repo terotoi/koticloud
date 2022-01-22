@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import ImageView from './image'
 import MediaView from './media/media'
 import PDFView from './pdf'
-import TextEdit from './text'
+//import TextEdit from './text'
 
 import { isImage, isDir, isText, isMedia, nodeURL } from '../util'
 import { nodeThumb } from '../thumbs'
@@ -107,11 +107,12 @@ export default function NodeView(props) {
 	}
 
 	function renderTextEdit() {
-		return <TextEdit
+		return <div>Text editing disabled temporarily (mui-rte)</div>
+		/*<TextEdit
 			node={node}
 			onSave={props.onNodeSaved}
 			ctx={props.ctx}
-			wm={wm} />
+			wm={wm} />*/
 	}
 
 	function renderDownload() {
