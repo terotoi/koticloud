@@ -2,6 +2,8 @@ module github.com/terotoi/koticloud
 
 go 1.18
 
+require gopkg.in/yaml.v3 v3.0.0 // indirect
+
 require (
 	github.com/facebookgo/symwalk v0.0.0-20150726040526-42004b9f3222
 	github.com/friendsofgo/errors v0.9.2
