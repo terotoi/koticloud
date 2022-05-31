@@ -11,7 +11,7 @@ It can be used through a web interface or a command line client. You can upload,
 
 ## Requirements ##
 
-Go 1.17, node.js, docker, docker-compose and make.
+Go 1.18, node.js, docker, docker-compose and make.
 
 ## Building a demo image ##
 
