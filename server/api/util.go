@@ -9,13 +9,18 @@ import (
 	"github.com/terotoi/koticloud/server/core"
 )
 
+// Log a message with information of the request.
+func logRequest(r *http.Request, text string) {
+	log.Printf("%s %s %s %s", r.RemoteAddr, r.Method, r.URL.Path, text)
+}
+
 // If err is is not nil writes it to w. Returns err.
 // detail is an optional detailed error message for the client. If "-" is given,
 //   err.Error() is used
 func reportIf(err error, statusCode int, detail string, r *http.Request, w http.ResponseWriter) error {
 	if err != nil {
 		message := err.Error()
-		log.Printf("%s %s %s: %s", r.RemoteAddr, r.Method, r.URL.Path, message)
+		log.Printf("%s %s %s error: %s", r.RemoteAddr, r.Method, r.URL.Path, message)
 
 		w.Header().Add("Content-Type", "application/json")
 		if detail == "-" {

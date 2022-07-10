@@ -11,7 +11,7 @@ It can be used through a web interface or a command line client. You can upload,
 
 ## Requirements ##
 
-Go 1.18, node.js, docker, docker-compose and make.
+Go 1.18, node.js, docker, docker-compose-plugin and make.
 
 ## Building a demo image ##
 
@@ -21,7 +21,7 @@ You can build a docker demo image by typing:
 
 This command builds two docker images: "koticloud" for the application and "koticloud_db" for the supporting PostgreSQL database. To get the system up, you can use docker-compose:
 
-> docker-compose up
+> docker compose up
 
 The server can then be reached using http://localhost:7070
 

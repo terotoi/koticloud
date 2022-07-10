@@ -1,0 +1,27 @@
+{
+	"name": "koticloud",
+	"private": true,
+	"scripts": {
+		"build": "esbuild src/init.jsx --bundle --sourcemap --outfile=../static/main.js --loader:.woff2=file --loader:.woff=file",
+		"dist": "esbuild src/init.jsx --bundle --minify --outfile=../static/main.js --loader:.woff2=file --loader:.woff=file",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Tero Oinas oinas.tero@gmail.com",
+	"license": "GPL2",
+	"devDependencies": {
+		"@emotion/react": "^11.9.0",
+		"@emotion/styled": "^11.8.1",
+		"@fontsource/roboto": "^4.5.4",
+		"@mui/icons-material": "^5.6.1",
+		"@mui/material": "^5.6.1",
+		"@mui/styles": "^5.6.1",
+		"axios": "^0.27.2",
+		"esbuild": "^0.14.39",
+		"pdfjs-dist": "^2.13.216",
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2"
+	},
+	"dependencies": {
+		"react-contenteditable": "^3.3.6"
+	}
+}

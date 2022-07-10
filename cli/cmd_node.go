@@ -73,17 +73,11 @@ func (app *App) get(cmd string, args []string) error {
 	}
 
 	for _, arg := range args {
-		id, err := strconv.Atoi(arg)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		filename, err := apiGet(id, app.AuthToken, app.BaseURL)
+		filename, err := apiGet(arg, app.AuthToken, app.BaseURL)
 		if err != nil {
 			log.Println(err)
 		} else {
-			fmt.Printf("get: %d -> %s\n", id, filename)
+			fmt.Printf("get: %s -> %s\n", arg, filename)
 		}
 	}
 	return nil

@@ -20,7 +20,7 @@ type RunCommandRequest struct {
 	NodeID    int
 }
 
-// FunCommand executes an external command.
+// RunCommand executes an external command.
 func RunCommand(auth *jwtauth.JWTAuth, cfg *core.Config, db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
 		dec := json.NewDecoder(r.Body)

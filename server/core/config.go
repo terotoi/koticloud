@@ -36,9 +36,8 @@ type Config struct {
 	InitialUser string `json:"initial_user"`
 	InitialPW   string `json:"initial_password"`
 
-	ThumbMethod        string `json:"thumb_method"`
-	DevMode            bool
-	ScanFollowSymlinks bool `json:"scan_follow_symlinks"`
+	ThumbMethod string `json:"thumb_method"`
+	DevMode     bool
 
 	ExtCommands []ExtCommand `json:"ext_commands"`
 }
@@ -93,7 +92,7 @@ func ParseArgs() (*Config, error) {
 
 	if len(flag.Args()) == 0 {
 		flag.Usage()
-		return nil, fmt.Errorf("commands: scan, serve, create-admin")
+		return nil, fmt.Errorf("commands: scan, serve")
 	}
 
 	configFile = util.ReplaceEnvs(configFile)

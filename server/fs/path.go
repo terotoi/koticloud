@@ -81,7 +81,7 @@ func PhysPath(ctx context.Context, node *models.Node, homeRoot string, tx boil.C
 // otherwise the directory is returned, without trailing slash.
 func ThumbPath(root string, id int, includeFile bool) string {
 	if includeFile {
-		return fmt.Sprintf("%s/%08d/%d", root, id/100*100, id)
+		return fmt.Sprintf("%s/%08d/%d", root, id/1000*1000, id)
 	}
-	return fmt.Sprintf("%s/%08d", root, id/100*100)
+	return fmt.Sprintf("%s/%08d", root, id/1000*1000)
 }

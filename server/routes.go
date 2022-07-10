@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/jwtauth"
 	"github.com/terotoi/koticloud/server/api"
 	"github.com/terotoi/koticloud/server/core"
-	"github.com/terotoi/koticloud/server/proc"
+	"github.com/terotoi/koticloud/server/jobs"
 )
 
 func serveStaticFiles(cfg *core.Config) http.HandlerFunc {
@@ -31,7 +31,7 @@ func serveStaticFiles(cfg *core.Config) http.HandlerFunc {
 	}
 }
 
-func setupRoutes(r *chi.Mux, cfg *core.Config, np *proc.NodeProcessor, db *sql.DB) {
+func setupRoutes(r *chi.Mux, cfg *core.Config, np *jobs.NodeProcessor, db *sql.DB) {
 	auth := jwtauth.New("HS256", []byte(cfg.JWTSecret), nil)
 
 	// Get JWT from 'jwt' query param, authentication header or cookie 'jwt'
@@ -65,9 +65,11 @@ func setupRoutes(r *chi.Mux, cfg *core.Config, np *proc.NodeProcessor, db *sql.D
 		r.Post("/user/settings", api.Authorized(api.QuerySettings(cfg, db), false, cfg, db))
 		r.Post("/user/create", api.Authorized(api.UserCreate(cfg, db), true, cfg, db))
 		r.Post("/user/setpassword", api.Authorized(api.SetPassword(db), false, cfg, db))
+		r.Post("/admin/scan_deleted",
+			api.Authorized(api.ScanDeleted(np, cfg, db), true, cfg, db))
 		r.Post("/admin/scan_all",
 			api.Authorized(api.ScanAll(np, cfg, db), true, cfg, db))
-		r.Post("/admin/generate_thumbnails",
+		r.Post("/admin/generate_thumbnails/{onlyMissing}",
 			api.Authorized(api.GenerateAllThumbnails(np, cfg.HomeRoot, db), true, cfg, db))
 
 		r.Get("/node/get/{nodeID:[0-9]+}",
@@ -82,13 +84,20 @@ func setupRoutes(r *chi.Mux, cfg *core.Config, np *proc.NodeProcessor, db *sql.D
 		r.Post("/cmd/run", api.Authorized(api.RunCommand(auth, cfg, db), false, cfg, db))
 	})
 
+	staticFiles := serveStaticFiles(cfg)
+
 	// Methods not requiring JWT authentication.
 	r.Group(func(r chi.Router) {
 		r.Post("/user/login", api.UserLogin(auth, cfg, db))
 
+		r.Get("/id/{nodeID:[0-9]+}", func(w http.ResponseWriter, r *http.Request) {
+			r.URL.Path = "/"
+			staticFiles(w, r)
+		})
+
 		if cfg.StaticRoot != "" {
 			log.Printf("Serving static files from %s", cfg.StaticRoot)
-			r.Get("/*", serveStaticFiles(cfg))
+			r.Get("/*", staticFiles)
 		}
 	})
 }

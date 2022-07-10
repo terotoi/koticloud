@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	"github.com/terotoi/koticloud/server/fs"
+	"github.com/terotoi/koticloud/server/jobs"
 	"github.com/terotoi/koticloud/server/models"
-	"github.com/terotoi/koticloud/server/proc"
 )
 
 // LocalUploadRequest requests an upload of a file accessible
@@ -70,7 +70,7 @@ func dataFromMultipart(r *http.Request, uploadDir string) (string, error) {
 }
 
 // NodeNew creates a new file. Data is retrieved from multipart upload.
-func NodeNew(uploadDir, homeRoot, thumbRoot string, procCh chan proc.NodeProcessRequest,
+func NodeNew(uploadDir, homeRoot, thumbRoot string, procCh chan jobs.NodeProcessRequest,
 	db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
 		multiPart := strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data")
@@ -180,15 +180,15 @@ func NodeNew(uploadDir, homeRoot, thumbRoot string, procCh chan proc.NodeProcess
 			return
 		}
 
-		log.Printf("new: %s -> %s [%s] (%s, %d bytes)", uploadFile, filename,
-			path, node.MimeType, st.Size())
+		logRequest(r, fmt.Sprintf("new: %s -> %s [%s] (%s, %d bytes)", uploadFile, filename,
+			path, node.MimeType, st.Size()))
 
 		err = tx.Commit()
 		if reportInt(err, r, w) != nil {
 			return
 		}
 
-		if err := proc.AddNodeProcessRequest(ctx, procCh, node, path, false, db); err != nil {
+		if err := jobs.AddNodeProcessRequest(ctx, procCh, node, path, false, db); err != nil {
 			reportIf(err, http.StatusInternalServerError, "failed to process upload", r, w)
 		}
 
@@ -199,7 +199,7 @@ func NodeNew(uploadDir, homeRoot, thumbRoot string, procCh chan proc.NodeProcess
 }
 
 // NodeUpdate updates an existing node. Data is retrieved from multipart upload.
-func NodeUpdate(uploadDir, homeRoot, thumbRoot string, procCh chan proc.NodeProcessRequest,
+func NodeUpdate(uploadDir, homeRoot, thumbRoot string, procCh chan jobs.NodeProcessRequest,
 	db *sql.DB) func(user *models.User, w http.ResponseWriter, r *http.Request) {
 	return func(user *models.User, w http.ResponseWriter, r *http.Request) {
 		err := r.ParseMultipartForm(int64(32 << 20))
@@ -272,15 +272,15 @@ func NodeUpdate(uploadDir, homeRoot, thumbRoot string, procCh chan proc.NodeProc
 			return
 		}
 
-		log.Printf("update: %s -> %s (%s, %d bytes)", uploadFile,
-			path, node.MimeType, st.Size())
+		logRequest(r, fmt.Sprintf("update: %s -> %s (%s, %d bytes)", uploadFile,
+			path, node.MimeType, st.Size()))
 
 		err = tx.Commit()
 		if reportInt(err, r, w) != nil {
 			return
 		}
 
-		if err := proc.AddNodeProcessRequest(ctx, procCh, node, uploadFile, false, db); err != nil {
+		if err := jobs.AddNodeProcessRequest(ctx, procCh, node, uploadFile, false, db); err != nil {
 			reportIf(err, http.StatusInternalServerError, "failed to process upload", r, w)
 		}
 		//removeUploadFile = false

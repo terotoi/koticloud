@@ -12,7 +12,6 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/terotoi/koticloud/server/core"
 	"github.com/terotoi/koticloud/server/jobs"
-	"github.com/terotoi/koticloud/server/proc"
 
 	_ "github.com/lib/pq" // For PostgreSQL driver
 )
@@ -77,7 +76,7 @@ func main() {
 		r.Use(middleware.Recoverer)
 		r.Use(middleware.Timeout(60 * time.Second))
 
-		np := proc.RunNodeProc(cfg.ThumbRoot, cfg.ThumbRoot, cfg.ThumbMethod, db)
+		np := jobs.RunNodeProc(cfg, db)
 
 		setupRoutes(r, cfg, np, db)
 
@@ -86,10 +85,12 @@ func main() {
 		if err := http.ListenAndServe(addr, r); err != nil {
 			log.Println(err)
 		}
-		np.End()
-		np.WaitGroup.Wait()
+		if np != nil {
+			np.End()
+			np.WaitGroup.Wait()
+		}
 	} else if cmd == "scan" {
-		np := proc.RunNodeProc(cfg.ThumbRoot, cfg.ThumbRoot, cfg.ThumbMethod, db)
+		np := jobs.RunNodeProc(cfg, db)
 		err = jobs.ScanAllHomes(context.Background(), cfg, np, db)
 		np.End()
 		np.WaitGroup.Wait()

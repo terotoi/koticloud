@@ -16,7 +16,7 @@ RUN mkdir "/data"
 WORKDIR "/dist"
 COPY "server/koticloud" .
 COPY "cli/koticli" .
-COPY "matui/static" "./static"
+COPY "./static" "./static"
 
 COPY "${cfg}" "./config.json"
 

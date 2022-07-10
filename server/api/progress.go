@@ -59,11 +59,18 @@ func UpdateProgress(db *sql.DB) func(user *models.User, w http.ResponseWriter, r
 		log.Printf("Update progress on node %d user: %d volume: %f progress: %f", req.NodeID, user.ID,
 			req.Volume, req.Progress)
 		if len(prgs) > 0 {
-			for _, p := range prgs {
-				p.Volume = null.Float32{Float32: req.Volume, Valid: true}
-				p.Progress = null.Float32{Float32: req.Progress, Valid: true}
+			p := prgs[0]
+			p.Volume = null.Float32{Float32: req.Volume, Valid: true}
+			p.Progress = null.Float32{Float32: req.Progress, Valid: true}
 
-				_, err = p.Update(ctx, tx, boil.Infer())
+			_, err = p.Update(ctx, tx, boil.Infer())
+			if reportInt(err, r, w) != nil {
+				return
+			}
+
+			// Delete any duplicates
+			for _, p := range prgs[1:] {
+				_, err = p.Delete(ctx, tx)
 				if reportInt(err, r, w) != nil {
 					return
 				}

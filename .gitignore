@@ -1,12 +1,11 @@
 server/koticloud
 cli/koticli
-notes
 etc/settings
-matui/node_modules
-matui/static/main.*
-matui/static/fonts
-matui/static/*.js
-matui/static/*.js.*txt
+ui/node_modules
+static/main.*
+static/fonts
+static/*.js
+static/*.js.*txt
 *~
 #*#
 .vscode
@@ -15,3 +14,5 @@ matui/static/*.js.*txt
 docker-compose.yml
 etc/config_demo.json
 config.json
+*.woff2
+*.woff

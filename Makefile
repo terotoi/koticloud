@@ -1,7 +1,10 @@
 
-.PHONY: all clean serve watchdev dev docker_demo docker_demo_db 
+.PHONY: all prod prodjs watchdev \
+	docker_demo docker_demo_db demo demo_gz
 
-all: matui/node_modules matui/static/main.js server/koticloud cli/koticli
+all: static/main.js server/koticloud cli/koticli
+
+prod: prodjs koticloud
 
 server/koticloud: server/*.go server/*/*.go
 	cd server && go build -o koticloud
@@ -9,23 +12,33 @@ server/koticloud: server/*.go server/*/*.go
 cli/koticli: cli/*.go server/api/*.go
 	cd cli && go build -o koticli
 
-servedev: server/koticloud
-	./server/koticloud -c "${HOME}/opt/koticloud/config_${HOSTNAME}.json" -dev serve
+rundev: all
+	./server/koticloud serve
 
 watchdev:
-	find . -iname '*.go' | entr -r make servedev
+	find . \( -path './ui/src/*.js' -or -path './ui/src/*.jsx' \
+		-or -path './server/*.go' -or -path './static/css/*.css' \) | \
+		entr -r make rundev
 
-matui/node_modules: matui/package.json
-	cd matui && npm install
+static/main.js: ui/node_modules ui/src/*.js ui/src/*.jsx ui/src/*/*.js ui/src/*/*.jsx ui/src/*/*/*.jsx static/pdf.worker.min.js
+	cd ui && npm run build
 
-matui/static/main.js: matui/node_modules matui/src/*.js matui/src/*/*.js
-	cd matui && make
+static/pdf.worker.min.js: ui/node_modules/pdfjs-dist/build/pdf.worker.min.js
+	cp ./ui/node_modules/pdfjs-dist/build/pdf.worker.min.js static/pdf.worker.min.js
 
-jsprod:
-	cd matui && make prod	
+ui/node_modules: ui/package.json
+	cd ui && npm install
 
-jsdev: 
-	cd matui && make dev
+clean:
+	rm -rf static/main.js static/*.woff2 static/main.js.LICENSE.txt \
+		static/*.map static/*.woff \
+		node_modules \
+		server/koticloud cli/koticli \
+		config_docker.json etc/config_demo.json docker-compose.yml \
+		koticloud.tar koticloud_db.tar \
+		koticloud.tar.gz koticloud_db.tar.gz
+
+### Docker images ###
 
 docker_demo: all
 	etc/create_config.sh
@@ -44,10 +57,3 @@ demo_gz: demo
 	gzip koticloud.tar
 	docker image save -o koticloud_db.tar koticloud_db
 	gzip koticloud_db.tar
-
-clean:
-	cd matui && make clean
-	rm -rf server/koticloud cli/koticli \
-		config_docker.json etc/config_demo.json docker-compose.yml \
-		koticloud.tar koticloud_db.tar \
-		koticloud.tar.gz koticloud_db.tar.gz

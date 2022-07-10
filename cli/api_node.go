@@ -69,7 +69,12 @@ func apiList(path, authToken, baseURL string) (*models.Node, []*fs.NodeWithProgr
 }
 
 // apiGet downloads a node.
-func apiGet(id int, authToken, baseURL string) (string, error) {
+func apiGet(path, authToken, baseURL string) (string, error) {
+	id, err := apiNodeIDForPath(path, authToken, baseURL)
+	if err != nil {
+		return "", err
+	}
+
 	// Query filename
 	node, err := apiInfo(id, authToken, baseURL)
 	if err != nil {

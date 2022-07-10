@@ -1,0 +1,22 @@
+html,
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+}
+
+#ui {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+}
+
+:focus {
+    outline: none;
+}
+
+pre {
+    white-space: pre-wrap;
+}

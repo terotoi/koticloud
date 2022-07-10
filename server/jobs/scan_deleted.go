@@ -27,17 +27,17 @@ func ScanDeletedNodes(ctx context.Context, user *models.User, cfg *core.Config, 
 
 		path, err := fs.PhysPath(ctx, node, cfg.HomeRoot, db)
 		if err != nil {
-			log.Println(err.Error())
+			log.Printf("[scan-deleted] %s", err)
 			continue
 		}
 
 		if _, err = os.Stat(path); os.IsNotExist(err) {
-			log.Printf("Node %d does not exist in filesystem, deleting from database.", node.ID)
+			log.Printf("[scan-deleted] node %d does not exist in filesystem, deleting from database.", node.ID)
 
 			if _, err = fs.Delete(ctx, node, false, user, cfg.HomeRoot, cfg.ThumbRoot, db); err != nil {
-				log.Println(err)
+				log.Printf("[scan-deleted] %s", err)
 			} else {
-				log.Printf("Deleted a file node: %d %s", node.ID, node.Name)
+				log.Printf("[scan-deleted] deleted a file node: %d %s", node.ID, node.Name)
 
 				if node.ParentID.Valid {
 					// Add unique parents
@@ -52,7 +52,7 @@ func ScanDeletedNodes(ctx context.Context, user *models.User, cfg *core.Config, 
 					if !found {
 						dir, err := fs.NodeByID(ctx, node.ParentID.Int, db)
 						if err != nil {
-							log.Println(err)
+							log.Printf("[scan-deleted] %s", err)
 						} else if dir != nil && !dir.ParentID.Valid {
 							// Do not delete any root directories
 							dirs = append(dirs, dir)
@@ -61,16 +61,16 @@ func ScanDeletedNodes(ctx context.Context, user *models.User, cfg *core.Config, 
 				}
 			}
 		} else if err != nil {
-			log.Println(err.Error())
+			log.Printf("[scan-deleted] %s", err)
 		}
 
 		// Delete resulting empty directories
 		for _, dir := range dirs {
 			_, err := fs.Delete(ctx, dir, false, user, cfg.HomeRoot, cfg.ThumbRoot, db)
 			if err != nil {
-				log.Println(err)
+				log.Printf("[scan-deleted] %s", err)
 			} else {
-				log.Printf("Deleted an empty directory node: %d %s", node.ID, node.Name)
+				log.Printf("[scan-deleted] deleted an empty directory node: %d %s", node.ID, node.Name)
 			}
 		}
 	}

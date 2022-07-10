@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"fmt"
 	"math/rand"
 	"net/http"
 	"os"
@@ -40,19 +41,29 @@ func ThumbGet(cfg *core.Config, db *sql.DB) func(user *models.User, tokenNode *m
 			return
 		}
 
-		path := fs.ThumbPath(cfg.ThumbRoot, node.ID, true)
+		serveThumb(w, r, node, cfg, db)
+	}
+}
+
+func serveThumb(w http.ResponseWriter, r *http.Request, node *models.Node, cfg *core.Config, db *sql.DB) {
+	path := fs.ThumbPath(cfg.ThumbRoot, node.ID, true)
+
+	stat, err := os.Stat(path)
+	if err != nil && os.IsNotExist(err) {
+		logRequest(r, fmt.Sprintf("thumb not found, serving fallback: %s", path))
+		ContentServeThumbFallback(w, r, node, cfg, db)
+	} else {
+		if reportInt(err, r, w) != nil {
+			return
+		}
 
 		fh, err := os.Open(path)
-		if err != nil && os.IsNotExist(err) {
-			ContentServeThumbFallback(cfg.ThumbRoot, cfg.StaticRoot, w, r, node, db)
-		} else {
-			if reportInt(err, r, w) != nil {
-				return
-			}
-
-			w.Header().Add("Content-Type", "image/jpeg")
-			http.ServeContent(w, r, node.Name, node.ModifiedOn, fh)
+		if reportInt(err, r, w) != nil {
+			return
 		}
+
+		w.Header().Add("Content-Type", "image/jpeg")
+		http.ServeContent(w, r, node.Name, stat.ModTime(), fh)
 	}
 }
 
@@ -61,23 +72,30 @@ func serveGenericThumb(w http.ResponseWriter, r *http.Request, node *models.Node
 	filename := strings.Replace(strings.Replace(node.MimeType, "-", "_", -1),
 		"/", "-", -1) + ".svg"
 
-	fh, err := os.Open(staticRoot + "/icons/types/" + filename)
+	path := staticRoot + "/icons/types/" + filename
+	stat, err := os.Stat(path)
 	if os.IsNotExist(err) {
-		fh, err = os.Open(staticRoot + "/icons/types/application-octet_stream.svg")
+		path = staticRoot + "/icons/types/application-octet_stream.svg"
+		stat, err = os.Stat(path)
 	}
 
-	if err != nil {
+	if reportInt(err, r, w) != nil {
 		return err
 	}
 
-	http.ServeContent(w, r, node.Name+".svg", node.ModifiedOn, fh)
+	fh, err := os.Open(path)
+	if reportInt(err, r, w) != nil {
+		return err
+	}
+
+	http.ServeContent(w, r, node.Name+".svg", stat.ModTime(), fh)
 	return nil
 }
 
 // ContentServeThumbFallback servers generic thumbnail images from
 // /static/images/mimetype.svg
-func ContentServeThumbFallback(thumbRoot, staticRoot string,
-	w http.ResponseWriter, r *http.Request, node *models.Node, db *sql.DB) {
+func ContentServeThumbFallback(w http.ResponseWriter, r *http.Request,
+	node *models.Node, cfg *core.Config, db *sql.DB) {
 	if node.Type == "directory" {
 		var nodes []models.Node
 
@@ -96,13 +114,16 @@ func ContentServeThumbFallback(thumbRoot, staticRoot string,
 		}
 
 		if len(nodes) > 0 {
-			p := nodes[rand.Intn(len(nodes))]
-			http.ServeFile(w, r, fs.ThumbPath(thumbRoot, p.ID, true))
+			n := nodes[rand.Intn(len(nodes))]
+			serveThumb(w, r, &n, cfg, db)
+			//http.ServeFile(w, r, fs.ThumbPath(thumbRoot, p.ID, true))
 			return
+		} else {
+			logRequest(r, fmt.Sprintf("no custom thumbs found for directory %s", node.Name))
 		}
 	}
 
-	err := serveGenericThumb(w, r, node, staticRoot)
+	err := serveGenericThumb(w, r, node, cfg.StaticRoot)
 	if reportInt(err, r, w) != nil {
 		return
 	}

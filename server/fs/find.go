@@ -24,6 +24,7 @@ func NodeByID(ctx context.Context, id int, db boil.ContextExecutor) (*models.Nod
 	if err != nil {
 		return nil, core.NewSystemError(http.StatusNotFound, err.Error(), fmt.Sprintf("node %d not found", id))
 	}
+
 	return node, err
 }
 

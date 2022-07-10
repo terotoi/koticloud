@@ -39,7 +39,20 @@ func IsMedia(mimeType string) bool {
 	return IsImage(mimeType) || IsVideo(mimeType)
 }
 
+// IsPDF returns true if the given mime type is a PDF file.
+func IsPDF(mimeType string) bool {
+	return mimeType == "application/pdf"
+}
+
 // TypesWithCustomThumbnails retrurns mime types for which thumbnails can be generated.
 func TypesWithCustomThumbnails() []string {
-	return append(imageFormats, videoFormats...)
+	formats := []string{"application/pdf"}
+	formats = append(formats, imageFormats...)
+	formats = append(formats, videoFormats...)
+	return formats
+}
+
+// Returns true if the server supports thumbnails for the given type.
+func HasCustomThumb(mimeType string) bool {
+	return IsMedia(mimeType) || IsPDF(mimeType)
 }
