@@ -397,7 +397,7 @@ export default function MediaView(props) {
 					progress={progress}
 					onProgressChanged={onProgressChanged}
 					duration={player.current ? (player.current.duration || 0) : 0}
-					visible={hover}
+					visible={isAudio(props.node.mime_type) || hover}
 					playing={playing}
 					onPaused={togglePause}
 					fullscreen={toggleFullscreen}
