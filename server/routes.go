@@ -17,12 +17,6 @@ func serveStaticFiles(cfg *core.Config) http.HandlerFunc {
 		path := r.URL.Path
 
 		if path == "/" {
-			if cfg.DevMode {
-				path = "/index_dev.html"
-			} else {
-				path = "/index.html"
-			}
-		} else if path == "/index_dev.html" && !cfg.DevMode {
 			path = "/index.html"
 		}
 

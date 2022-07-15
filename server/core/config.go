@@ -37,7 +37,6 @@ type Config struct {
 	InitialPW   string `json:"initial_password"`
 
 	ThumbMethod string `json:"thumb_method"`
-	DevMode     bool
 
 	ExtCommands []ExtCommand `json:"ext_commands"`
 }
@@ -76,7 +75,7 @@ func ParseArgs() (*Config, error) {
 	const defaultListenAddress = ":7070"
 
 	var configFile, address, dbString, DataRoot, homeRoot, thumbRoot, uploadDir, StaticRoot string
-	var save, devMode bool
+	var save bool
 
 	flag.StringVar(&configFile, "c", "$HOME/opt/koticloud/config_$HOSTNAME.json", "config file location")
 	flag.BoolVar(&save, "save-config", false, "save configuraton file after argument parsing")
@@ -87,7 +86,6 @@ func ParseArgs() (*Config, error) {
 	flag.StringVar(&thumbRoot, "thumbs", "", "root of the thumbnails directory")
 	flag.StringVar(&uploadDir, "uploads", "", "upload directory")
 	flag.StringVar(&StaticRoot, "static", "", "root directory for static files (optional)")
-	flag.BoolVar(&devMode, "dev", false, "enter development mode")
 	flag.Parse()
 
 	if len(flag.Args()) == 0 {
@@ -123,8 +121,6 @@ func ParseArgs() (*Config, error) {
 	if cfg.ListenAddress == "" {
 		cfg.ListenAddress = defaultListenAddress
 	}
-
-	cfg.DevMode = cfg.DevMode || devMode
 
 	if cfg.HomeRoot == "" && cfg.DataRoot != "" {
 		cfg.HomeRoot = cfg.DataRoot + "/home"
