@@ -99,7 +99,7 @@ export default class AppModel extends React.Component {
 			alert("Trying to push null to history")
 		if (node !== null && (this.previousNodeId == null || node.id != this.previousNodeId)) {
 			const state = { nodeId: node.id, previousNodeId: this.previousNodeId }
-			console.log("Pushing node into history:", state.nodeId)
+			// console.log("Pushing node into history:", state.nodeId)
 
 			window.history.pushState(state, '', node.url)
 			this.previousNodeId = node.id
@@ -137,7 +137,6 @@ export default class AppModel extends React.Component {
 	}
 
 	openNodeId(id) {
-		console.log("openNodeId", id)
 		if (id !== null) {
 			Node.forId(id, (node) =>
 				this.openNode(node))
@@ -145,7 +144,6 @@ export default class AppModel extends React.Component {
 	}
 
 	componentDidMount() {
-		console.log("componentDidMount")
 		Node.authToken = this.state.authToken
 
 		const getNode = (id) => {
@@ -158,10 +156,8 @@ export default class AppModel extends React.Component {
 		}
 
 		if (this.props.initialNodeID) {
-			console.log("Fetching info on the initial node", this.props.initialNodeID)
 			getNode(this.props.initialNodeID)
 		} else if (this.state.homeNodeID) {
-			console.log("Fetching info on the initial node", this.state.homeNodeID)
 			getNode(this.state.homeNodeID)
 		}
 	}

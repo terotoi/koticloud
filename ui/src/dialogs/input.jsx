@@ -38,6 +38,7 @@ export default function InputDialog(props) {
                 </DialogContentText>
 
                 <TextField
+                    sx={{ mt: 4 }}
                     color="primary"
                     autoFocus
                     margin="dense"

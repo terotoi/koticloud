@@ -24,10 +24,6 @@ export default function NewFileDialog(props) {
             props.onConfirm(filename.trim(), fileType)
     }
 
-    const handleFileTypeChange = (ev) => {
-        setFileType(ev.target.value)
-    }
-
     return (
         <Dialog
             open={true}
@@ -40,12 +36,13 @@ export default function NewFileDialog(props) {
                 </DialogContentText>
 
                 <Select
+                    sx={{ mt: 2, mb: 2 }}
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     value={fileType}
-                    onChange={(ev) => { setFileType(ev.target.value)}}>
+                    onChange={(ev) => { setFileType(ev.target.value) }}>
                     <MenuItem value="text">Text document</MenuItem>
-                    </Select>
+                </Select>
 
                 <TextField
                     color="primary"
@@ -57,12 +54,13 @@ export default function NewFileDialog(props) {
                     value={filename}
                     required
                     fullWidth
+                    onKeyDown={(ev) => { if (ev.key == 'Enter') handleConfirm() }}
                     onChange={(ev) => { setFilename(ev.target.value) }} />
             </DialogContent >
-        <DialogActions>
-            <Button onClick={props.onClose}>Cancel</Button>
-            <Button onClick={handleConfirm}>Create</Button>
-        </DialogActions>
+            <DialogActions>
+                <Button onClick={props.onClose}>Cancel</Button>
+                <Button onClick={handleConfirm}>Create</Button>
+            </DialogActions>
         </Dialog >)
 }
 

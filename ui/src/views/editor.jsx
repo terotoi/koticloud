@@ -1,4 +1,5 @@
 import React from 'react'
+import { makeStyles } from '@mui/styles'
 import Box from '@mui/material/Box'
 import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
@@ -9,6 +10,17 @@ import { openErrorDialog } from '../dialogs/error'
 import { NodeNavigationToolbar } from './nav'
 import api from '../api'
 
+const styles = makeStyles((theme) => ({
+	editable: {
+		borderWidth: 1,
+		borderStyle: 'dashed',
+		borderColor: theme.palette.primary.main,
+		padding: theme.spacing(2),
+		minHeight: '5rem',
+		minWidth: '100%'
+	}
+}))
+	
 /**
  * EditorToolBar
  * 
@@ -33,13 +45,10 @@ function EditorToolBar(props) {
 export default function TextEdit(props) {
 	const [content, setContent] = React.useState('')
 	const contentEditable = React.useRef(null)
+	const classes = styles()
 
-  // Rudimentary converter from html to text
-	function fromHTML(html) {
-		html = html.replaceAll("<br>", "\n")
-		var div = document.createElement("div")
-		div.innerHTML = html
-		return div.textContent || div.innerText || ""
+	function toHTML(text) {
+		return text.replaceAll("\n", "<br>")
 	}
 
 	function save() {
@@ -57,16 +66,15 @@ export default function TextEdit(props) {
 			}
 		})
 
-		const text = fromHTML(content)
-
-		uploader.upload(new Blob([text], { type: 'text/plain' }),
+		uploader.upload(new Blob([content], { type: 'text/plain' }),
 			{ nodeID: props.node.id })
 	}
 
 	React.useEffect(() => {
 		api.fetchData(nodeURL(props.node), 'get', 'text', null, props.ctx.authToken,
-			(text) => {
-				setContent(fromHTML(text))
+			(data) => {
+				const c = toHTML(data)
+				setContent(toHTML(data))
 			},
 			(error) => { openErrorDialog(props.wm, error) })
 	}, [props.node])
@@ -81,7 +89,7 @@ export default function TextEdit(props) {
 	}
 
 	return (
-		<Box onKeyDown={onKeyDown} sx={{ margin: '1rem' }}>
+		<Box onKeyDown={onKeyDown} sx={{ m: 2 }}>
 			<Box display="flex" flexDirection="row">
 				<NodeNavigationToolbar
 					node={props.node}
@@ -91,7 +99,9 @@ export default function TextEdit(props) {
 				<EditorToolBar onSave={save} />
 			</Box>
 
-			<ContentEditable innerRef={contentEditable} html={content} disabled={false}
-				onChange={contentChanged} tagName='pre'/>
+			<Box display="flex" sx={{ m: 2 }}>
+				<ContentEditable innerRef={contentEditable} html={content} disabled={false}
+					onChange={contentChanged} tagName='div' className={classes.editable}/>
+			</Box>
 		</Box>)
 }
