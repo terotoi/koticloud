@@ -42,6 +42,9 @@ export default class AppModel extends React.Component {
 			onSearchResults: this.onSearchResults.bind(this)
 		}
 
+		if(this.state.authToken)
+			setCookie('jwt', this.state.authToken, 31)
+
 		this.previousNodeId = null
 
 		// Handler for going back in the browser history
@@ -62,6 +65,7 @@ export default class AppModel extends React.Component {
 		})
 	}
 
+	// Set the auth token as well as the cookie.
 	setAuthToken(token) {
 		if (token === null) {
 			localStorage.removeItem('authToken')
