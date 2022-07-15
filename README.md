@@ -31,7 +31,5 @@ Use "admin" as username and password.
 
 - React [https://reactjs.org]
 - Material-UI [https://material-ui.com]
-- mui-rte [https://github.com/niuware/mui-rte] which uses draftjs [https://draftjs.org/]
-- React-pdf [https://react-pdf.org/]
-- Icons are from RemixIcons [https://remixicon.com]
-
+- PDF.js [https://mozilla.github.io/pdf.js]
+- Icons from RemixIcons [https://remixicon.com]
