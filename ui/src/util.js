@@ -54,7 +54,7 @@ export function isDir(mimeType) {
  * @returns true or false
  */
 export function isText(mimeType) {
-  return ['text/plain', 'application/json', 'application/x-ndjson'].indexOf(mimeType) !== -1
+  return ['text/plain', 'application/json', 'application/x-ndjson', 'text/html'].indexOf(mimeType) !== -1
 }
 
 /* Limit string to n number of characters. If the length of
