@@ -1,5 +1,12 @@
+/**
+ * grid.jsx - directory grid view
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
-import { makeStyles } from '@mui/styles'
 import Grid from '@mui/material/Grid'
 import NodeCard from './card'
 
@@ -10,11 +17,11 @@ export const zooms = [
 	{ xl: 3, lg: 3, md: 6, sm: 12, xs: 12 }
 ]
 
-const styles = makeStyles((theme) => ({
+const sxs = {
 	grid: {
 		display: 'flex'
 	}
-}))
+};
 
 /**
  * NodeGrid displays directory nodes in either a grid.
@@ -29,13 +36,11 @@ const styles = makeStyles((theme) => ({
  * @param {WindowManager} props.wm - the window manager
  */
 export function NodeGrid(props) {
-	const classes = styles()
-
 	let nodes = []
 	for (const node of props.nodes) {
 		nodes.push(
 			<Grid item
-				className={classes.grid}
+				sx={sxs.grid}
 				key={node.id}
 				xl={zooms[props.zoom].xl}
 				lg={zooms[props.zoom].lg}
@@ -55,10 +60,8 @@ export function NodeGrid(props) {
 	}
 
 	return (
-		<div>
-			<Grid container spacing={2}>
-				{nodes}
-			</Grid>
-		</div>
+		<Grid container spacing={2}>
+			{nodes}
+		</Grid>
 	)
 }

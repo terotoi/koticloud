@@ -1,12 +1,19 @@
-"use strict"
+/**
+ * init.jsx - The main entry point for the UI
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
-import ReactDOM from 'react-dom'
 import AppModel from './app/app_model'
 import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
 import * as pdfjs from 'pdfjs-dist'
+import { createRoot } from 'react-dom/client';
 
 (function () {
 	// Parse /id/{node_id} from the url.
@@ -24,8 +31,8 @@ import * as pdfjs from 'pdfjs-dist'
 	pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
 
 	const id = idFromURL(window.location.href)
-
-	const ui = document.getElementById("ui")
-	ReactDOM.render(<AppModel initialNodeID={id} />, ui)
+	const ui = document.getElementById("ui");
+	const root = createRoot(ui);
+	root.render(<AppModel initialNodeID={id} />)
 })()
 

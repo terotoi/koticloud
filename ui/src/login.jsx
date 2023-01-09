@@ -1,5 +1,12 @@
+/**
+ * login.jsx - login view
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
-import { makeStyles } from '@mui/styles'
 import Container from '@mui/material/Container'
 import CssBaseline from '@mui/material/CssBaseline'
 import Box from '@mui/material/Box'
@@ -8,24 +15,14 @@ import Link from '@mui/material/Link'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
-const useStyles = makeStyles((theme) => ({
+const sxs = {
 	paper: {
-		marginTop: theme.spacing(6),
+		marginTop: 6,
 		display: 'flex',
 		flexDirection: 'column',
 		alignItems: 'center'
-	},
-	avatar: {
-		margin: theme.spacing(1),
-		backgroundColor: theme.palette.secondary.main
-	},
-	form: {
-		marginTop: theme.spacing(1),
-	},
-	submit: {
-		margin: theme.spacing(3, 0, 0),
-	},
-}))
+	}
+};
 
 /**
  * LoginView
@@ -33,24 +30,22 @@ const useStyles = makeStyles((theme) => ({
  * @param {function} props.onSubmit - called on form submit with username and password 
  */
 export default function LoginView(props) {
-	const classes = useStyles()
-
 	const [username, setUsername] = React.useState('')
 	const [password, setPassword] = React.useState('')
 
 	return (
 		<Container component="main" maxWidth="xs">
 			<CssBaseline />
-			<div className={classes.paper}>
-				<img src="/icons/ui/cloud.svg"/>
+			<Box component="div" sx={sxs.paper}>
+				<img src="/icons/ui/cloud.svg" />
 				<Typography component="h1" variant="h3">
 					KotiCloud
 				</Typography>
 
 				<Typography component="h2" variant="h5">
 					Log in
-       	</Typography>
-				<form className={classes.form} noValidate>
+				</Typography>
+				<form style={{ marginTop: '1rem' }} noValidate>
 					<TextField
 						variant="outlined"
 						margin="normal"
@@ -75,13 +70,15 @@ export default function LoginView(props) {
 					<Button
 						fullWidth
 						variant="contained"
-						color="primary"
-						className={classes.submit}
+						color="secondary"
+						sx={{
+							marginTop: 3
+						}}
 						onClick={() => props.onSubmit(username, password)}>
 						Log in
-			    </Button>
+					</Button>
 				</form>
-			</div>
+			</Box>
 			<Box mt={8}>
 				<CopyrightBanner />
 			</Box>
@@ -97,7 +94,7 @@ function CopyrightBanner() {
 			{' '}
 			<Link color="inherit" href="https://github.com/terotoi/">
 				Tero Oinas
-		    </Link>
+			</Link>
 		</Typography>
 	)
 }

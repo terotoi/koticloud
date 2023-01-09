@@ -1,11 +1,18 @@
+/**
+ * media.jsx - media player
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React, { useState, useRef, useEffect } from 'react'
-import { makeStyles } from '@mui/styles'
 import { isAudio, nodeURL } from '../../util'
 import { openErrorDialog } from '../../dialogs/error'
 import MediaControls from './controls'
 import api from '../../api'
 
-const styles = makeStyles((theme) => ({
+const styles = {
 	root: {
 		position: 'absolute',
 		top: 0,
@@ -19,16 +26,12 @@ const styles = makeStyles((theme) => ({
 		outline: 'none',
 		height: '100%',
 		objectFit: 'contain',
-		background: theme.palette.background.default
+		background: 'rgba(0,0,0,0.5)'
 	},
 	audio: {
 		marginTop: '4em'
-	},
-	duration: {
-		marginLeft: theme.spacing(1),
-		marginRight: theme.spacing(1)
 	}
-}))
+};
 
 // Send progress updates only this often in milliseconds
 const progressUpdateInterval = 5000
@@ -72,13 +75,13 @@ export default function MediaView(props) {
 	const [playing, setPlaying] = useState(false) // Not paused
 	const [started, setStarted] = useState(false) // Started playing
 	const [hover, setHover] = useState(true)
-	const classes = styles()
 
 	React.useEffect(() => {
 		const pr = (props.node.progress > 1.0) ? (props.node.progress / props.node.length) : (props.node.progress || 0)
 		const prl = (pr != 1.0) ? pr : 0.0;
-		const v = (props.node.volume !== undefined && props.node.volume !== null) ?
-			Math.min(props.node.volume, 1.0) : props.ctx.settings.volume
+		//const v = (props.node.volume !== undefined && props.node.volume !== null) ?
+		//	Math.min(props.node.volume, 1.0) : props.ctx.settings.volume
+		const v = props.ctx.settings.volume || 1.0
 
 		console.log("progress: " + pr + " volume: " + v)
 		setProgress(prl)
@@ -164,11 +167,13 @@ export default function MediaView(props) {
 			setVolume((oldVol) => {
 				const vol = Math.max(Math.min(oldVol + diff, 1.0), 0.0)
 				player.current.volume = vol
+				props.ctx.setVolume(vol)
 				return vol
 			})
 		} else {
 			setVolume(value)
 			player.current.volume = value
+			props.ctx.setVolume(value)
 		}
 	}
 
@@ -348,7 +353,7 @@ export default function MediaView(props) {
 	function renderVideo() {
 		return (
 			<video
-				className={classes.video}
+				style={styles.video}
 				ref={(r) => { player.current = r }}
 				src={nodeURL(props.node)}
 				poster={props.node.thumbURL(true)}
@@ -368,7 +373,7 @@ export default function MediaView(props) {
 	function renderAudio() {
 		return (
 			<audio
-				className={classes.audio}
+				style={styles.audio}
 				ref={(r) => { player.current = r }}
 				src={nodeURL(props.node)}
 				poster={props.node.thumbURL(true)}
@@ -386,7 +391,7 @@ export default function MediaView(props) {
 	}
 
 	return (
-		<div ref={root} className={classes.root} tabIndex="0"
+		<div ref={root} style={styles.root} tabIndex="0"
 			onKeyDown={onKeyDown} onMouseMove={onMouseMove}>
 
 			{isAudio(props.node.mime_type) ? renderAudio() : renderVideo()}

@@ -1,3 +1,11 @@
+/**
+ * nav.jsx - node navigation toolbar
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'

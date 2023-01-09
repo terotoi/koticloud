@@ -1,3 +1,11 @@
+/**
+ * node.js - a local representation of a server node
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import { isDir } from '../util'
 import api from "../api"
 

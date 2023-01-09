@@ -1,3 +1,11 @@
+/**
+ * util.js - utility functions
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 
 /* Check if the given content type is a video type.
  * Currently video/mp4 and video/webm are considered videos.

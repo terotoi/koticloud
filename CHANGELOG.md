@@ -1,5 +1,10 @@
 
-## 0.4.0 (20220710) ##
+## 2023-01-09 ##
+- Update to React 18, go 1.19, latest Material UI and other dependencies
+- Converted legacy usage of legacy Material UI, fixed other compatibility issues
+- Added a small informational header to every file
+
+## 0.4.0 2022-07-10 ##
 
 Numerous changes and fixes, including:
 

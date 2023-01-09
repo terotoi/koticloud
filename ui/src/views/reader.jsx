@@ -1,3 +1,11 @@
+/**
+ * reader.jsx - a document reader
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React, { useState, useRef } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'

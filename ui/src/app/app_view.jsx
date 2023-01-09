@@ -1,19 +1,17 @@
+/**
+ * app_view.jsx - the main view of the application
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
-import { makeStyles } from '@mui/styles'
 import LoginView from '../login'
 import MyAppBar from './appbar'
 import FileManagerModel from '../fm/fm_model'
 import { openErrorDialog } from '../dialogs/error'
 import api from '../api'
-
-const styles = makeStyles((theme) => ({
-	root: {
-		display: 'flex',
-		flexFlow: 'column',
-		height: '100%',
-		minHeight: '100vh'
-	}
-}))
 
 /**
  * AppView
@@ -24,7 +22,6 @@ const styles = makeStyles((theme) => ({
  */
 export default function AppView(props) {
 	const [settings, setSettings] = React.useState(null)
-	const classes = styles()
 
 	/**
 	 * Log in the server with username and password.
@@ -90,11 +87,8 @@ export default function AppView(props) {
 	}, [props.ctx.authToken])
 
 	if (props.ctx.authToken === null) {
-		return (
-			<div className={classes.root}>
-				<LoginView
-					onSubmit={login} />
-			</div>)
+		return (<LoginView
+			onSubmit={login} />)
 
 	}
 
@@ -103,10 +97,14 @@ export default function AppView(props) {
 	}
 
 	return (
-		<div className={classes.root}>
+		<div style={{
+			display: 'flex',
+			flexFlow: 'column',
+			height: '100%',
+			minHeight: '100vh'
+		}}>
 			<React.Fragment>
 				<MyAppBar
-					className={classes.appBar}
 					onLogout={logout}
 					onSearchResults={props.ctx.onSearchResults}
 					authToken={props.ctx.authToken}

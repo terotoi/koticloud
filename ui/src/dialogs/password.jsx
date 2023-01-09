@@ -1,18 +1,18 @@
+/**
+ * password.jsx - password dialog
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
-import { makeStyles } from '@mui/styles'
-
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import TextField from '@mui/material/TextField'
-
-const styles = makeStyles((theme) => ({
-    newPasswd: {
-        marginTop: '2em'
-    }
-}))
 
 /**
  * PasswordDialog is a dialog for changing a user's password.
@@ -25,7 +25,6 @@ const styles = makeStyles((theme) => ({
 export default function PasswordDialog(props) {
     const [oldPasswd, setOldPasswd] = React.useState("")
     const [newPasswd, setNewPasswd] = React.useState("")
-	const classes = styles()
 
     const handleConfirm = () => {
         props.onClose()
@@ -55,7 +54,9 @@ export default function PasswordDialog(props) {
                     onChange={(ev) => { setOldPasswd(ev.target.value) }} />
 
                 <TextField
-                    className={classes.newPasswd}
+                    sx={{
+                        marginTop: '2em'
+                    }}
                     color="primary"
                     required fullWidth
                     margin="dense"
@@ -68,7 +69,7 @@ export default function PasswordDialog(props) {
             <DialogActions>
                 <Button onClick={props.onClose}>
                     Cancel
-                    </Button>
+                </Button>
                 <Button onClick={handleConfirm}>
                     Confirm
                 </Button>

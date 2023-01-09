@@ -1,14 +1,22 @@
-import { createTheme } from '@mui/material/styles'
+/**
+ * theme.jsx - application theme
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
+import { createTheme } from '@mui/material/styles';
 
 const primary = '#dbdbdb'
-const primaryDark = '#989898'
+const primaryDark = '#a0a0a0'
+const contrast = '#101010'
 const secondary = '#c1b685'
 const brand = '#272c34'
 const text = '#e8e8e8'
 const textDark = '#a8a8a8'
 
-/** Application theme */
-const themeOptions = createTheme({
+const theme = createTheme({
 	spacing: 6,
 
 	palette: {
@@ -22,7 +30,8 @@ const themeOptions = createTheme({
 		},
 		text: {
 			primary: text,
-			secondary: textDark
+			secondary: textDark,
+			contrast: contrast
 		},
 		background: {
 			default: '#202020',
@@ -55,7 +64,12 @@ const themeOptions = createTheme({
 				height: 'auto'
 			}
 		}
-	}
-})
+	},
+	//spacing: [0, 6, 12, 5, 8]
+});
 
-export default createTheme(themeOptions)
+spacing: [0, 2, 3, 5, 8],
+
+console.log(theme.spacing())
+
+export default theme;

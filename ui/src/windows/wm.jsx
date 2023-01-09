@@ -1,18 +1,23 @@
-import React from 'react'
-import { ThemeProvider } from '@mui/material/styles'
+/**
+ * wm.jsx - the window manager
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
+import React from 'react';
 import CssBaseline from '@mui/material/CssBaseline'
 import AppView from '../app/app_view'
 import WindowRenderer from './render'
 import theme from '../theme'
 import { remSize } from '../util'
+import { ThemeProvider } from '@mui/material/styles'
 
 /**
  * WindowManager manages windows and dialogs.
  * 
- * WindowManager contains a list of window objects:
- *    content, title: String, id: int, zIndex: int
- *    pos: [number, number], size: [number, number]
- * 
+ * WindowManager contains a list of window objects.
  */
 export default class WindowManager extends React.Component {
 	/**
@@ -171,6 +176,7 @@ export default class WindowManager extends React.Component {
 	}
 
 	render() {
+		// const classes	= useStyles();
 		return (
 			<React.Fragment>
 				<ThemeProvider theme={theme}>
@@ -182,4 +188,3 @@ export default class WindowManager extends React.Component {
 			</React.Fragment>)
 	}
 }
-

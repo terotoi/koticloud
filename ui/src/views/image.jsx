@@ -1,7 +1,13 @@
+/**
+ * image.jsx - an image viewer
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React, { useEffect, useRef, useState } from 'react'
-import { makeStyles } from '@mui/styles'
 import Box from '@mui/material/Box'
-
 import { NodeNavigationToolbar } from './nav'
 import { nodeURL } from '../util'
 import IconButton from '@mui/material/IconButton'
@@ -9,14 +15,6 @@ import DeleteIcon from '@mui/icons-material/Delete'
 
 // Number of ms before controls are hidden.
 const hoverOutDelay = 1500
-
-const styles = makeStyles((theme) => ({
-	image: {
-		objectFit: 'contain',
-		maxWidth: '100%',
-		height: '100%'
-	}
-}))
 
 /**
  * ImageView shows an image node.
@@ -28,7 +26,6 @@ const styles = makeStyles((theme) => ({
  * @param {state} props.ctx - app context
  */
 export default function ImageView(props) {
-	const classes = styles()
 	const root = useRef(null)
 	const [hover, setHover] = useState(true)
 	const hoverTimeout = useRef(null)
@@ -87,18 +84,24 @@ export default function ImageView(props) {
 			alignItems="center"
 			sx={{
 				position: 'absolute',
+				top: 0,
 				width: '100%',
 				height: '100%',
-				backgroundColor: 'background.default'
+				backgroundColor: 'background'
 			}}>
 			<img
-				className={classes.image}
+				style={{
+					objectFit: 'contain',
+					maxWidth: '100%',
+				}}
 				onDragStart={(ev) => { ev.preventDefault(); return false }}
 				src={nodeURL(props.node)} />
 
 			<Box display={hover ? 'flex' : 'none'} flexDirection="row" flexWrap="none"
 				sx={{
-					zIndex: 1, position: 'absolute', bottom: '0',
+					zIndex: 1,
+					position: 'absolute',
+					bottom: '0',
 					backgroundColor: 'background.default'
 				}}>
 				<NodeNavigationToolbar

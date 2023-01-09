@@ -1,3 +1,11 @@
+/**
+ * api.js - server API calls
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import axios from 'axios'
 import Node from './models/node'
 

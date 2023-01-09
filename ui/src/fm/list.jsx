@@ -1,22 +1,29 @@
+/**
+ * list.jsx - directory list view
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
 import ActionMenu from './action_menu'
-import { makeStyles } from '@mui/styles'
 import { isDir } from '../util'
 import { renderProgress } from './progress'
-
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
+import { Box } from '@mui/material'
 
-const styles = makeStyles((theme) => ({
+const sxs = {
 	thumb: {
 		width: '70pt',
 		height: '40pt',
 		objectFit: 'contain',
 		borderWidth: '2pt',
-		borderColor: theme.palette.primary.main,
+		borderColor: 'primary.main',
 		borderRadius: '5%'
 	},
 	customThumb: {
@@ -24,33 +31,29 @@ const styles = makeStyles((theme) => ({
 	},
 	dirThumb: {
 		borderStyle: 'dashed',
-		borderColor: theme.palette.primary.main
-	},
-	filename: {
-		marginLeft: theme.spacing(2),
-		width: '50%'
+		borderColor: 'primary.main',
 	},
 	iconCell: {
 		width: '80pt',
-		padding: theme.spacing(1)
+		padding: 1,
 	},
 	progressCell: {
 		width: '5em',
-		padding: theme.spacing(1)
+		padding: 1,
 	},
 	sizeCell: {
 		width: '15em',
-		padding: theme.spacing(1)
+		padding: 1,
 	},
 	modifiedCell: {
 		width: '10em',
-		padding: theme.spacing(1)
+		padding: 1,
 	},
 	actionCell: {
 		width: '10em',
-		padding: theme.spacing(1)
+		padding: 1
 	}
-}))
+};
 
 /**
  * NodeList displays directory nodes in a list.
@@ -64,36 +67,36 @@ const styles = makeStyles((theme) => ({
  * @param {WindowManager} props.wm - the window manager
  */
 export default function NodeList(props) {
-	const classes = styles()
-
 	return (
 		<Table aria-label="simple table">
 			<TableHead>
 				<TableRow>
-					<TableCell align="center" className={classes.iconCell}>Icon</TableCell>
+					<TableCell align="center" sx={sxs.iconCell}>Icon</TableCell>
 					<TableCell>Filename</TableCell>
-					<TableCell align="right" className={classes.sizeCell}>Progress</TableCell>
-					<TableCell align="right" className={classes.sizeCell}>Size</TableCell>
-					<TableCell align="center" className={classes.sizeCell}>Modified</TableCell>
-					<TableCell align="center" className={classes.actionCell}>Action</TableCell>
+					<TableCell align="right" sx={sxs.sizeCell}>Progress</TableCell>
+					<TableCell align="right" sx={sxs.sizeCell}>Size</TableCell>
+					<TableCell align="center" sx={sxs.sizeCell}>Modified</TableCell>
+					<TableCell align="center" sx={sxs.actionCell}>Action</TableCell>
 				</TableRow>
 			</TableHead>
 			<TableBody>
 				{Array.from(props.nodes).map((node) => {
-					var thumb_classes = classes.thumb
+					const thumb = Object.assign({}, sxs.thumb)
+
 					if (isDir(node.mime_type))
-						thumb_classes += ' ' + classes.dirThumb
+						Object.assign(thumb, sxs.dirThumb)
 					else if (node.has_custom_thumb)
-						thumb_classes += ' ' + classes.customThumb
+						Object.assign(thumb, sxs.customThumb)
 
 					const modified_on = new Date(node.modified_on)
 
 					return (
 						<TableRow key={node.id}>
-							<TableCell className={classes.iconCell} align="center">
+							<TableCell sx={sxs.iconCell} align="center">
 								<a href={node.url}>
-									<img
-										className={thumb_classes}
+									<Box
+										component="img"
+										sx={thumb}
 										src={node.thumbURL(props.previews)}
 										onClick={(ev) => { props.onNodeOpen(node); ev.preventDefault() }} />
 								</a>
@@ -101,13 +104,13 @@ export default function NodeList(props) {
 							<TableCell component="th" scope="row" onClick={() => { props.onNodeOpen(node) }}>
 								{node.name}
 							</TableCell>
-							<TableCell align="right" className={classes.progressCell}>
+							<TableCell align="right" sx={sxs.progressCell}>
 								{(node.progress != null) ? renderProgress(node) : null}
 							</TableCell>
-							<TableCell align="right" className={classes.sizeCell}>{node.size}</TableCell>
-							<TableCell align="center" className={classes.modifiedCell}>
+							<TableCell align="right" sx={sxs.sizeCell}>{node.size}</TableCell>
+							<TableCell align="center" sx={sxs.modifiedCell}>
 								{modified_on.toLocaleDateString() + " " + modified_on.toLocaleTimeString()}</TableCell>
-							<TableCell align="center" className={classes.actionCell}>
+							<TableCell align="center" sx={sxs.actionCell}>
 								<ActionMenu
 									node={node}
 									authToken={props.authToken}

@@ -1,53 +1,36 @@
+/**
+ * card.jsx - a node card
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
-import { makeStyles } from '@mui/styles'
 import Typography from '@mui/material/Typography'
-
 import ActionMenu from './action_menu'
 import { isDir } from '../util'
 import { renderProgress } from './progress'
+import { Box } from '@mui/material'
 
-const styles = makeStyles((theme) => ({
-	root: {
-		position: 'relative',
-		boxSizing: 'border-box',
-		justifyContent: 'space-between',
-		display: 'flex',
-		flexDirection: 'column',
-		width: '100%'
-	},
+const sxs = {
 	thumb: {
 		width: '100%',
 		height: '100%',
 		boxSizing: 'border-box',
 		display: 'block',
 		objectFit: 'contain',  // contain forces own aspect
-		objectPosition: '50% 50%'
-	},
-	stdThumb: {
+		objectPosition: '50% 50%',
+		borderColor: 'secondary.main',
 		borderWidth: '2pt',
-		borderStyle: 'none',
-		borderColor: theme.palette.secondary.main,
-		borderRadius: '5%',
-		padding: '8%',
-	},
-	dirThumb: {
-		borderWidth: '2pt',
-		borderColor: theme.palette.secondary.main,
-		borderRadius: '5%',
-		borderStyle: 'dashed',
-		padding: '8%'
-	},
-	customThumb: {
-		borderWidth: '2pt',
-		borderStyle: 'solid',
-		borderColor: theme.palette.secondary.main,
+		padding: '2%',
 		borderRadius: '5%'
 	},
-	action: {
-		display: 'flex',
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center'
+	dirWithCustomThumb: {
+		borderStyle: 'dashed'
+	},
+	fileWithCustomThumb: {
+		borderStyle: 'solid'
 	},
 	title: {
 		padding: '0.2em 0.3em 0 0.5em',
@@ -64,7 +47,7 @@ const styles = makeStyles((theme) => ({
 		padding: '1px 2px 0 4px',
 		zIndex: 5
 	},
-}))
+};
 
 /**
  * NodeCard is the card for one filesystem node.
@@ -79,48 +62,59 @@ const styles = makeStyles((theme) => ({
  * @param {WindowManager} props.wm - the window manager
  */
 export default function NodeCard(props) {
-	const classes = styles()
+	const thumb = Object.assign({}, sxs.thumb)
 
-	var thumb_classes = classes.thumb
 	if (isDir(props.node.mime_type))
-		thumb_classes += ' ' + classes.dirThumb
-	else if (props.node.has_custom_thumb)
-		thumb_classes += ' ' + classes.customThumb
-	else
-		thumb_classes += ' ' + classes.stdThumb
+		Object.assign(thumb, sxs.dirWithCustomThumb)
+	else if (!isDir(props.node.mime_type) && props.node.has_custom_thumb)
+		Object.assign(thumb, sxs.fileWithCustomThumb)
 
 	return (
-		<div
-			className={classes.root} style={{ maxHeight: (30 * props.zoom) + "vh" }}>
-
+		<Box
+			component="div"
+			sx={{
+				position: 'relative',
+				boxSizing: 'border-box',
+				justifyContent: 'space-between',
+				display: 'flex',
+				flexDirection: 'column',
+				width: '100%',
+				maxHeight: (30 * props.zoom) + "vh"
+			}}>
 			<a href={props.node.url}>
-				<img
-					className={thumb_classes}
+				<Box
+					component="img"
+					sx={thumb}
 					src={props.node.thumbURL(props.preview)}
 					onDragStart={(ev) => { ev.preventDefault() }}
 					onClick={(ev) => { props.onOpen(props.node); ev.preventDefault() }} /></a>
 
-			<div className={classes.action}>
+			<div style={{
+				display: 'flex',
+				flexDirection: 'row',
+				justifyContent: 'space-between',
+				alignItems: 'center'
+			}}>
 				<Typography
 					variant="subtitle2"
-					className={classes.title}
+					sx={sxs.title}
 					onClick={() => { props.onOpen(props.node) }}>
 					{props.node.name}
 				</Typography>
-				<div className={classes.actionMenu}>
-					<ActionMenu
-						node={props.node}
-						authToken={props.authToken}
-						onOpen={props.onOpen}
-						onAction={props.onAction}
-						commands={(props.settings && props.settings.NamedCommands) ? props.settings.NamedCommands : []}
-						wm={props.wm} />
-				</div>
+				<ActionMenu
+					node={props.node}
+					authToken={props.authToken}
+					onOpen={props.onOpen}
+					onAction={props.onAction}
+					commands={(props.settings && props.settings.NamedCommands) ? props.settings.NamedCommands : []}
+					wm={props.wm} />
 			</div>
 
-			{props.node.progress ?
-				<div className={classes.progress}>
-					{renderProgress(props.node)}
-				</div> : null}
-		</div >)
+			{
+				props.node.progress ?
+					<Box component="div" sx={sxs.progress}>
+						{renderProgress(props.node)}
+					</Box> : null
+			}
+		</Box >)
 }

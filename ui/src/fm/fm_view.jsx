@@ -1,9 +1,15 @@
+/**
+ * fm_view.jsx - file manager view
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
-import { makeStyles } from '@mui/styles'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
-
 import ArrowUpward from '@mui/icons-material/ArrowUpward'
 import AddBoxIcon from '@mui/icons-material/AddBox'
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
@@ -24,10 +30,7 @@ import api from '../api'
 
 const defaultZoom = 0
 
-const styles = makeStyles((theme) => ({
-	root: {
-		marginTop: theme.spacing(2),
-	},
+const sxs = {
 	pathText: {
 		display: 'flex',
 		flexDirection: 'column',
@@ -35,11 +38,11 @@ const styles = makeStyles((theme) => ({
 		fontSize: '120%'
 	},
 	toolbar: {
-		marginBottom: theme.spacing(2),
+		marginBottom: 2,
 		alignContent: 'flex-end',
 		justifyContent: 'space-between'
 	},
-}))
+};
 
 /**
  * FileManagerView displays display a directory.
@@ -59,7 +62,6 @@ export default function FileManagerView(props) {
 	const settingZoom = localStorage.getItem("zoom") ?
 		parseInt(localStorage.getItem("zoom")) : defaultZoom
 
-	const classes = styles()
 	const [previews, setPreviews] = React.useState(settingPreviews)
 	const [zoom, setZoom] = React.useState(settingZoom)
 	const wm = props.wm
@@ -141,7 +143,7 @@ export default function FileManagerView(props) {
 	let rs = null
 
 	//console.log(JSON.stringify(nodes))
-	
+
 	if (zoom > 0) {
 		rs = <NodeGrid
 			zoom={zoom}
@@ -164,14 +166,14 @@ export default function FileManagerView(props) {
 	}
 
 	return (
-		<div className={classes.root}>
-			<Box className={classes.toolbar} display="flex" justifyContent="flex-start">
+		<Box component="div" sx={{ m:1, ml: 2 }}>
+			<Box sx={sxs.toolbar} display="flex" justifyContent="flex-start">
 				<Box display="flex">
 					<Button disabled={props.node.parent_id === null || props.node.path === '/'}
 						onClick={() => props.ctx.openNodeId(props.node.parent_id)}>
 						<ArrowUpward />
 					</Button>
-					<div className={classes.pathText}>{props.title || props.node.path}</div>
+					<div style={sxs.pathText}>{props.title || props.node.path}</div>
 				</Box>
 
 				<Box display="flex">
@@ -202,6 +204,6 @@ export default function FileManagerView(props) {
 				</Box>
 			</Box>
 			{rs}
-		</div>
+		</Box>
 	)
 }

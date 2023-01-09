@@ -1,6 +1,12 @@
+/**
+ * fm_model.jsx - file manager model
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
-import { makeStyles } from '@mui/styles'
-
 import FileManagerView from './fm_view'
 import NodeView from '../views/node'
 import { openAlertDialog } from '../dialogs/alert'
@@ -9,15 +15,6 @@ import { openInputDialog } from '../dialogs/input'
 import { isDir } from '../util'
 import api from '../api'
 import Node from '../models/node'
-
-const styles = makeStyles((theme) => ({
-	root: {
-		display: 'flex',
-		flexDirection: 'column',
-		flexGrow: 1,
-		padding: theme.spacing(2)
-	}
-}))
 
 /**
  * FileManagerModel is the model class of the file manager.
@@ -32,7 +29,6 @@ const styles = makeStyles((theme) => ({
 export default function FileManagerModel(props) {
 	const [title, setTitle] = React.useState('')
 	const [clipboard, setClipboard] = React.useState(null)
-	const classes = styles()
 	const wm = props.wm
 
 	/**
@@ -178,7 +174,12 @@ export default function FileManagerModel(props) {
 
 	if (isDir(props.node.mime_type)) {
 		return (
-			<div className={classes.root}>
+			<div style={{
+				display: 'flex',
+				flexDirection: 'column',
+				flexGrow: 1,
+				padding: 2,
+			}}>
 				<FileManagerView
 					node={props.node}
 					title={title}

@@ -1,6 +1,14 @@
+/**
+ * app_model.jsx - the application model
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
 import WindowManager from '../windows/wm'
-import { isDir, setCookie } from '../util'
+import { setCookie } from '../util'
 import Node from '../models/node'
 import { isMedia } from '../util'
 

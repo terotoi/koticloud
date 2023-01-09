@@ -1,5 +1,12 @@
+/**
+ * editor.jsx - a text editor
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
-import { makeStyles } from '@mui/styles'
 import Box from '@mui/material/Box'
 import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
@@ -10,16 +17,16 @@ import { openErrorDialog } from '../dialogs/error'
 import { NodeNavigationToolbar } from './nav'
 import api from '../api'
 
-const styles = makeStyles((theme) => ({
+const sxs = {
 	editable: {
 		borderWidth: 1,
 		borderStyle: 'dashed',
-		borderColor: theme.palette.primary.main,
-		padding: theme.spacing(2),
+		borderColor: 'primary.main',
+		padding: 2,
 		minHeight: '5rem',
 		minWidth: '100%'
 	}
-}))
+};
 	
 /**
  * EditorToolBar
@@ -45,7 +52,6 @@ function EditorToolBar(props) {
 export default function TextEdit(props) {
 	const [content, setContent] = React.useState('')
 	const contentEditable = React.useRef(null)
-	const classes = styles()
 
 	function toHTML(text) {
 		return text.replaceAll("\n", "<br>")
@@ -101,7 +107,7 @@ export default function TextEdit(props) {
 
 			<Box display="flex" sx={{ m: 2 }}>
 				<ContentEditable innerRef={contentEditable} html={content} disabled={false}
-					onChange={contentChanged} tagName='div' className={classes.editable}/>
+					onChange={contentChanged} tagName='div' sx={sxs.editable}/>
 			</Box>
 		</Box>)
 }

@@ -1,24 +1,29 @@
+/**
+ * node.jsx - the node (file) view
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
-import { makeStyles } from '@mui/styles'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-
 import ImageView from './image'
 import MediaView from './media/media'
 import ReaderView from './reader'
 import TextEdit from './editor'
-
 import { isImage, isText, isMedia, nodeURL } from '../util'
 
-const styles = makeStyles((theme) => ({
+const sxs = {
 	download: {
 		height: '16rem',
 		padding: '1rem',
 		flexDirection: 'column',
 		gap: '1rem'
 	}
-}))
+};
 
 /**
  * NodeView renders a resource node (currently always a node.)
@@ -31,7 +36,6 @@ const styles = makeStyles((theme) => ({
  * @param {WindowManager} props.wm - the window manager
  */
 export default function NodeView(props) {
-	const classes = styles()
 	const wm = props.wm
 
 	function jumpBy(dir) {

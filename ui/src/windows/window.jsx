@@ -1,64 +1,53 @@
+/**
+ * window.jsx - The Window class
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
-import { makeStyles } from '@mui/styles'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import CloseIcon from '@mui/icons-material/Close'
 import ControlCameraIcon from '@mui/icons-material/ControlCamera'
 import MaximizeIcon from '@mui/icons-material/Maximize'
+import { Box } from '@mui/material'
 
-const styles = makeStyles((theme) => ({
-	window: {
-		position: 'absolute',
-		left: '10%',
-		top: '5%',
-		display: 'flex',
-		flexDirection: 'column',
-		justifyContent: 'flex-start',
-		minWidth: '16rem',
-		minHeight: '10rem',
-		background: theme.palette.background.default,
-		border: '1px solid ' + theme.palette.primary.main,
-		overflow: 'hidden'
-	},
-
+const sxs = {
 	titleBar: {
 		height: '2em',
-		backgroundColor: theme.palette.primary.main,
-		fontSize: theme.typography.fontSize * 1.2,
+		backgroundColor: 'brand.main',
+		fontSize: '120%',
 		display: 'flex',
 		flexDirection: 'row',
 		flexWrap: 'none',
 		justifyContent: 'flex-start',
-		alignContent: 'center'
+		alignItems: 'center',
+		paddingTop: 1,
 	},
-
 	statusBar: {
 		marginTop: 'auto',
 		minHeight: '1em',
 		maxHeight: '2em',
-		backgroundColor: theme.palette.primary.main,
-		fontSize: theme.typography.fontSize * 1.2,
+		backgroundColor: 'brand.main',
+		fontSize: '120%',
 		display: 'flex',
 		flexDirection: 'row',
 		flexWrap: 'none',
 		justifyContent: 'flex-start',
 		alignContent: 'center'
 	},
-
 	titleText: {
 		flexGrow: 1,
 		flexShrink: 0,
-		display: 'flex',
-		flexDirection: 'column',
-		justifyContent: 'center',
-		marginLeft: theme.spacing(1)
+		marginLeft: 1,
+		color: 'text.main'
 	},
-
 	borderIcon: {
 		flexGrow: 0,
-		flexShrink: 0
+		color: 'primary.dark'
 	},
-
 	content: {
 		display: 'flex',
 		position: 'static',
@@ -66,7 +55,7 @@ const styles = makeStyles((theme) => ({
 		flexDirection: 'column',
 		overflow: 'auto'
 	}
-}))
+};
 
 /**
  * Window is a draggable container.
@@ -83,8 +72,6 @@ const styles = makeStyles((theme) => ({
  * @param {function} props.onMaximized - called when window is maximized
  */
 export default function Window(props) {
-	const classes = styles()
-
 	function onMouseDown(ev, action) {
 		ev.stopPropagation()
 
@@ -95,43 +82,63 @@ export default function Window(props) {
 
 	const renderTitleBar = () => {
 		return (
-			<div className={classes.titleBar}
+			<Box
+				component="div"
+				sx={sxs.titleBar}
 				onMouseDown={(ev) => { onMouseDown(ev, 'move') }}
 				onTouchStart={(ev) => { onMouseDown(ev, 'move') }}>
 
-				<IconButton className={classes.borderIcon}
+				<IconButton sx={{
+					flexGrow: 0,
+					color: 'primary.dark',
+					marginBottom: '4px'
+				}}
 					onClick={(ev) => {
 						props.onClose(ev, props.wnd)
 					}}><CloseIcon />
 				</IconButton>
 
-				<span className={classes.titleText}>{props.wnd.title || "Unnamed"}</span>
+				<Box
+					component="span"
+					sx={sxs.titleText}>{props.wnd.title || ""}</Box>
 
-				<IconButton className={classes.borderIcon}
+				<IconButton sx={sxs.borderIcon}
 					onClick={(ev) => { props.onMaximize(ev, props.wnd) }}>
 					<MaximizeIcon />
 				</IconButton>
-			</div >)
+			</Box>)
 	}
 
 	const renderStatusBar = () => {
 		return (
-			<div className={classes.statusBar}
+			<Box
+				component="div"
+				sx={sxs.statusBar}
 				onMouseDown={(ev) => { onMouseDown(ev, 'move') }}
 				onTouchStart={(ev) => { onMouseDown(ev, 'move') }}>
 
-				<span className={classes.titleText}></span>
-				<Button className={classes.borderIcon}
+				<Box component="span" sx={sxs.titleText} />
+				<Button sx={sxs.borderIcon}
 					onMouseDown={(ev) => { onMouseDown(ev, 'resize') }}
 					onTouchStart={(ev) => { onMouseDown(ev, 'resize') }}>
 					<ControlCameraIcon />
 				</Button>
-			</div >)
+			</Box >)
 	}
-	
+
 	return (
-		<div className={classes.window}
-			style={{
+		<Box
+			component="div"
+			sx={{
+				position: 'absolute',
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'flex-start',
+				minWidth: '16rem',
+				minHeight: '10rem',
+				backgroundColor: 'background.default',
+				border: '1px solid ' + 'primary.main',
+				overflow: 'hidden',
 				zIndex: props.zIndex,
 				left: props.wnd.maximized ? "0px" : props.wnd.pos[0] + "px",
 				top: props.wnd.maximized ? "0px" : props.wnd.pos[1] + "px",
@@ -145,10 +152,10 @@ export default function Window(props) {
 
 			{renderTitleBar()}
 
-			<div className={classes.content}>
+			<div style={sxs.content}>
 				{React.cloneElement(props.children, { wnd: props.wnd })}
 			</div>
 
 			{renderStatusBar()}
-		</div>)
+		</Box>)
 }

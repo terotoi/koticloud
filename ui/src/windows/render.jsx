@@ -1,16 +1,17 @@
+/**
+ * render.jsx - window rendering
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
-import { makeStyles } from '@mui/styles'
+import Box from '@mui/material/Box';
 import Window from './window'
 
 // Base z-depth for windows.
 const zIndexBase = 10
-
-const styles = makeStyles((theme) => ({
-	wm: {
-		width: '100%',
-		minHeight: '100vh'
-	}
-}))
 
 // Returns window position of a touch of button event.
 function getEventPos(ev) {
@@ -32,7 +33,6 @@ export default function WindowRenderer(props) {
 	const [offset, setOffset] = React.useState([0, 0])
 	const [updated, setUpdated] = React.useState(false)
 	const [window, setWindow] = React.useState(null)
-	const classes = styles()
 
 	function onMouseDown(ev, wnd, action) {
 		setWindow(wnd)
@@ -107,8 +107,11 @@ export default function WindowRenderer(props) {
 	}
 
 	return (
-		<div
-			className={classes.wm}
+		<Box component="div"
+			sx={{
+				width: '100%',
+				minHeight: '100vh'
+			}}
 			onMouseUp={onMouseUp}
 			onTouchEnd={onMouseUp}
 			onMouseMove={dragActive ? onMouseMove : null}
@@ -131,6 +134,6 @@ export default function WindowRenderer(props) {
 			{props.wm.dialogs.map((dialog, i) =>
 				<React.Fragment key={i}>{dialog}</React.Fragment>)}
 			{props.children}
-		</div>
+		</Box>
 	)
 }

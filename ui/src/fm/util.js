@@ -1,3 +1,11 @@
+/**
+ * util.js - utility functions for the file manager
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 
 /**
  * Sort nodes by name, with directories first in the list.

@@ -32,7 +32,7 @@ ui/node_modules: ui/package.json
 clean:
 	rm -rf static/main.js static/*.woff2 static/main.js.LICENSE.txt \
 		static/*.map static/*.woff \
-		node_modules \
+		ui/node_modules \
 		server/koticloud cli/koticli \
 		config_docker.json etc/config_demo.json docker-compose.yml \
 		koticloud.tar koticloud_db.tar \

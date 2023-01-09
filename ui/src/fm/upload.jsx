@@ -1,36 +1,34 @@
+/**
+ * upload.jsx - file upload window
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
-import { makeStyles } from '@mui/styles'
 import Button from '@mui/material/Button'
-
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
-
 import LinearProgress from '@mui/material/LinearProgress'
-
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-
 import { openErrorDialog } from '../dialogs/error'
 import api from '../api'
+import { Box } from '@mui/material'
 
-// Refresh filelist after all uploads after this delay.
-const refreshDelay = 5000
-
-const styles = makeStyles((theme) => ({
+const sxs = {
 	window: {
 		width: '60rem',
 		height: '40rem',
 		padding: '1rem'
-	},
-	uploadButton: {
-		marginTop: theme.spacing(4)
 	}
-}))
+};
 
 /**
  * UploadWindow
@@ -44,7 +42,6 @@ export default function UploadWindow(props) {
 	const [files, setFiles] = React.useState([])
 	const [current, setCurrent] = React.useState(null)
 	const [progress, setProgress] = React.useState(0)
-	const classes = styles()
 
 	function onSelected(ev) {
 		setFiles(ev.target.files)
@@ -79,7 +76,9 @@ export default function UploadWindow(props) {
 	}
 
 	return (
-		<div className={classes.window}>
+		<Box
+			component="div"
+			sx={sxs.window}>
 			<DialogTitle>Upload files</DialogTitle>
 			<DialogContent>
 				<DialogContentText>
@@ -118,5 +117,5 @@ export default function UploadWindow(props) {
 			<DialogActions>
 				<Button onClick={beginUpload} disabled={(current !== null) || (files.length === 0)}>Upload</Button>
 			</DialogActions>
-		</div>)
+		</Box>)
 }

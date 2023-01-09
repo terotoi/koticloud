@@ -1,3 +1,11 @@
+/**
+ * input.jsx - text input dialog
+ * 
+ * @author Tero Oinas
+ * @copyright 2021-2023 Tero Oinas
+ * @license GPL-3.0 
+ * @email oinas.tero@gmail.com
+ */
 import React from 'react'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -21,6 +29,7 @@ export default function InputDialog(props) {
     const [value, setValue] = React.useState(props.value || "")
 
     const handleConfirm = () => {
+        console.log("handleConfirm")
         props.onClose()
         if (props.onConfirm && value.trim() !== "")
             props.onConfirm(value)
@@ -48,7 +57,7 @@ export default function InputDialog(props) {
                     value={value}
                     required
                     fullWidth
-                    onKeyDown={(ev) => { if (ev.key == 'Enter') handleConfirm() }}
+                    onKeyUp={(ev) => { if (ev.key == 'Enter') handleConfirm() }}
                     onChange={(ev) => { setValue(ev.target.value) }} />
             </DialogContent>
             <DialogActions>
