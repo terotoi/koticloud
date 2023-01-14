@@ -93,6 +93,7 @@ export default function ImageView(props) {
 				style={{
 					objectFit: 'contain',
 					maxWidth: '100%',
+					height: '100%'
 				}}
 				onDragStart={(ev) => { ev.preventDefault(); return false }}
 				src={nodeURL(props.node)} />

@@ -79,11 +79,9 @@ export default function MediaView(props) {
 	React.useEffect(() => {
 		const pr = (props.node.progress > 1.0) ? (props.node.progress / props.node.length) : (props.node.progress || 0)
 		const prl = (pr != 1.0) ? pr : 0.0;
-		//const v = (props.node.volume !== undefined && props.node.volume !== null) ?
-		//	Math.min(props.node.volume, 1.0) : props.ctx.settings.volume
-		const v = props.ctx.settings.volume || 1.0
+		const v = (props.node.volume !== undefined && props.node.volume !== null) ?
+			Math.min(props.node.volume, 1.0) : props.ctx.settings.volume
 
-		console.log("progress: " + pr + " volume: " + v)
 		setProgress(prl)
 		setVolume(v)
 		player.current.currentTime = prl
@@ -152,7 +150,6 @@ export default function MediaView(props) {
 	}
 
 	function onProgressChanged(pr) {
-		console.log("onProgressChanged", pr)
 		setProgress(pr)
 
 		if (pr == 0.0 || pr == 1.0)
