@@ -79,6 +79,7 @@ function ReaderControls(props) {
  * @param {function()} props.onPrevPrev - the previous file is selected
 */
 export default function ReaderView(props) {
+	const root = React.useRef(null)
 	const wrapper = React.useRef(null)
 	const doc = React.useRef(null)
 	const rendering = React.useRef(false)
@@ -96,8 +97,6 @@ export default function ReaderView(props) {
 		let prevNode = null, prevProgress = null
 
 		progressInterval.current = setInterval(() => {
-			console.log("progres timeout", props.node.id, props.node.progress)
-
 			if (props.node.id !== prevNode || props.node.progress != prevProgress) {
 				prevNode = props.node.id
 				prevProgress = props.node.progress
@@ -116,7 +115,7 @@ export default function ReaderView(props) {
 	}, [props.node])
 
 	React.useEffect(() => {
-		document.onkeydown = onKeyDown
+		//document.onkeydown = onKeyDown
 
 		const url = props.node.content_url
 
@@ -131,7 +130,7 @@ export default function ReaderView(props) {
 		})
 
 		return () => {
-			document.onkeydown = null
+			//document.onkeydown = null
 		}
 	}, [props.node])
 
@@ -140,6 +139,12 @@ export default function ReaderView(props) {
 			return
 		render(doc.current, pageNum)
 	}, [pageNum, zoom])
+
+	React.useEffect(() => {
+		if(root.current !== null) {
+			root.current.focus()
+		}
+	})
 
 	const render = (doc, pageNum) => {
 		doc.getPage(pageNum).then((page) => {
@@ -256,6 +261,7 @@ export default function ReaderView(props) {
 		<Box tabIndex="0" onKeyDown={onKeyDown} onMouseMove={onMouseMove}
 			display='flex' flexDirection="column" justifyContent="space-between"
 			alignItems="center"
+			ref={root}
 			sx={{
 				position: 'absolute',
 				width: '100%',
