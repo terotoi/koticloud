@@ -12,6 +12,7 @@ import IconButton from '@mui/material/IconButton'
 import Slider from '@mui/material/Slider'
 import Forward10Icon from '@mui/icons-material/Forward10'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
+import LoopIcon from '@mui/icons-material/Loop'
 import PauseIcon from '@mui/icons-material/Pause'
 import Replay10Icon from '@mui/icons-material/Replay10'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
@@ -46,6 +47,7 @@ const sxs = {
  * @param {number} props.progress - current progress of the media (0.0-1.0)
  * @param {boolean} props.playing - if true, the video is currently is playing
  * @param {boolean} props.visible - whether the controls are visible or not
+ * @param {boolean} props.looping - whether the media is looping or not
  * @param {function} props.onPaused
  * @param {function} props.onMouseEnter
  * @param {function} props.onMouseLeave
@@ -80,6 +82,7 @@ export default function MediaControls(props) {
 						{props.playing ? <PauseIcon /> : <PlayArrowIcon />}</IconButton>
 					<IconButton color="primary" onClick={() => { props.onSkip(-skipDuration) }}><Replay10Icon /></IconButton>
 					<IconButton color="primary" onClick={() => { props.onSkip(skipDuration) }}><Forward10Icon /></IconButton>
+					<IconButton color={props.looping ? "secondary" : "primary"} onClick={() => { props.onToggleLoop() }}><LoopIcon /></IconButton>
 
 					<Box component="span" sx={sxs.duration}>{formatDuration(props.progress * props.node.length)}</Box>
 					<Slider

@@ -69,6 +69,7 @@ export default function MediaView(props) {
 	const hoverTimeout = useRef(null)
 	const [volume, setVolume] = useState(props.ctx.settings.volume)
 	const [muted, setMuted] = useState(false)
+	const [looping, setLooping] = useState(false)
 	const [progress, setProgress] = useState(0)
 	const [prevUpdate, setPrevUpdate] = useState(new Date())
 	const [fullscreen, setFullScreen] = useState(false)
@@ -122,7 +123,7 @@ export default function MediaView(props) {
 		api.updateProgress(props.node.id, progress, volume,
 			props.ctx.authToken,
 			() => {
-				console.log("Update progress:", progress, volume)
+				//console.log("Update progress:", progress, volume)
 			},
 			(error) => { openErrorDialog(props.wm, error) })
 	}
@@ -178,14 +179,12 @@ export default function MediaView(props) {
 		setPlaying(true)
 
 		if (player.current) {
-			console.log("Progress is", progress)
 			player.current.currentTime = progress * player.current.duration
 			player.current.volume = volume
 		}
 	}
 
 	function onPause() {
-		console.log("onPause")
 		setPlaying(false)
 
 		if (player.current) {
@@ -196,7 +195,6 @@ export default function MediaView(props) {
 	}
 
 	function onSeeked(ev) {
-		console.log("onSeeked")
 		if (player.current) {
 			const pr = player.current.currentTime / player.current.duration
 
@@ -206,26 +204,31 @@ export default function MediaView(props) {
 	}
 
 	function onEnded(ev) {
-		console.log("onEnded")
-		if (player.current) {
-			const pr = player.current.currentTime / player.current.duration
-			setProgress(pr)
-			callUpdateProgress(pr, volume)
+		if (looping) {
+			setProgress(0)
+			player.current.currentTime = 0
+			player.current.play()
+		} else {
+			if (player.current) {
+				const pr = player.current.currentTime / player.current.duration
+				setProgress(pr)
+				callUpdateProgress(pr, volume)
 
-			if (player.current.currentTime == player.current.duration && props.onEnded) {
-				if (endTimeout.current !== null)
-					clearTimeout(endTimeout.current)
+				if (player.current.currentTime == player.current.duration && props.onEnded) {
+					if (endTimeout.current !== null)
+						clearTimeout(endTimeout.current)
 
-				if (started) {
-					setStarted(false)
+					if (started) {
+						setStarted(false)
 
-					endTimeout.current = setTimeout(() => {
-						if (endTimeout.current !== null)
-							clearTimeout(endTimeout.current)
-						endTimeout.current = null
+						endTimeout.current = setTimeout(() => {
+							if (endTimeout.current !== null)
+								clearTimeout(endTimeout.current)
+							endTimeout.current = null
 
-						props.onEnded()
-					}, nextItemTimeout)
+							props.onEnded()
+						}, nextItemTimeout)
+					}
 				}
 			}
 		}
@@ -341,7 +344,6 @@ export default function MediaView(props) {
 				break
 
 			case 's':
-				console.log("Setting hidable to ", !hidable)
 				setHidable(!hidable)
 				break;
 		}
@@ -363,8 +365,7 @@ export default function MediaView(props) {
 				onSeeked={onSeeked}
 				onPlay={onPlay}
 				onPause={onPause}
-				onEnded={onEnded}
-				onPlaying={() => { console.log("onPlaying") }} />)
+				onEnded={onEnded} />)
 	}
 
 	function renderAudio() {
@@ -383,8 +384,7 @@ export default function MediaView(props) {
 				onSeeked={onSeeked}
 				onPlay={onPlay}
 				onPause={onPause}
-				onEnded={onEnded}
-				onPlaying={() => { console.log("onPlaying") }} />)
+				onEnded={onEnded} />)
 	}
 
 	return (
@@ -401,6 +401,7 @@ export default function MediaView(props) {
 					duration={player.current ? (player.current.duration || 0) : 0}
 					visible={isAudio(props.node.mime_type) || hover}
 					playing={playing}
+					looping={looping}
 					onPaused={togglePause}
 					fullscreen={toggleFullscreen}
 					onNextNode={props.onNextNode}
@@ -410,6 +411,7 @@ export default function MediaView(props) {
 					onMuted={onToggleMute}
 					volume={volume}
 					onVolumeChanged={onVolumeChanged}
+					onToggleLoop={() => { setLooping(!looping) }}
 					ctx={props.ctx} />}
 		</div>
 	)
