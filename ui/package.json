@@ -15,7 +15,7 @@
 		"@mui/material": "^5.11.3",
 		"axios": "^1.6.0",
 		"esbuild": "^0.16.14",
-		"pdfjs-dist": "^2.16.105",
+		"pdfjs-dist": "^4.2.67",
 		"react": "^18.2.0",
 		"react-contenteditable": "^3.3.6",
 		"react-dom": "^18.2.0"
