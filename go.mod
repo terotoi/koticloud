@@ -12,7 +12,7 @@ require (
 	github.com/volatiletech/sqlboiler v3.7.1+incompatible
 	github.com/volatiletech/sqlboiler/v4 v4.14.0
 	github.com/volatiletech/strmangle v0.0.4
-	golang.org/x/crypto v0.21.0
+	golang.org/x/crypto v0.31.0
 )
 
 require (
