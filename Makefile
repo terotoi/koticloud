@@ -20,7 +20,7 @@ watchdev:
 		-or -path './server/*.go' -or -path './static/css/*.css' \) | \
 		entr -r make rundev
 
-static/main.js: ui/node_modules ui/src/*.js ui/src/*.jsx ui/src/*/*.js ui/src/*/*.jsx ui/src/*/*/*.jsx static/pdf.worker.min.js
+static/main.js: ui/node_modules ui/src/*.js ui/src/*.jsx ui/src/*/*.js ui/src/*/*.jsx ui/src/*/*/*.jsx
 	cd ui && npm run build
 
 static/pdf.worker.min.js: ui/node_modules/pdfjs-dist/build/pdf.worker.min.js
