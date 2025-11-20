@@ -1,6 +1,6 @@
 module github.com/terotoi/koticloud
 
-go 1.19
+go 1.24.0
 
 require (
 	github.com/friendsofgo/errors v0.9.2
@@ -12,7 +12,7 @@ require (
 	github.com/volatiletech/sqlboiler v3.7.1+incompatible
 	github.com/volatiletech/sqlboiler/v4 v4.14.0
 	github.com/volatiletech/strmangle v0.0.4
-	golang.org/x/crypto v0.36.0
+	golang.org/x/crypto v0.45.0
 )
 
 require (
@@ -31,6 +31,6 @@ require (
 	github.com/volatiletech/inflect v0.0.1 // indirect
 	github.com/volatiletech/null v8.0.0+incompatible // indirect
 	github.com/volatiletech/randomize v0.0.1 // indirect
-	golang.org/x/net v0.38.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 )
